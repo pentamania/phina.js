@@ -3,7 +3,7 @@ phina.namespace(function() {
 
   /**
    * @class phina.asset.AssetLoader
-   * 
+   *
    */
   phina.define('phina.asset.AssetLoader', {
     superClass: "phina.util.EventDispatcher",
@@ -31,7 +31,7 @@ phina.namespace(function() {
       params.forIn(function(type, assets) {
         length += Object.keys(assets).length;
       });
-      
+
       params.forIn(function(type, assets) {
         assets.forIn(function(key, value) {
           var func = phina.asset.AssetLoader.assetLoadFunctions[type];
@@ -123,6 +123,10 @@ phina.namespace(function() {
         },
         text: function(key, path) {
           var text = phina.asset.File();
+          return text.load(path);
+        },
+        video: function(key, path) {
+          var text = phina.asset.Video();
           return text.load(path);
         }
       },
