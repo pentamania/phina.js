@@ -3306,20 +3306,20 @@ phina.namespace(function() {
       /**
        * @method lerp
        * @static
-       * a と b を t で線形補間します。
-       * t=0.5 で a と b の中間ベクトルを求めることができます。
+       * v1 と v2 を媒介変数 t で線形補間します。
+       * t=0.5 で v1 と v2 の中間ベクトルを求めることができます。
        *
        * ### Example
-       *     a = phina.geom.Vector2(1, 2);
-       *     b = phina.geom.Vector2(4, 6);
-       *     Vector2.lerp(a, b, 0.5); // => (2.5, 4)
-       *     Vector2.lerp(a, b, 0) // => (1, 2)
-       *     Vector2.lerp(a, b, 1) // => (4, 6)
+       *     v1 = phina.geom.Vector2(1, 2);
+       *     v2 = phina.geom.Vector2(4, 6);
+       *     phina.geom.Vector2.lerp(v1, v2, 0.5); // => (2.5, 4)
+       *     phina.geom.Vector2.lerp(v1, v2, 0); // => (1, 2)
+       *     phina.geom.Vector2.lerp(v1, v2, 1); // => (4, 6)
        * 
-       * @param {phina.geom.Vector2} a ベクトル
-       * @param {phina.geom.Vector2} b ベクトル
-       * @param {Number} t ？？？
-       * @return {Number} 補間ベクトル？
+       * @param {phina.geom.Vector2} v1 ベクトル
+       * @param {phina.geom.Vector2} v2 ベクトル
+       * @param {Number} t 媒介変数
+       * @return {phina.geom.Vector2} 線形補間の結果
        */
       lerp: function(a, b, t) {
         return phina.geom.Vector2(
@@ -3647,11 +3647,11 @@ phina.namespace(function() {
     /**
      * @method multiplyVector2
      * this に2次元ベクトル v を乗じます。
-     * ２次元ベクトルは (x, y, 1) として乗算します.
+     * 2次元ベクトルは (x, y, 1) として乗算します。
      *
      * ### Example
      *     mat = phina.geom.Matrix33(0, -1, 1, -1, 4, -2, 1, 1, 1);
-     *     v = Vector2(2, 4)
+     *     v = phina.geom.Vector2(2, 4)
      *     mat.multiplyVector2(v) // => {x: -3, y: 12}
      *
      * @param {phina.geom.Vector2} v 乗じるベクトル
@@ -4654,8 +4654,7 @@ phina.namespace(function() {
      * @return {Boolean} 指定したイベントのイベントリスナが登録されているかどうか
      */
     has: function(type) {
-      if (this._listeners[type] === undefined && !this["on" + type]) return false;
-      return true;
+      return (this._listeners[type] !== undefined && this._listeners[type].length !== 0) || !!this['on' + type];
     },
 
     /**
@@ -6099,7 +6098,7 @@ phina.namespace(function() {
 
   /**
    * @class phina.asset.AssetLoader
-   * 
+   *
    */
   phina.define('phina.asset.AssetLoader', {
     superClass: "phina.util.EventDispatcher",
@@ -6127,7 +6126,7 @@ phina.namespace(function() {
       params.forIn(function(type, assets) {
         length += Object.keys(assets).length;
       });
-      
+
       params.forIn(function(type, assets) {
         assets.forIn(function(key, value) {
           var func = phina.asset.AssetLoader.assetLoadFunctions[type];
@@ -6219,6 +6218,10 @@ phina.namespace(function() {
         },
         text: function(key, path) {
           var text = phina.asset.File();
+          return text.load(path);
+        },
+        video: function(key, path) {
+          var text = phina.asset.Video();
           return text.load(path);
         }
       },
@@ -7130,6 +7133,47 @@ phina.namespace(function() {
   });
 });
 
+phina.namespace(function() {
+
+  /**
+   * @class phina.asset.Video
+   *
+   */
+  phina.define('phina.asset.Video', {
+    superClass: "phina.asset.Asset",
+
+    /**
+     * @constructor
+     */
+    init: function() {
+      this.superInit();
+    },
+
+    _load: function(resolve) {
+
+      var self = this;
+      var v = this.domElement = document.createElement('video');
+      v.setAttribute('preload', "none");
+
+      v.addEventListener('canplay', (function() {
+        return function f() {
+          self.loaded = true;
+          resolve(self);
+          v.removeEventListener('canplay', f, false);
+        }
+      })(), false);
+
+      v.addEventListener('error', function(err){
+        console.error(err);
+      }, false)
+
+      v.src = this.src;
+      v.load();
+    },
+
+  });
+
+});
 
 ;(function() {
   /**
@@ -12296,6 +12340,98 @@ phina.namespace(function() {
 });
 
 
+phina.namespace(function() {
+
+  /**
+   * @class phina.display.VideoSprite
+   * Wrapper class for html5video
+   *
+   * @param  {String, HTMLelement} video
+   * @param  {Object} options
+   */
+  phina.define('phina.display.VideoSprite', {
+    superClass: 'phina.display.Sprite',
+
+    init: function(video, options) {
+      this.setVideo(video);
+
+      var _image = phina.graphics.Canvas();
+      _image.setSize(this.video.videoWidth, this.video.videoHeight);
+      this.superInit(_image);
+
+      var options = {}.$safe(options, phina.display.VideoSprite.defaults);
+      this.video.loop = options.loop;
+      this.video.volume = options.volume;
+
+      // image(内部canvas)とvideoの内容を常に同期する
+      this.on('enterframe', function() {
+        this.image.drawImage(this.video, 0, 0, this.video.videoWidth, this.video.videoHeight);
+      });
+
+      this.video.onended = function(){
+        this.flare('ended');
+      }.bind(this);
+    },
+
+    setVideo: function(video) {
+      if (typeof video === 'string') {
+        var _video = phina.asset.AssetManager.get('video', video);
+        this._video = _video.domElement;
+      } else {
+        this._video = video;
+      }
+    },
+
+    play: function() {
+      this.video.play();
+      this.flare('play');
+      return this;
+    },
+
+    pause: function() {
+      this.video.pause();
+      this.flare('pause');
+      return this;
+    },
+
+    _accessor: {
+      video: {
+        get: function()  { return this._video; },
+        set: function(v) {
+          this.setVideo(v);
+        },
+      },
+      currentTime: {
+        get: function()  { return this.video.currentTime; },
+        set: function(v) {
+          this.video.currentTime = v;
+        },
+      },
+      paused: {
+        get: function()  { return this.video.paused; },
+      },
+      duration: {
+        get: function()  { return this.video.duration; },
+      },
+      volume: {
+        get: function()  { return this.video.volume; },
+        set: function(v)  { this.video.volume = v; },
+      },
+      muted: {
+        get: function()  { return this.video.muted; },
+        set: function(v)  { this.video.muted = v; },
+      },
+    },
+
+    _static: {
+      defaults: {
+        loop: false,
+        volume: 1.0,
+      },
+    },
+  });
+
+});
 
 phina.namespace(function() {
 
