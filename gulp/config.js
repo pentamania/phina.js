@@ -23,7 +23,7 @@ var files = [
   "core/math.js",
 
   "phina.js",
-  
+
   "geom/vector2.js",
   "geom/vector3.js",
   "geom/matrix33.js",
@@ -53,6 +53,7 @@ var files = [
   "asset/soundmanager.js",
   "asset/spritesheet.js",
   "asset/font.js",
+  "asset/filter.js",
 
   "input/input.js",
   "input/mouse.js",

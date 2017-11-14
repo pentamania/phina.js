@@ -31,7 +31,7 @@ phina.namespace(function() {
       params.forIn(function(type, assets) {
         length += Object.keys(assets).length;
       });
-      
+
       params.forIn(function(type, assets) {
         assets.forIn(function(key, value) {
           var func = phina.asset.AssetLoader.assetLoadFunctions[type];
@@ -124,6 +124,10 @@ phina.namespace(function() {
         text: function(key, path) {
           var text = phina.asset.File();
           return text.load(path);
+        },
+        filter: function(key, func) {
+          var filter = phina.asset.Filter()
+          return filter.load(func);
         }
       },
       register: function(key, func) {
