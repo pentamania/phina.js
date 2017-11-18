@@ -170,7 +170,7 @@ phina.namespace(function() {
       this.endAngle = end;
 
       this.canvas.rotate(-Math.PI*0.5);
-      this.canvas.scale(1, -1);
+      if (this.anticlockwise) this.canvas.scale(1, -1);
     },
 
     renderFill: function(canvas) {
