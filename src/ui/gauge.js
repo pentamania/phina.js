@@ -195,3 +195,60 @@ phina.namespace(function() {
 
 });
 
+
+phina.namespace(function() {
+
+  /**
+   * @classs phina.ui.RingGauge
+   * @extends phina.ui.CircleGauge
+   *
+   */
+  phina.define('phina.ui.RingGauge', {
+    superClass: 'phina.ui.CircleGauge',
+
+    init: function(options) {
+      options = ({}).$safe(options, {
+        gaugeBackgroundColor: '#aaa',
+        gaugeColor: '#26EE71',
+        gaugeWidth: 12,
+        anticlockwise: false,
+      });
+
+      this.superInit(options);
+
+      this.stroke = true; // 必ずrenderStrokeさせる
+      this.fill = false; // 塗りはさせない
+      this.gaugeWidth = options.gaugeWidth;
+      this.gaugeBackgroundColor = options.gaugeBackgroundColor;
+      this.gaugeBackgroundWidth = (options.gaugeBackgroundWidth != null)
+        ? options.gaugeBackgroundWidth
+        : this.gaugeWidth* 1.5;
+    },
+
+    renderFill: function(canvas) {},
+
+    renderStroke: function(canvas) {
+      var ctx = canvas.context;
+      var radius = this.radius - this.gaugeBackgroundWidth/2;
+
+      // 背景部
+      if (this.gaugeBackgroundWidth && this.gaugeBackgroundColor) {
+        ctx.lineWidth = this.gaugeBackgroundWidth;
+        ctx.strokeStyle = this.gaugeBackgroundColor;
+        canvas.strokeCircle(0, 0, radius);
+      }
+
+      // メインゲージ部
+      ctx.lineWidth = this.gaugeWidth;
+      ctx.strokeStyle = this.gaugeColor;
+      canvas.strokeArc(0, 0, radius, this.startAngle, this.endAngle);
+    },
+
+    _defined: function() {
+      phina.display.Shape.watchRenderProperty.call(this, 'gaugeBackgroundColor');
+      phina.display.Shape.watchRenderProperty.call(this, 'gaugeWidth');
+      phina.display.Shape.watchRenderProperty.call(this, 'gaugeBackgroundWidth');
+    },
+  });
+
+});
