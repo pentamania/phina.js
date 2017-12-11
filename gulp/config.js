@@ -1,6 +1,6 @@
 
 var banner = [
-  "/* ",
+  "/*! ",
   " * <%= pkg.name %> <%= pkg.version %>",
   " * <%= pkg.description %>",
   " * Released under the MIT license",
@@ -23,7 +23,7 @@ var files = [
   "core/math.js",
 
   "phina.js",
-  
+
   "geom/vector2.js",
   "geom/vector3.js",
   "geom/matrix33.js",
@@ -78,42 +78,42 @@ var files = [
   "dom/event.js",
 
   "graphics/canvas.js",
-  "graphics/canvasrecorder.js",
+  // "graphics/canvasrecorder.js",
 
   "display/displayelement.js",
-  "display/plainelement.js",
-  "display/shape.js",
-  "display/sprite.js",
-  "display/label.js",
-  "display/displayscene.js",
-  "display/canvaslayer.js",
+  // "display/plainelement.js",
+  // "display/shape.js",
+  // "display/sprite.js",
+  // "display/label.js",
+  // "display/displayscene.js",
+  // "display/canvaslayer.js",
   "display/canvasrenderer.js",
   "display/domapp.js",
-  "display/canvasapp.js",
+  // "display/canvasapp.js",
 
 
-  "effect/wave.js",
+  // "effect/wave.js",
 
-  "ui/button.js",
-  "ui/gauge.js",
-  "ui/labelarea.js",
+  // "ui/button.js",
+  // "ui/gauge.js",
+  // "ui/labelarea.js",
 
-  "game/managerscene.js",
-  "game/splashscene.js",
-  "game/titlescene.js",
-  "game/resultscene.js",
-  "game/loadingscene.js",
-  "game/countscene.js",
-  "game/pausescene.js",
-  "game/gameapp.js",
+  // "game/managerscene.js",
+  // "game/splashscene.js",
+  // "game/titlescene.js",
+  // "game/resultscene.js",
+  // "game/loadingscene.js",
+  // "game/countscene.js",
+  // "game/pausescene.js",
+  // "game/gameapp.js",
 
-  "social/twitter.js",
+  // "social/twitter.js",
 
 
-  "box2d/box2dlayer.js",
-  "box2d/box2dbody.js",
+  // "box2d/box2dlayer.js",
+  // "box2d/box2dbody.js",
 
-  "dirty.js"
+  // "dirty.js"
 ];
 files = files.map(function(f) {
   return './src/' + f;
