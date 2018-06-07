@@ -106,13 +106,13 @@ phina.namespace(function() {
         stroke: null,
         strokeWidth: 2,
 
-        // 
+        //
         text: 'Hello, world!',
-        // 
+        //
         fontSize: 32,
         fontWeight: '',
         fontFamily: "'HiraKakuProN-W3'", // Hiragino or Helvetica,
-        // 
+        //
         align: 'center',
         baseline: 'middle',
         lineHeight: 1.2,
@@ -133,3 +133,47 @@ phina.namespace(function() {
 
 });
 
+phina.namespace(function() {
+
+  /**
+   * @class phina.display.IconLabel
+   * @extends phina.display.Label
+   */
+  phina.define('phina.display.IconLabel', {
+    superClass: 'phina.display.Label',
+
+    init: function(options) {
+      if (typeof arguments[0] !== 'object') {
+        options = { text: arguments[0] };
+      }
+      else {
+        options = arguments[0];
+      }
+
+      options = ({}).$safe(options, phina.display.IconLabel.defaults);
+
+      this.superInit(options);
+
+      this.setSize(this.fontSize, this.fontSize);
+    },
+
+    _accessor: {
+      text: {
+        get: function()  { return this._text; },
+        set: function(v) {
+          var iconInt = (typeof v === 'string') ? parseInt(v, 16) : v;
+          this._text = String.fromCharCode(iconInt);
+          this._lines = (this.text + '').split('\n');
+        },
+      }
+    },
+
+    _static: {
+      defaults: {
+        text: 'f024',
+        fontSize: 100,
+        fontFamily: "FontAwesome",
+      },
+    },
+  });
+});
