@@ -9,7 +9,6 @@ phina.namespace(function() {
 
     init: function(options) {
       options = ({}).$safe(options || {}, phina.ui.Gauge.defaults);
-      
       this.superInit(options);
 
       this._value = (options.value !== undefined) ? options.value : options.maxValue;
@@ -114,7 +113,7 @@ phina.namespace(function() {
       phina.display.Shape.watchRenderProperty.call(this, 'gaugeColor');
       phina.display.Shape.watchRenderProperty.call(this, 'cornerRadius');
     },
-    
+
     _static: {
       defaults: {
         width: 256,
