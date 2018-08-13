@@ -31,7 +31,7 @@ phina.namespace(function() {
       params.forIn(function(type, assets) {
         length += Object.keys(assets).length;
       });
-      
+
       params.forIn(function(type, assets) {
         assets.forIn(function(key, value) {
           var func = phina.asset.AssetLoader.assetLoadFunctions[type];
@@ -51,31 +51,31 @@ phina.namespace(function() {
       });
 
 
-      if (self.cache) {
+      // if (self.cache) {
 
-        self.on('progress', function(e) {
-          if (e.progress >= 1.0) {
-            // load失敗時、対策
-            params.forIn(function(type, assets) {
-              assets.forIn(function(key, value) {
-                var asset = phina.asset.AssetManager.get(type, key);
-                if (asset.loadError) {
-                  var dummy = phina.asset.AssetManager.get(type, 'dummy');
-                  if (dummy) {
-                    if (dummy.loadError) {
-                      dummy.loadDummy();
-                      dummy.loadError = false;
-                    }
-                    phina.asset.AssetManager.set(type, key, dummy);
-                  } else {
-                    asset.loadDummy();
-                  }
-                }
-              });
-            });
-          }
-        });
-      }
+      //   self.on('progress', function(e) {
+      //     if (e.progress >= 1.0) {
+      //       // load失敗時、対策
+      //       params.forIn(function(type, assets) {
+      //         assets.forIn(function(key, value) {
+      //           var asset = phina.asset.AssetManager.get(type, key);
+      //           if (asset.loadError) {
+      //             var dummy = phina.asset.AssetManager.get(type, 'dummy');
+      //             if (dummy) {
+      //               if (dummy.loadError) {
+      //                 dummy.loadDummy();
+      //                 dummy.loadError = false;
+      //               }
+      //               phina.asset.AssetManager.set(type, key, dummy);
+      //             } else {
+      //               asset.loadDummy();
+      //             }
+      //           }
+      //         });
+      //       });
+      //     }
+      //   });
+      // }
       return phina.util.Flow.all(flows).then(function(args) {
         self.flare('load');
       });
