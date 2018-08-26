@@ -16,6 +16,7 @@ phina.namespace(function() {
     },
 
     load: function(path) {
+      path = path.replace(/\\/g, "/");
       this.src = path;
 
       var reg = /(.*)(?:\.([^.]+$))/;
@@ -38,7 +39,7 @@ phina.namespace(function() {
       this.fontName = key;
 
       if (format !== "unknown") {
-        var text = "@font-face { font-family: '{0}'; src: url({1}) format('{2}'); }".format(key, path, format);
+        var text = "@font-face { font-family: '{0}'; src: url('{1}') format('{2}'); }".format(key, path, format);
         var e = document.querySelector("head");
         var fontFaceStyleElement = document.createElement("style");
         if (fontFaceStyleElement.innerText) {
@@ -102,7 +103,7 @@ phina.namespace(function() {
         return this;
       }
       this.fontName = name;
-      
+
       return this;
     },
 
