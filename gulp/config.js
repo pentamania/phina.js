@@ -23,7 +23,7 @@ var files = [
   "core/math.js",
 
   "phina.js",
-  
+
   "geom/vector2.js",
   "geom/vector3.js",
   "geom/matrix33.js",
@@ -42,6 +42,7 @@ var files = [
   "util/random.js",
   "util/querystring.js",
   "util/ajax.js",
+  "util/objectpool.js",
 
   "asset/asset.js",
   "asset/assetmanager.js",
