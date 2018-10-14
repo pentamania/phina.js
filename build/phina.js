@@ -6223,6 +6223,117 @@ phina.namespace(function() {
 });
 
 
+phina.namespace(function() {
+
+  /**
+   * phina.util.ObjectPool
+   * オブジェクトプールクラス
+   * 後述の管理クラスを経由して使うのがおすすめ
+   */
+  phina.define('phina.util.ObjectPool', {
+    superClass: 'phina.util.EventDispatcher',
+
+    init: function() {
+      this.superInit();
+      this._pool = [];
+    },
+
+    /**
+     * @method  add
+     * @chainable
+     * プールへオブジェクトを追加する
+     * @param {T} obj getParentを持っていること
+     * @return {this}
+     */
+    add: function(obj) {
+      this._pool.push(obj);
+      return this;
+    },
+
+    /**
+     * @method  pick
+     * プール内から親を持ってない（addChildされてない）objを探す。
+     * 見つかったらコールバックで引数として返す。
+     *
+     * @param {function} [success] 取得成功時のコールバック
+     * @param {function} [failure] 取得失敗時のコールバック
+     * @return {T | null}
+     */
+    pick: function(success, failure) {
+      var foundObj = this._pool.find(function(obj) {
+        if (obj.getParent() == null) {
+          obj.has('picked') && obj.flare('picked');
+          success(obj);
+          return true;
+        }
+      });
+      /* not found */
+      if (!foundObj && failure) failure();
+      return foundObj;
+    },
+
+    _accessor: {
+      length: {
+        get: function() { return this._pool.length; }
+      },
+    },
+
+  });
+
+
+  /**
+   * phina.util.ObjectPoolManager
+   * オブジェクトプール管理用シングルトンクラス
+   */
+  phina.define('phina.util.ObjectPoolManager', {
+    _static: {
+
+      pools: {},
+
+      /**
+       * @method setPool
+       * @static
+       * @param {string} key       プールを取得する際のキー名
+       * @param {Number} objectNum プールするオブジェクトの数
+       * @param {function|string} ObjClass  プールするオブジェクトクラス
+       * @param {Array} args      クラス引数
+       */
+      setPool: function(key, objectNum, ObjClass, args) {
+        var pool = phina.util.ObjectPool();
+        var obj;
+        if (typeof ObjClass === 'function') {
+          obj = ObjClass.apply(null, args);
+        } else if (typeof ObjClass === 'string') {
+          obj = phina.using(ObjClass).apply(null, args);
+        } else {
+          throw new Error('ObjClass should be function or phina registered func string');
+        }
+
+        objectNum.times(function() {
+          pool.add(obj);
+        });
+
+        this.pools[key] = pool;
+        return this;
+      },
+
+      getPool: function(key) {
+        return this.pools[key];
+      },
+
+      add: function(key, obj) {
+        return this.pools[key].add(obj);
+      },
+
+      pick: function(key, success, failure) {
+        return this.pools[key].pick(success, failure);
+      },
+
+    }
+
+  });
+
+});
 
 phina.namespace(function() {
 
@@ -12837,22 +12948,32 @@ phina.namespace(function() {
       this.superInit();
 
       this.srcRect = phina.geom.Rect();
+      this.tint = "";
       this.setImage(image, width, height);
     },
 
     draw: function(canvas) {
       var image = this.image.domElement;
-
-      // canvas.context.drawImage(image,
-      //   0, 0, image.width, image.height,
-      //   -this.width*this.origin.x, -this.height*this.origin.y, this.width, this.height
-      //   );
-
       var srcRect = this.srcRect;
+      var left = -this._width*this.originX;
+      var top = -this._height*this.originY;
+
       canvas.context.drawImage(image,
         srcRect.x, srcRect.y, srcRect.width, srcRect.height,
-        -this._width*this.originX, -this._height*this.originY, this._width, this._height
+        left, top, this._width, this._height
+      );
+
+      if (this.tint) {
+        canvas.globalCompositeOperation = 'multiply';
+        canvas.fillStyle = this.tint;
+        canvas.fillRect(left, top, this._width, this._height);
+
+        canvas.globalCompositeOperation = 'destination-in';
+        canvas.context.drawImage(image,
+          srcRect.x, srcRect.y, srcRect.width, srcRect.height,
+          left, top, this._width, this._height
         );
+      }
     },
 
     setImage: function(image, width, height) {
@@ -12878,7 +12999,7 @@ phina.namespace(function() {
       var col = ~~(this.image.domElement.height / th);
       var maxIndex = row*col;
       index = index%maxIndex;
-      
+
       var x = index%row;
       var y = ~~(index/row);
       this.srcRect.x = x*tw;
