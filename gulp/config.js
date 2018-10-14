@@ -42,6 +42,7 @@ var files = [
   "util/random.js",
   "util/querystring.js",
   "util/ajax.js",
+  "util/objectpool.js",
 
   "asset/asset.js",
   "asset/assetmanager.js",
