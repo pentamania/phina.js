@@ -12,22 +12,32 @@ phina.namespace(function() {
       this.superInit();
 
       this.srcRect = phina.geom.Rect();
+      this.tint = "";
       this.setImage(image, width, height);
     },
 
     draw: function(canvas) {
       var image = this.image.domElement;
-
-      // canvas.context.drawImage(image,
-      //   0, 0, image.width, image.height,
-      //   -this.width*this.origin.x, -this.height*this.origin.y, this.width, this.height
-      //   );
-
       var srcRect = this.srcRect;
+      var left = -this._width*this.originX;
+      var top = -this._height*this.originY;
+
       canvas.context.drawImage(image,
         srcRect.x, srcRect.y, srcRect.width, srcRect.height,
-        -this._width*this.originX, -this._height*this.originY, this._width, this._height
+        left, top, this._width, this._height
+      );
+
+      if (this.tint) {
+        canvas.globalCompositeOperation = 'multiply';
+        canvas.fillStyle = this.tint;
+        canvas.fillRect(left, top, this._width, this._height);
+
+        canvas.globalCompositeOperation = 'destination-in';
+        canvas.context.drawImage(image,
+          srcRect.x, srcRect.y, srcRect.width, srcRect.height,
+          left, top, this._width, this._height
         );
+      }
     },
 
     setImage: function(image, width, height) {
@@ -53,7 +63,7 @@ phina.namespace(function() {
       var col = ~~(this.image.domElement.height / th);
       var maxIndex = row*col;
       index = index%maxIndex;
-      
+
       var x = index%row;
       var y = ~~(index/row);
       this.srcRect.x = x*tw;
