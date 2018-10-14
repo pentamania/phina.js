@@ -42,6 +42,7 @@ phina.namespace(function() {
           return true;
         }
       });
+
       /* not found */
       if (!foundObj && failure) failure();
       return foundObj;
@@ -75,17 +76,16 @@ phina.namespace(function() {
        */
       setPool: function(key, objectNum, ObjClass, args) {
         var pool = phina.util.ObjectPool();
-        var obj;
-        if (typeof ObjClass === 'function') {
-          obj = ObjClass.apply(null, args);
-        } else if (typeof ObjClass === 'string') {
-          obj = phina.using(ObjClass).apply(null, args);
-        } else {
-          throw new Error('ObjClass should be function or phina registered func string');
+        if (typeof ObjClass === 'string') {
+          ObjClass = phina.using(ObjClass);
+        }
+        if (!(typeof ObjClass === 'function')) {
+          console.error("[phina.js] Pooling ObjClass should be function or phina registered class string");
         }
 
         objectNum.times(function() {
-          pool.add(obj);
+          var instance = ObjClass.apply(null, args);
+          pool.add(instance);
         });
 
         this.pools[key] = pool;
