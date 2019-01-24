@@ -19,11 +19,11 @@ var files = [
   "core/number.js",
   "core/string.js",
   "core/array.js",
-  "core/date.js",
+  // "core/date.js",
   "core/math.js",
 
   "phina.js",
-  
+
   "geom/vector2.js",
   "geom/vector3.js",
   "geom/matrix33.js",
@@ -38,7 +38,7 @@ var files = [
   "util/grid.js",
   "util/changedispatcher.js",
   "util/flow.js",
-  "util/color.js",
+  // "util/color.js",
   "util/random.js",
   "util/querystring.js",
   "util/ajax.js",
@@ -78,7 +78,7 @@ var files = [
   "dom/event.js",
 
   "graphics/canvas.js",
-  "graphics/canvasrecorder.js",
+  // "graphics/canvasrecorder.js",
 
   "display/displayelement.js",
   "display/plainelement.js",
@@ -92,7 +92,7 @@ var files = [
   "display/canvasapp.js",
 
 
-  "effect/wave.js",
+  // "effect/wave.js",
 
   "ui/button.js",
   "ui/gauge.js",
@@ -110,8 +110,8 @@ var files = [
   "social/twitter.js",
 
 
-  "box2d/box2dlayer.js",
-  "box2d/box2dbody.js",
+  // "box2d/box2dlayer.js",
+  // "box2d/box2dbody.js",
 
   "dirty.js"
 ];

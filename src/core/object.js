@@ -9,7 +9,7 @@
    * Objectの拡張
    */
 
-  
+
   /**
    * @method property
    * 変数を追加
@@ -124,13 +124,14 @@
     }, this);
   });
 
-  /**
-   * @method  $has
-   * そのプロパティを持っているかを判定する
-   */
-  Object.prototype.$method("$has", function(key) {
-    return this.hasOwnProperty(key);
-  });
+  // /**
+  //  * @method  $has
+  //  * そのプロパティを持っているかを判定する
+  //  * @
+  //  */
+  // Object.prototype.$method("$has", function(key) {
+  //   return this.hasOwnProperty(key);
+  // });
 
   /**
    * @method  $extend
@@ -159,60 +160,60 @@
     }, this);
     return this;
   });
-  
-  
-  /**
-   * @method  $strict
-   * 厳格拡張
-   * すでにあった場合は警告
-   */
-  Object.prototype.$method("$strict", function(source) {
-    Array.prototype.forEach.call(arguments, function(source) {
-      for (var property in source) {
-        console.assert(!this[property], "tm error: {0} is Already".format(property));
-        this[property] = source[property];
-      }
-    }, this);
-    return this;
-  });
 
-  /**
-   * @method  $pick
-   * ピック
-   */
-  Object.prototype.$method("$pick", function() {
-    var temp = {};
 
-    Array.prototype.forEach.call(arguments, function(key) {
-      if (key in this) temp[key] = this[key];
-    }, this);
+  // /**
+  //  * @method  $strict
+  //  * 厳格拡張
+  //  * すでにあった場合は警告
+  //  */
+  // Object.prototype.$method("$strict", function(source) {
+  //   Array.prototype.forEach.call(arguments, function(source) {
+  //     for (var property in source) {
+  //       console.assert(!this[property], "tm error: {0} is Already".format(property));
+  //       this[property] = source[property];
+  //     }
+  //   }, this);
+  //   return this;
+  // });
 
-    return temp;
-  });
+  // /**
+  //  * @method  $pick
+  //  * ピック
+  //  */
+  // Object.prototype.$method("$pick", function() {
+  //   var temp = {};
 
-  /**
-   * @method  $omit
-   * オミット
-   */
-  Object.prototype.$method("$omit", function() {
-    var temp = {};
+  //   Array.prototype.forEach.call(arguments, function(key) {
+  //     if (key in this) temp[key] = this[key];
+  //   }, this);
 
-    for (var key in this) {
-      if (Array.prototype.indexOf.call(arguments, key) == -1) {
-        temp[key] = this[key];
-      }
-    }
+  //   return temp;
+  // });
 
-    return temp;
-  });
+  // /**
+  //  * @method  $omit
+  //  * オミット
+  //  */
+  // Object.prototype.$method("$omit", function() {
+  //   var temp = {};
 
-  /**
-   * @method  $toArray
-   * 配列化
-   */
-  Object.prototype.$method("$toArray", function() {
-    return Array.prototype.slice.call(this);
-  });
+  //   for (var key in this) {
+  //     if (Array.prototype.indexOf.call(arguments, key) == -1) {
+  //       temp[key] = this[key];
+  //     }
+  //   }
+
+  //   return temp;
+  // });
+
+  // /**
+  //  * @method  $toArray
+  //  * 配列化
+  //  */
+  // Object.prototype.$method("$toArray", function() {
+  //   return Array.prototype.slice.call(this);
+  // });
 
   Object.prototype.$method('$watch', function(key, callback) {
     var target = this;
@@ -276,32 +277,32 @@
     }
   });
 
-  if (!Object.observe) {
-    Object.$method('observe', function(obj, callback) {
-      var keys = Object.keys(obj);
-      keys.forEach(function(key) {
-        var tempKey = '__' + key;
-        var tempValue = obj[key];
-        obj[tempKey] = tempValue;
-        
-        obj.accessor(key, {
-          get: function() {
-            return this[tempKey];
-          },
-          set: function(v) {
-            this[tempKey] = v;
-            callback();
-          },
-        });
-      });
-    });
-  }
+  // if (!Object.observe) {
+  //   Object.$method('observe', function(obj, callback) {
+  //     var keys = Object.keys(obj);
+  //     keys.forEach(function(key) {
+  //       var tempKey = '__' + key;
+  //       var tempValue = obj[key];
+  //       obj[tempKey] = tempValue;
 
-  if (!Object.unobserve) {
-    Object.$method('unobserve', function(obj, callback) {
-      console.assert(false);
-    });
-  }
+  //       obj.accessor(key, {
+  //         get: function() {
+  //           return this[tempKey];
+  //         },
+  //         set: function(v) {
+  //           this[tempKey] = v;
+  //           callback();
+  //         },
+  //       });
+  //     });
+  //   });
+  // }
+
+  // if (!Object.unobserve) {
+  //   Object.$method('unobserve', function(obj, callback) {
+  //     console.assert(false);
+  //   });
+  // }
 
 })();
 

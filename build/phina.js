@@ -20,7 +20,7 @@
    * Objectの拡張
    */
 
-  
+
   /**
    * @method property
    * 変数を追加
@@ -135,13 +135,14 @@
     }, this);
   });
 
-  /**
-   * @method  $has
-   * そのプロパティを持っているかを判定する
-   */
-  Object.prototype.$method("$has", function(key) {
-    return this.hasOwnProperty(key);
-  });
+  // /**
+  //  * @method  $has
+  //  * そのプロパティを持っているかを判定する
+  //  * @
+  //  */
+  // Object.prototype.$method("$has", function(key) {
+  //   return this.hasOwnProperty(key);
+  // });
 
   /**
    * @method  $extend
@@ -170,60 +171,60 @@
     }, this);
     return this;
   });
-  
-  
-  /**
-   * @method  $strict
-   * 厳格拡張
-   * すでにあった場合は警告
-   */
-  Object.prototype.$method("$strict", function(source) {
-    Array.prototype.forEach.call(arguments, function(source) {
-      for (var property in source) {
-        console.assert(!this[property], "tm error: {0} is Already".format(property));
-        this[property] = source[property];
-      }
-    }, this);
-    return this;
-  });
 
-  /**
-   * @method  $pick
-   * ピック
-   */
-  Object.prototype.$method("$pick", function() {
-    var temp = {};
 
-    Array.prototype.forEach.call(arguments, function(key) {
-      if (key in this) temp[key] = this[key];
-    }, this);
+  // /**
+  //  * @method  $strict
+  //  * 厳格拡張
+  //  * すでにあった場合は警告
+  //  */
+  // Object.prototype.$method("$strict", function(source) {
+  //   Array.prototype.forEach.call(arguments, function(source) {
+  //     for (var property in source) {
+  //       console.assert(!this[property], "tm error: {0} is Already".format(property));
+  //       this[property] = source[property];
+  //     }
+  //   }, this);
+  //   return this;
+  // });
 
-    return temp;
-  });
+  // /**
+  //  * @method  $pick
+  //  * ピック
+  //  */
+  // Object.prototype.$method("$pick", function() {
+  //   var temp = {};
 
-  /**
-   * @method  $omit
-   * オミット
-   */
-  Object.prototype.$method("$omit", function() {
-    var temp = {};
+  //   Array.prototype.forEach.call(arguments, function(key) {
+  //     if (key in this) temp[key] = this[key];
+  //   }, this);
 
-    for (var key in this) {
-      if (Array.prototype.indexOf.call(arguments, key) == -1) {
-        temp[key] = this[key];
-      }
-    }
+  //   return temp;
+  // });
 
-    return temp;
-  });
+  // /**
+  //  * @method  $omit
+  //  * オミット
+  //  */
+  // Object.prototype.$method("$omit", function() {
+  //   var temp = {};
 
-  /**
-   * @method  $toArray
-   * 配列化
-   */
-  Object.prototype.$method("$toArray", function() {
-    return Array.prototype.slice.call(this);
-  });
+  //   for (var key in this) {
+  //     if (Array.prototype.indexOf.call(arguments, key) == -1) {
+  //       temp[key] = this[key];
+  //     }
+  //   }
+
+  //   return temp;
+  // });
+
+  // /**
+  //  * @method  $toArray
+  //  * 配列化
+  //  */
+  // Object.prototype.$method("$toArray", function() {
+  //   return Array.prototype.slice.call(this);
+  // });
 
   Object.prototype.$method('$watch', function(key, callback) {
     var target = this;
@@ -287,32 +288,32 @@
     }
   });
 
-  if (!Object.observe) {
-    Object.$method('observe', function(obj, callback) {
-      var keys = Object.keys(obj);
-      keys.forEach(function(key) {
-        var tempKey = '__' + key;
-        var tempValue = obj[key];
-        obj[tempKey] = tempValue;
-        
-        obj.accessor(key, {
-          get: function() {
-            return this[tempKey];
-          },
-          set: function(v) {
-            this[tempKey] = v;
-            callback();
-          },
-        });
-      });
-    });
-  }
+  // if (!Object.observe) {
+  //   Object.$method('observe', function(obj, callback) {
+  //     var keys = Object.keys(obj);
+  //     keys.forEach(function(key) {
+  //       var tempKey = '__' + key;
+  //       var tempValue = obj[key];
+  //       obj[tempKey] = tempValue;
 
-  if (!Object.unobserve) {
-    Object.$method('unobserve', function(obj, callback) {
-      console.assert(false);
-    });
-  }
+  //       obj.accessor(key, {
+  //         get: function() {
+  //           return this[tempKey];
+  //         },
+  //         set: function(v) {
+  //           this[tempKey] = v;
+  //           callback();
+  //         },
+  //       });
+  //     });
+  //   });
+  // }
+
+  // if (!Object.unobserve) {
+  //   Object.$method('unobserve', function(obj, callback) {
+  //     console.assert(false);
+  //   });
+  // }
 
 })();
 
@@ -340,7 +341,7 @@
    *     (13.87).round(); // => 14
    *     (-1.87).round(); // => -2
    *     (-1.27).round(); // => -1
-   *     
+   *
    *     (2.345).round(); // => 2
    *     (2.345).round(1); // => 2.3
    *     (2.345).round(2); // => 2.35
@@ -357,7 +358,7 @@
     temp = Math.round(temp);
     return temp/base;
   });
-  
+
   /**
    * @method ceil
    * 指定した小数の位を切り上げた値を返します。
@@ -367,7 +368,7 @@
    * ### Example
    *     (-1.27).ceil(); // => -1
    *     (-1.87).ceil(); // => -1
-   *     
+   *
    *     (2.345).ceil(); // => 3
    *     (2.345).ceil(1); // => 2.4
    *     (2.345).ceil(2); // => 2.35
@@ -394,7 +395,7 @@
    * ### Example
    *     (-1.27).floor(); // => -2
    *     (-1.87).floor(); // => -2
-   *     
+   *
    *     (2.345).floor(); // => 2
    *     (2.345).floor(1); // => 2.3
    *     (2.345).floor(2); // => 2.34
@@ -409,13 +410,13 @@
     var base = Math.pow(10, figure);
     var temp = this * base;
     temp = Math.floor(temp);
-    
+
     // ~~this
     // this|0
-    
+
     return temp/base;
   });
-  
+
   /**
    * @method toInt
    * 数値を整数に変換します。
@@ -428,44 +429,44 @@
   Number.prototype.$method("toInt",  function() {
     return (this | 0);
   });
-  
-  /**
-   * @method toHex
-   * 数値を16進数表記にした文字列を返します。
-   *
-   * ### Example
-   *     (26).toHex(); // => "1a"
-   *     (-26).toHex(); // => "-1a"
-   *     (26.25).toHex(); // => "1a.4"
-   *
-   * @return {String} 16進数表記の文字列
-   */
-  Number.prototype.$method("toHex",  function() {
-    return this.toString(16);
-  });
-  
-  /**
-   * @method toBin
-   * 数値を2進数表記にした文字列を返します。
-   *
-   * ### Example
-   *     (6).toBin(); // => "110"
-   *     (-6).toBin(); // => "-110"
-   *     (0xA3).toBin(); // => "10100011"
-   *     (6.25).toHex(); // => "110.01"
-   *
-   * @return {String} 2進数表記の文字列
-   */
-  Number.prototype.$method("toBin",  function() {
-    return this.toString(2);
-  });
-  
-  
+
+  // /**
+  //  * @method toHex
+  //  * 数値を16進数表記にした文字列を返します。
+  //  *
+  //  * ### Example
+  //  *     (26).toHex(); // => "1a"
+  //  *     (-26).toHex(); // => "-1a"
+  //  *     (26.25).toHex(); // => "1a.4"
+  //  *
+  //  * @return {String} 16進数表記の文字列
+  //  */
+  // Number.prototype.$method("toHex",  function() {
+  //   return this.toString(16);
+  // });
+
+  // /**
+  //  * @method toBin
+  //  * 数値を2進数表記にした文字列を返します。
+  //  *
+  //  * ### Example
+  //  *     (6).toBin(); // => "110"
+  //  *     (-6).toBin(); // => "-110"
+  //  *     (0xA3).toBin(); // => "10100011"
+  //  *     (6.25).toHex(); // => "110.01"
+  //  *
+  //  * @return {String} 2進数表記の文字列
+  //  */
+  // Number.prototype.$method("toBin",  function() {
+  //   return this.toString(2);
+  // });
+
+
   /**
    * @method toUnsigned
    * 数値を unsigned int 型に変換します。
    *
-   * 数値を符号無し整数として評価した値を返します。  
+   * 数値を符号無し整数として評価した値を返します。
    * Javascriptのビット演算では数値を符号付きの32bit整数として扱うため、RGBA を
    * 整数値で表現して演算する場合、期待通りの結果が得られない場合があります。
    * そこで本関数で unsigned int 型に変換することで期待通りの値を得ることができます。
@@ -480,7 +481,7 @@
   Number.prototype.$method("toUnsigned",  function() {
     return this >>> 0;
   });
-  
+
   /**
    * @method padding
    * 指定した桁になるように文字を埋めます。
@@ -498,9 +499,9 @@
     var str = this+'';
     n  = n-str.length;
     ch = (ch || '0')[0];
-    
+
     while(n-- > 0) { str = ch + str; }
-    
+
     if (str.indexOf("-") >= 0) {
       str = "-" + str.replace("-", "");
     }
@@ -530,57 +531,57 @@
     return this;
   });
 
-  /**
-   * @method upto
-   * 自分自身の数から指定した数まで、カウンタをインクリメントしながら関数を繰り返し実行します。
-   *
-   * 指定した数が自分自身の数より小さい場合は関数は実行されません。
-   *
-   * ### Example
-   *     arr = [];
-   *     (6).upto(8, function(i){
-   *       arr.push(i);
-   *     });
-   *     arr; // => [6, 7, 8]
-   *
-   *     (3).upto(0, function(i){
-   *       arr.push(i);
-   *     });
-   *     arr; // => [6, 7, 8]
-   *
-   * @param {Function} fn コールバック関数。引数にカウンタが渡される。
-   * @param {Object} [self=this] 関数内で this として参照される値。デフォルトは自分自身。
-   */
-  Number.prototype.$method("upto",  function(t, fn, self) {
-    self = self || this;
-    for (var i=+this; i<=t; ++i) {
-      fn.call(self, i, this);
-    }
-    return this;
-  });
-  
-  /**
-   * @method downto
-   * 自分自身の数から指定した数まで、カウンタをデクリメントしながら関数を繰り返し実行します。
-   *
-   * 指定した数が自分自身の数より大きい場合は関数は実行されません。
-   *
-   * ### Example
-   *     arr = [];
-   *     (7).downto(4, function(i){
-   *       arr.push(i);
-   *     }); // => [7, 6, 5, 4]
-   *
-   * @param {Function} fn コールバック関数。引数にカウンタが渡される。
-   * @param {Object} [self=this] 関数内で this として参照される値。デフォルトは自分自身。
-   */
-  Number.prototype.$method("downto",  function(t, fn, self) {
-    self = self || this;
-    for (var i=+this; i>=t; --i) {
-      fn.call(self, i, this);
-    }
-    return this;
-  });
+  // /**
+  //  * @method upto
+  //  * 自分自身の数から指定した数まで、カウンタをインクリメントしながら関数を繰り返し実行します。
+  //  *
+  //  * 指定した数が自分自身の数より小さい場合は関数は実行されません。
+  //  *
+  //  * ### Example
+  //  *     arr = [];
+  //  *     (6).upto(8, function(i){
+  //  *       arr.push(i);
+  //  *     });
+  //  *     arr; // => [6, 7, 8]
+  //  *
+  //  *     (3).upto(0, function(i){
+  //  *       arr.push(i);
+  //  *     });
+  //  *     arr; // => [6, 7, 8]
+  //  *
+  //  * @param {Function} fn コールバック関数。引数にカウンタが渡される。
+  //  * @param {Object} [self=this] 関数内で this として参照される値。デフォルトは自分自身。
+  //  */
+  // Number.prototype.$method("upto",  function(t, fn, self) {
+  //   self = self || this;
+  //   for (var i=+this; i<=t; ++i) {
+  //     fn.call(self, i, this);
+  //   }
+  //   return this;
+  // });
+
+  // /**
+  //  * @method downto
+  //  * 自分自身の数から指定した数まで、カウンタをデクリメントしながら関数を繰り返し実行します。
+  //  *
+  //  * 指定した数が自分自身の数より大きい場合は関数は実行されません。
+  //  *
+  //  * ### Example
+  //  *     arr = [];
+  //  *     (7).downto(4, function(i){
+  //  *       arr.push(i);
+  //  *     }); // => [7, 6, 5, 4]
+  //  *
+  //  * @param {Function} fn コールバック関数。引数にカウンタが渡される。
+  //  * @param {Object} [self=this] 関数内で this として参照される値。デフォルトは自分自身。
+  //  */
+  // Number.prototype.$method("downto",  function(t, fn, self) {
+  //   self = self || this;
+  //   for (var i=+this; i>=t; --i) {
+  //     fn.call(self, i, this);
+  //   }
+  //   return this;
+  // });
 
   /**
    * @method step
@@ -861,7 +862,7 @@
   String.prototype.$method("format", function(arg) {
     // 置換ファンク
     var rep_fn = undefined;
-    
+
     // オブジェクトの場合
     if (typeof arg == "object") {
       /** @ignore */
@@ -888,90 +889,90 @@
         }
       };
     }
-    
+
     return this.replace( /\{(\w+)\}/g, rep_fn );
   });
 
 
-  /**
-   * @method trim
-   * 文字列先頭と末尾の空白文字を全て取り除いた文字列を返します。
-   *
-   * ###Reference
-   * - [String Functions for Javascript – trim, to camel case, to dashed, and to underscore](http://jamesroberts.name/blog/2010/02/22/string-functions-for-javascript-trim-to-camel-case-to-dashed-and-to-underscore/)
-   *
-   * ### Example
-   *     "  Hello, world!  ".trim(); // => "Hello, world!"
-   *
-   * @return {String} トリムした結果の文字列
-   */
-  String.prototype.$method("trim", function() {
-    return this.replace(/^\s+|\s+$/g, "");
-  });
-  
-  /**
-   * @method capitalize
-   * キャピタライズした文字列、すなわち、すべての単語の先頭を大文字にした文字列を返します。
-   *
-   * 単語の先頭以外は小文字化されます。
-   *
-   * ###Reference
-   * - [キャピタライズ(単語の先頭の大文字化)を行う - oct inaodu](http://d.hatena.ne.jp/brazil/20051212/1134369083)  
-   * - [デザインとプログラムの狭間で: javascriptでキャピタライズ（一文字目を大文字にする）](http://design-program.blogspot.com/2011/02/javascript.html)
-   *
-   * ### Example
-   *     "i aM a pen.".capitalize(); // => "I Am A Pen."
-   *
-   * @return {String} キャピタライズした文字列
-   */
-  String.prototype.$method("capitalize", function() {
-    return this.replace(/\w+/g, function(word){
-      return word.capitalizeFirstLetter();
-    });
-  });
-  
-  /**
-   * @method capitalizeFirstLetter
-   * 先頭の文字を大文字にして、それ以外を小文字にした文字列を返します。
-   *
-   * ### Example
-   *     "i aM a pen.".capitalizeFirstLetter(); // "I am a pen."
-   *
-   * @return {String} 先頭の文字を大文字にして、それ以外を小文字にした文字列
-   */
-  String.prototype.$method("capitalizeFirstLetter", function() {
-    return this.charAt(0).toUpperCase() + this.substr(1).toLowerCase();
-  });
-  
-  /**
-   * @method toDash
-   * 文字列内の大文字を「"-" + 小文字」に変換します。
-   *
-   * css2properties（element.style）の各プロパティ名を CSS のプロパティ名に変換する場合に便利です。
-   *
-   * ### Example
-   *     "borderTopColor".toDash(); // => "border-top-color"
-   *
-   *  @return {String} 変換後の文字列
-   */
-  String.prototype.$method("toDash", function() {
-    return this.replace(/([A-Z])/g, function(m){ return '-'+m.toLowerCase(); });
-  });
-  
-  
-  /**
-   * @method toHash
-   * ハッシュ値を生成して返します。
-   *
-   * ### Example
-   *     "phina.js".toHash(); // => 2676327394
-   *
-   * @return {Number} CRC32ハッシュ値
-   */
-  String.prototype.$method("toHash", function() {
-    return this.toCRC32();
-  });
-  
+  // /**
+  //  * @method trim
+  //  * 文字列先頭と末尾の空白文字を全て取り除いた文字列を返します。
+  //  *
+  //  * ###Reference
+  //  * - [String Functions for Javascript – trim, to camel case, to dashed, and to underscore](http://jamesroberts.name/blog/2010/02/22/string-functions-for-javascript-trim-to-camel-case-to-dashed-and-to-underscore/)
+  //  *
+  //  * ### Example
+  //  *     "  Hello, world!  ".trim(); // => "Hello, world!"
+  //  *
+  //  * @return {String} トリムした結果の文字列
+  //  */
+  // String.prototype.$method("trim", function() {
+  //   return this.replace(/^\s+|\s+$/g, "");
+  // });
+
+  // /**
+  //  * @method capitalize
+  //  * キャピタライズした文字列、すなわち、すべての単語の先頭を大文字にした文字列を返します。
+  //  *
+  //  * 単語の先頭以外は小文字化されます。
+  //  *
+  //  * ###Reference
+  //  * - [キャピタライズ(単語の先頭の大文字化)を行う - oct inaodu](http://d.hatena.ne.jp/brazil/20051212/1134369083)
+  //  * - [デザインとプログラムの狭間で: javascriptでキャピタライズ（一文字目を大文字にする）](http://design-program.blogspot.com/2011/02/javascript.html)
+  //  *
+  //  * ### Example
+  //  *     "i aM a pen.".capitalize(); // => "I Am A Pen."
+  //  *
+  //  * @return {String} キャピタライズした文字列
+  //  */
+  // String.prototype.$method("capitalize", function() {
+  //   return this.replace(/\w+/g, function(word){
+  //     return word.capitalizeFirstLetter();
+  //   });
+  // });
+
+  // /**
+  //  * @method capitalizeFirstLetter
+  //  * 先頭の文字を大文字にして、それ以外を小文字にした文字列を返します。
+  //  *
+  //  * ### Example
+  //  *     "i aM a pen.".capitalizeFirstLetter(); // "I am a pen."
+  //  *
+  //  * @return {String} 先頭の文字を大文字にして、それ以外を小文字にした文字列
+  //  */
+  // String.prototype.$method("capitalizeFirstLetter", function() {
+  //   return this.charAt(0).toUpperCase() + this.substr(1).toLowerCase();
+  // });
+
+  // /**
+  //  * @method toDash
+  //  * 文字列内の大文字を「"-" + 小文字」に変換します。
+  //  *
+  //  * css2properties（element.style）の各プロパティ名を CSS のプロパティ名に変換する場合に便利です。
+  //  *
+  //  * ### Example
+  //  *     "borderTopColor".toDash(); // => "border-top-color"
+  //  *
+  //  *  @return {String} 変換後の文字列
+  //  */
+  // String.prototype.$method("toDash", function() {
+  //   return this.replace(/([A-Z])/g, function(m){ return '-'+m.toLowerCase(); });
+  // });
+
+
+  // /**
+  //  * @method toHash
+  //  * ハッシュ値を生成して返します。
+  //  *
+  //  * ### Example
+  //  *     "phina.js".toHash(); // => 2676327394
+  //  *
+  //  * @return {Number} CRC32ハッシュ値
+  //  */
+  // String.prototype.$method("toHash", function() {
+  //   return this.toCRC32();
+  // });
+
   /**
    * @method padding
    * 左に文字を埋めて指定した桁にします。this の文字列は右寄せされます。
@@ -988,115 +989,115 @@
     var str = this.toString();
     n  = n-str.length;
     ch = (ch || ' ')[0];
-    
+
     while(n-- > 0) { str = ch + str; }
-    
+
     return str;
   });
-  
-  /**
-   * @method paddingLeft
-   * 左に文字を埋めて指定した桁にします。this の文字列を右寄せされます。
-   *
-   * {@link #padding} と同じです。
-   * @inheritdoc #padding
-   */
-  String.prototype.$method("paddingLeft", function(n, ch) {
-    var str = this.toString();
-    n  = n-str.length;
-    ch = (ch || ' ')[0];
-    
-    while(n-- > 0) { str = ch + str; }
-    
-    return str;
-  });
-  
-  /**
-   * @method paddingRight
-   * 右に文字を埋めて指定した桁にします。this の文字列は左寄せされます。
-   *
-   * ### Example
-   *     "1234".paddingRight(10);      // => "1234      "
-   *     "1234".paddingRight(10, '0'); // => "1234000000"
-   *
-   * @param {Number} figure 桁数
-   * @param {String} [ch=" "] 埋める文字
-   * @return {String} 指定した桁の文字列
-   */
-  String.prototype.$method("paddingRight", function(n, ch) {
-    var str = this.toString();
-    n  = n-str.length;
-    ch = (ch || ' ')[0];
-    
-    while(n-- > 0) { str = str + ch; }
-    
-    return str;
-  });
-  
-  /**
-   * @method quotemeta
-   * 正規表現のメタ文字をクォートします。
-   *
-   * ### Example
-   *     "Hello world. (can you hear me?)".quotemeta(); // => "Hello\\ world\\.\\ \\(can\\ you\\ hear\\ me\\?\\)"
-   *
-   *  @return {String} クォートされた文字列
-   */
-  String.prototype.$method("quotemeta", function(n) {
-    return this.replace(/([^0-9A-Za-z_])/g, '\\$1');
-  });
-  
-  /**
-   * @method repeat
-   * 自分自身を指定した回数だけ繰り返した文字列を返します。
-   *
-   * ### Example
-   *     "Abc".repeat(4); // => "AbcAbcAbcAbc"
-   *
-   * @param {Number} n 繰り返し回数
-   * @return {String} 文字列
-   */
-  String.prototype.$method("repeat", function(n) {
-    // TODO: 確認する
-    var arr = Array(n);
-    for (var i=0; i<n; ++i) arr[i] = this;
-    return arr.join('');
-  });
-  
-  /**
-   * @method count
-   * 指定した文字列が何個入っているかをカウントして返します。
-   *
-   * 大文字・小文字は区別されます。
-   *
-   * ### Example
-   *     "This is a string. Isn't it?".count("is"); // => 2
-   *
-   * @param {String} str 調べる文字列
-   * @return {Number} this に str が入っている個数
-   */
-  String.prototype.$method("count", function(str) {
-    var re = new RegExp(str, 'gm');
-    return this.match(re).length;
-  });
-  
-  /**
-   * @method include
-   * 指定した文字列が含まれているかどうかを返します。
-   *
-   * 大文字・小文字は区別されます。
-   *
-   * ### Example
-   *     "This is a string.".include("is"); // => true
-   *     "This is a string.".include("was"); // => false
-   *
-   * @param {String} str 調べる文字列
-   * @return {Boolean} 含まれているかどうか
-   */
-  String.prototype.$method("include", function(str) {
-    return this.indexOf(str) != -1;
-  });
-  
+
+  // /**
+  //  * @method paddingLeft
+  //  * 左に文字を埋めて指定した桁にします。this の文字列を右寄せされます。
+  //  *
+  //  * {@link #padding} と同じです。
+  //  * @inheritdoc #padding
+  //  */
+  // String.prototype.$method("paddingLeft", function(n, ch) {
+  //   var str = this.toString();
+  //   n  = n-str.length;
+  //   ch = (ch || ' ')[0];
+
+  //   while(n-- > 0) { str = ch + str; }
+
+  //   return str;
+  // });
+
+  // /**
+  //  * @method paddingRight
+  //  * 右に文字を埋めて指定した桁にします。this の文字列は左寄せされます。
+  //  *
+  //  * ### Example
+  //  *     "1234".paddingRight(10);      // => "1234      "
+  //  *     "1234".paddingRight(10, '0'); // => "1234000000"
+  //  *
+  //  * @param {Number} figure 桁数
+  //  * @param {String} [ch=" "] 埋める文字
+  //  * @return {String} 指定した桁の文字列
+  //  */
+  // String.prototype.$method("paddingRight", function(n, ch) {
+  //   var str = this.toString();
+  //   n  = n-str.length;
+  //   ch = (ch || ' ')[0];
+
+  //   while(n-- > 0) { str = str + ch; }
+
+  //   return str;
+  // });
+
+  // /**
+  //  * @method quotemeta
+  //  * 正規表現のメタ文字をクォートします。
+  //  *
+  //  * ### Example
+  //  *     "Hello world. (can you hear me?)".quotemeta(); // => "Hello\\ world\\.\\ \\(can\\ you\\ hear\\ me\\?\\)"
+  //  *
+  //  *  @return {String} クォートされた文字列
+  //  */
+  // String.prototype.$method("quotemeta", function(n) {
+  //   return this.replace(/([^0-9A-Za-z_])/g, '\\$1');
+  // });
+
+  // /**
+  //  * @method repeat
+  //  * 自分自身を指定した回数だけ繰り返した文字列を返します。
+  //  *
+  //  * ### Example
+  //  *     "Abc".repeat(4); // => "AbcAbcAbcAbc"
+  //  *
+  //  * @param {Number} n 繰り返し回数
+  //  * @return {String} 文字列
+  //  */
+  // String.prototype.$method("repeat", function(n) {
+  //   // TODO: 確認する
+  //   var arr = Array(n);
+  //   for (var i=0; i<n; ++i) arr[i] = this;
+  //   return arr.join('');
+  // });
+
+  // /**
+  //  * @method count
+  //  * 指定した文字列が何個入っているかをカウントして返します。
+  //  *
+  //  * 大文字・小文字は区別されます。
+  //  *
+  //  * ### Example
+  //  *     "This is a string. Isn't it?".count("is"); // => 2
+  //  *
+  //  * @param {String} str 調べる文字列
+  //  * @return {Number} this に str が入っている個数
+  //  */
+  // String.prototype.$method("count", function(str) {
+  //   var re = new RegExp(str, 'gm');
+  //   return this.match(re).length;
+  // });
+
+  // /**
+  //  * @method include
+  //  * 指定した文字列が含まれているかどうかを返します。
+  //  *
+  //  * 大文字・小文字は区別されます。
+  //  *
+  //  * ### Example
+  //  *     "This is a string.".include("is"); // => true
+  //  *     "This is a string.".include("was"); // => false
+  //  *
+  //  * @param {String} str 調べる文字列
+  //  * @return {Boolean} 含まれているかどうか
+  //  */
+  // String.prototype.$method("include", function(str) {
+  //   return this.indexOf(str) != -1;
+  // });
+
   /**
    * @method each
    * 各文字を順番に渡しながら関数を繰り返し実行します。
@@ -1117,95 +1118,95 @@
     Array.prototype.forEach.apply(this, arguments);
     return this;
   });
-  
-  /**
-   * @method toArray
-   * 1文字ずつ分解した配列を返します。
-   *
-   * ### Example
-   *     "12345".toArray(); // => ["1", "2", "3", "4", "5"]
-   *     "あいうえお".toArray(); // => "あ", "い", "う", "え", "お"]
-   *
-   * @return {String[]} 配列
-   */
-  String.prototype.$method("toArray", function() {
-    var arr = [];
-    for (var i=0,len=this.length; i<len; ++i) {
-      arr.push(this[i]);
-    }
-    return arr;
-  });
-  
-  /**
-   * @method toObject
-   * キーと値の組み合わせが連結された文字列からオブジェクトを生成します。
-   *
-   * 値は Number、Boolean、String のいずれかの型として評価されます。
-   *
-   * ### Example
-   *     obj1 = "num=128.5&flag1=true&flag2=false&str=hoge";
-   *     obj1.toObject(); // => {num: 128.5, flag1: true, flag2: false, str: "hoge" }
-   *     
-   *     obj2 = "num:-64.5|flag1:false|flag2:true|str:foo";
-   *     obj2.toObject('|', ':'); // => {num: -64.5, flag1: false, flag2: true, str: "foo" }
-   *
-   * @param {String} [sep="&"] セパレータ文字
-   * @param {String} [eq=""] キーと値の組み合わせを表す文字
-   * @return {Object} オブジェクト
-   */
-  String.prototype.$method("toObject", function(sep, eq) {
-    sep = sep || '&';
-    eq  = eq || '=';
 
-    var obj = {};
-    var params = this.split(sep);
-    params.each(function(str, i) {
-      var pos = str.indexOf(eq);
-      if (pos > 0) {
-        var key = str.substring(0, pos);
-        var val = str.substring(pos+1);
-        var num = Number(val);
+  // /**
+  //  * @method toArray
+  //  * 1文字ずつ分解した配列を返します。
+  //  *
+  //  * ### Example
+  //  *     "12345".toArray(); // => ["1", "2", "3", "4", "5"]
+  //  *     "あいうえお".toArray(); // => "あ", "い", "う", "え", "お"]
+  //  *
+  //  * @return {String[]} 配列
+  //  */
+  // String.prototype.$method("toArray", function() {
+  //   var arr = [];
+  //   for (var i=0,len=this.length; i<len; ++i) {
+  //     arr.push(this[i]);
+  //   }
+  //   return arr;
+  // });
 
-        if (!isNaN(num)) {
-          val = num;
-        }
-        else if (val === 'true') {
-          val = true;
-        }
-        else if (val === 'false') {
-          val = false;
-        }
+  // /**
+  //  * @method toObject
+  //  * キーと値の組み合わせが連結された文字列からオブジェクトを生成します。
+  //  *
+  //  * 値は Number、Boolean、String のいずれかの型として評価されます。
+  //  *
+  //  * ### Example
+  //  *     obj1 = "num=128.5&flag1=true&flag2=false&str=hoge";
+  //  *     obj1.toObject(); // => {num: 128.5, flag1: true, flag2: false, str: "hoge" }
+  //  *
+  //  *     obj2 = "num:-64.5|flag1:false|flag2:true|str:foo";
+  //  *     obj2.toObject('|', ':'); // => {num: -64.5, flag1: false, flag2: true, str: "foo" }
+  //  *
+  //  * @param {String} [sep="&"] セパレータ文字
+  //  * @param {String} [eq=""] キーと値の組み合わせを表す文字
+  //  * @return {Object} オブジェクト
+  //  */
+  // String.prototype.$method("toObject", function(sep, eq) {
+  //   sep = sep || '&';
+  //   eq  = eq || '=';
 
-        obj[key] = val;
-      }
-    });
+  //   var obj = {};
+  //   var params = this.split(sep);
+  //   params.each(function(str, i) {
+  //     var pos = str.indexOf(eq);
+  //     if (pos > 0) {
+  //       var key = str.substring(0, pos);
+  //       var val = str.substring(pos+1);
+  //       var num = Number(val);
 
-    return obj;
-  });
-  
-  var table = "00000000 77073096 EE0E612C 990951BA 076DC419 706AF48F E963A535 9E6495A3 0EDB8832 79DCB8A4 E0D5E91E 97D2D988 09B64C2B 7EB17CBD E7B82D07 90BF1D91 1DB71064 6AB020F2 F3B97148 84BE41DE 1ADAD47D 6DDDE4EB F4D4B551 83D385C7 136C9856 646BA8C0 FD62F97A 8A65C9EC 14015C4F 63066CD9 FA0F3D63 8D080DF5 3B6E20C8 4C69105E D56041E4 A2677172 3C03E4D1 4B04D447 D20D85FD A50AB56B 35B5A8FA 42B2986C DBBBC9D6 ACBCF940 32D86CE3 45DF5C75 DCD60DCF ABD13D59 26D930AC 51DE003A C8D75180 BFD06116 21B4F4B5 56B3C423 CFBA9599 B8BDA50F 2802B89E 5F058808 C60CD9B2 B10BE924 2F6F7C87 58684C11 C1611DAB B6662D3D 76DC4190 01DB7106 98D220BC EFD5102A 71B18589 06B6B51F 9FBFE4A5 E8B8D433 7807C9A2 0F00F934 9609A88E E10E9818 7F6A0DBB 086D3D2D 91646C97 E6635C01 6B6B51F4 1C6C6162 856530D8 F262004E 6C0695ED 1B01A57B 8208F4C1 F50FC457 65B0D9C6 12B7E950 8BBEB8EA FCB9887C 62DD1DDF 15DA2D49 8CD37CF3 FBD44C65 4DB26158 3AB551CE A3BC0074 D4BB30E2 4ADFA541 3DD895D7 A4D1C46D D3D6F4FB 4369E96A 346ED9FC AD678846 DA60B8D0 44042D73 33031DE5 AA0A4C5F DD0D7CC9 5005713C 270241AA BE0B1010 C90C2086 5768B525 206F85B3 B966D409 CE61E49F 5EDEF90E 29D9C998 B0D09822 C7D7A8B4 59B33D17 2EB40D81 B7BD5C3B C0BA6CAD EDB88320 9ABFB3B6 03B6E20C 74B1D29A EAD54739 9DD277AF 04DB2615 73DC1683 E3630B12 94643B84 0D6D6A3E 7A6A5AA8 E40ECF0B 9309FF9D 0A00AE27 7D079EB1 F00F9344 8708A3D2 1E01F268 6906C2FE F762575D 806567CB 196C3671 6E6B06E7 FED41B76 89D32BE0 10DA7A5A 67DD4ACC F9B9DF6F 8EBEEFF9 17B7BE43 60B08ED5 D6D6A3E8 A1D1937E 38D8C2C4 4FDFF252 D1BB67F1 A6BC5767 3FB506DD 48B2364B D80D2BDA AF0A1B4C 36034AF6 41047A60 DF60EFC3 A867DF55 316E8EEF 4669BE79 CB61B38C BC66831A 256FD2A0 5268E236 CC0C7795 BB0B4703 220216B9 5505262F C5BA3BBE B2BD0B28 2BB45A92 5CB36A04 C2D7FFA7 B5D0CF31 2CD99E8B 5BDEAE1D 9B64C2B0 EC63F226 756AA39C 026D930A 9C0906A9 EB0E363F 72076785 05005713 95BF4A82 E2B87A14 7BB12BAE 0CB61B38 92D28E9B E5D5BE0D 7CDCEFB7 0BDBDF21 86D3D2D4 F1D4E242 68DDB3F8 1FDA836E 81BE16CD F6B9265B 6FB077E1 18B74777 88085AE6 FF0F6A70 66063BCA 11010B5C 8F659EFF F862AE69 616BFFD3 166CCF45 A00AE278 D70DD2EE 4E048354 3903B3C2 A7672661 D06016F7 4969474D 3E6E77DB AED16A4A D9D65ADC 40DF0B66 37D83BF0 A9BCAE53 DEBB9EC5 47B2CF7F 30B5FFE9 BDBDF21C CABAC28A 53B39330 24B4A3A6 BAD03605 CDD70693 54DE5729 23D967BF B3667A2E C4614AB8 5D681B02 2A6F2B94 B40BBE37 C30C8EA1 5A05DF1B 2D02EF8D".split(' ');
-  
-  /**
-   * @method toCRC32
-   * 文字列の CRC32 を計算します。
-   *
-   * ### Example
-   *     "phina.js".toCRC32(); // => 2676327394
-   *
-   * @return {Number} CRC32 ハッシュ値
-   */
-  String.prototype.$method("toCRC32", function() {
-    var crc = 0, x=0, y=0;
-    
-    crc = crc ^ (-1);
-    for (var i=0, iTop=this.length; i<iTop; ++i) {
-      y = (crc ^ this.charCodeAt(i)) & 0xff;
-      x = "0x" + table[y];
-      crc = (crc >>> 8) ^ x;
-    }
-    
-    return (crc ^ (-1)) >>> 0;
-  });
+  //       if (!isNaN(num)) {
+  //         val = num;
+  //       }
+  //       else if (val === 'true') {
+  //         val = true;
+  //       }
+  //       else if (val === 'false') {
+  //         val = false;
+  //       }
+
+  //       obj[key] = val;
+  //     }
+  //   });
+
+  //   return obj;
+  // });
+
+//   var table = "00000000 77073096 EE0E612C 990951BA 076DC419 706AF48F E963A535 9E6495A3 0EDB8832 79DCB8A4 E0D5E91E 97D2D988 09B64C2B 7EB17CBD E7B82D07 90BF1D91 1DB71064 6AB020F2 F3B97148 84BE41DE 1ADAD47D 6DDDE4EB F4D4B551 83D385C7 136C9856 646BA8C0 FD62F97A 8A65C9EC 14015C4F 63066CD9 FA0F3D63 8D080DF5 3B6E20C8 4C69105E D56041E4 A2677172 3C03E4D1 4B04D447 D20D85FD A50AB56B 35B5A8FA 42B2986C DBBBC9D6 ACBCF940 32D86CE3 45DF5C75 DCD60DCF ABD13D59 26D930AC 51DE003A C8D75180 BFD06116 21B4F4B5 56B3C423 CFBA9599 B8BDA50F 2802B89E 5F058808 C60CD9B2 B10BE924 2F6F7C87 58684C11 C1611DAB B6662D3D 76DC4190 01DB7106 98D220BC EFD5102A 71B18589 06B6B51F 9FBFE4A5 E8B8D433 7807C9A2 0F00F934 9609A88E E10E9818 7F6A0DBB 086D3D2D 91646C97 E6635C01 6B6B51F4 1C6C6162 856530D8 F262004E 6C0695ED 1B01A57B 8208F4C1 F50FC457 65B0D9C6 12B7E950 8BBEB8EA FCB9887C 62DD1DDF 15DA2D49 8CD37CF3 FBD44C65 4DB26158 3AB551CE A3BC0074 D4BB30E2 4ADFA541 3DD895D7 A4D1C46D D3D6F4FB 4369E96A 346ED9FC AD678846 DA60B8D0 44042D73 33031DE5 AA0A4C5F DD0D7CC9 5005713C 270241AA BE0B1010 C90C2086 5768B525 206F85B3 B966D409 CE61E49F 5EDEF90E 29D9C998 B0D09822 C7D7A8B4 59B33D17 2EB40D81 B7BD5C3B C0BA6CAD EDB88320 9ABFB3B6 03B6E20C 74B1D29A EAD54739 9DD277AF 04DB2615 73DC1683 E3630B12 94643B84 0D6D6A3E 7A6A5AA8 E40ECF0B 9309FF9D 0A00AE27 7D079EB1 F00F9344 8708A3D2 1E01F268 6906C2FE F762575D 806567CB 196C3671 6E6B06E7 FED41B76 89D32BE0 10DA7A5A 67DD4ACC F9B9DF6F 8EBEEFF9 17B7BE43 60B08ED5 D6D6A3E8 A1D1937E 38D8C2C4 4FDFF252 D1BB67F1 A6BC5767 3FB506DD 48B2364B D80D2BDA AF0A1B4C 36034AF6 41047A60 DF60EFC3 A867DF55 316E8EEF 4669BE79 CB61B38C BC66831A 256FD2A0 5268E236 CC0C7795 BB0B4703 220216B9 5505262F C5BA3BBE B2BD0B28 2BB45A92 5CB36A04 C2D7FFA7 B5D0CF31 2CD99E8B 5BDEAE1D 9B64C2B0 EC63F226 756AA39C 026D930A 9C0906A9 EB0E363F 72076785 05005713 95BF4A82 E2B87A14 7BB12BAE 0CB61B38 92D28E9B E5D5BE0D 7CDCEFB7 0BDBDF21 86D3D2D4 F1D4E242 68DDB3F8 1FDA836E 81BE16CD F6B9265B 6FB077E1 18B74777 88085AE6 FF0F6A70 66063BCA 11010B5C 8F659EFF F862AE69 616BFFD3 166CCF45 A00AE278 D70DD2EE 4E048354 3903B3C2 A7672661 D06016F7 4969474D 3E6E77DB AED16A4A D9D65ADC 40DF0B66 37D83BF0 A9BCAE53 DEBB9EC5 47B2CF7F 30B5FFE9 BDBDF21C CABAC28A 53B39330 24B4A3A6 BAD03605 CDD70693 54DE5729 23D967BF B3667A2E C4614AB8 5D681B02 2A6F2B94 B40BBE37 C30C8EA1 5A05DF1B 2D02EF8D".split(' ');
+
+//   /**
+//    * @method toCRC32
+//    * 文字列の CRC32 を計算します。
+//    *
+//    * ### Example
+//    *     "phina.js".toCRC32(); // => 2676327394
+//    *
+//    * @return {Number} CRC32 ハッシュ値
+//    */
+//   String.prototype.$method("toCRC32", function() {
+//     var crc = 0, x=0, y=0;
+
+//     crc = crc ^ (-1);
+//     for (var i=0, iTop=this.length; i<iTop; ++i) {
+//       y = (crc ^ this.charCodeAt(i)) & 0xff;
+//       x = "0x" + table[y];
+//       crc = (crc >>> 8) ^ x;
+//     }
+
+//     return (crc ^ (-1)) >>> 0;
+//   });
 
 })();
 
@@ -1235,7 +1236,7 @@
       "get": function()   { return this[0]; },
       "set": function(v)  { this[0] = v; }
   });
-  
+
   /**
    * @property {Object} last
    * 最後の要素
@@ -1268,7 +1269,7 @@
   Array.prototype.$method("equals", function(arr) {
     // 長さチェック
     if (this.length !== arr.length) return false;
-    
+
     for (var i=0,len=this.length; i<len; ++i) {
       if (this[i] !== arr[i]) {
         return false;
@@ -1295,7 +1296,7 @@
   Array.prototype.$method("deepEquals", function(arr) {
     // 長さチェック
     if (this.length !== arr.length) return false;
-    
+
     for (var i=0,len=this.length; i<len; ++i) {
       var result = (this[i].deepEquals) ? this[i].deepEquals(arr[i]) : (this[i] === arr[i]);
       if (result === false) {
@@ -1325,12 +1326,12 @@
   Array.prototype.$method("contains", function(item, fromIndex) {
     return this.indexOf(item, fromIndex) != -1;
   });
-  
+
   /**
    * @method at
    * 指定したインデックスの要素を返します（ループ・負数の指定可）。
    *
-   * 添字が負数の場合は末尾からのオフセットとみなします。末尾の要素が -1 番目になります。  
+   * 添字が負数の場合は末尾からのオフセットとみなします。末尾の要素が -1 番目になります。
    * 添字の絶対値が Array.length 以上の場合はループします。
    *
    * ### Example
@@ -1382,56 +1383,56 @@
     return target;
   });
 
-  /**
-   * @method findIndex
-   * 各要素を引数にして関数を実行し、その値が真となる（＝条件にマッチする）最初のインデックスを返します。
-   *
-   * どの要素もマッチしなければ -1 を返します。
-   *
-   * ### Example
-   *     arr = ['foo', 'bar', 'hoge', 'fuga'];
-   *     arr.findIndex( function(elm) {
-   *       return elm.indexOf('a') >= 0;
-   *     });
-   *     // => 1
-   *
-   * @param {Function} callback 各要素に対して実行するコールバック関数
-   * @param {Object} [self=this] callback 内で this として参照される値。デフォルトは呼び出し時の this。
-   * @return {Object} 条件にマッチした最初のインデックス、または -1
-   */
-  Array.prototype.$method("findIndex", function(fn, self) {
-    var target = null;
+  // /**
+  //  * @method findIndex
+  //  * 各要素を引数にして関数を実行し、その値が真となる（＝条件にマッチする）最初のインデックスを返します。
+  //  *
+  //  * どの要素もマッチしなければ -1 を返します。
+  //  *
+  //  * ### Example
+  //  *     arr = ['foo', 'bar', 'hoge', 'fuga'];
+  //  *     arr.findIndex( function(elm) {
+  //  *       return elm.indexOf('a') >= 0;
+  //  *     });
+  //  *     // => 1
+  //  *
+  //  * @param {Function} callback 各要素に対して実行するコールバック関数
+  //  * @param {Object} [self=this] callback 内で this として参照される値。デフォルトは呼び出し時の this。
+  //  * @return {Object} 条件にマッチした最初のインデックス、または -1
+  //  */
+  // Array.prototype.$method("findIndex", function(fn, self) {
+  //   var target = null;
 
-    this.some(function(elm, i) {
-      if (fn.call(self, elm, i, this)) {
-        target = i;
-        return true;
-      }
-    });
+  //   this.some(function(elm, i) {
+  //     if (fn.call(self, elm, i, this)) {
+  //       target = i;
+  //       return true;
+  //     }
+  //   });
 
-    return target;
-  });
-  
-  /**
-   * @method swap
-   * @chainable
-   * a 番目の要素 と b 番目の要素を入れ替えます。
-   *
-   * ### Example
-   *     arr1 = ['a', 'b', 'c', 'd'];
-   *     arr2 = arr1.swap(0, 3); // => ['d', 'b', 'c', 'a']
-   *     arr1 === arr2;          // => true
-   *
-   * @param {Number} a  インデックス
-   * @param {Number} b  インデックス
-   */
-  Array.prototype.$method("swap", function(a, b) {
-    var temp = this[a];
-    this[a] = this[b];
-    this[b] = temp;
-    
-    return this;
-  });
+  //   return target;
+  // });
+
+  // /**
+  //  * @method swap
+  //  * @chainable
+  //  * a 番目の要素 と b 番目の要素を入れ替えます。
+  //  *
+  //  * ### Example
+  //  *     arr1 = ['a', 'b', 'c', 'd'];
+  //  *     arr2 = arr1.swap(0, 3); // => ['d', 'b', 'c', 'a']
+  //  *     arr1 === arr2;          // => true
+  //  *
+  //  * @param {Number} a  インデックス
+  //  * @param {Number} b  インデックス
+  //  */
+  // Array.prototype.$method("swap", function(a, b) {
+  //   var temp = this[a];
+  //   this[a] = this[b];
+  //   this[b] = temp;
+
+  //   return this;
+  // });
 
   /**
    * @method erase
@@ -1452,7 +1453,7 @@
     }
     return this;
   });
-  
+
   /**
    * @method eraseAll
    * @chainable
@@ -1473,7 +1474,7 @@
     }
     return this;
   });
-  
+
   /**
    * @method eraseIf
    * @chainable
@@ -1499,7 +1500,7 @@
     }
     return this;
   });
-  
+
   /**
    * @method eraseIfAll
    * @chainable
@@ -1525,13 +1526,13 @@
     }
     return this;
   });
-  
+
   /**
    * @method random
    * 配列からランダムに1つ取り出した要素を返します。
    *
-   * 取り出す範囲をインデックスで指定することもできます。  
-   * {@link #pickup}、{@link #lot} と同じです。  
+   * 取り出す範囲をインデックスで指定することもできます。
+   * {@link #pickup}、{@link #lot} と同じです。
    *
    * ### Example
    *     arr = ['foo', 'bar', 'hoge', 'fuga'];
@@ -1546,33 +1547,33 @@
     max = max || this.length-1;
     return this[ Math.randint(min, max) ];
   });
-  
-  /**
-   * @method pickup
-   * 配列からランダムで1つ取り出した要素を返します。
-   *
-   * {@link #random}、{@link #lot} と同じです。
-   * @inheritdoc #random
-   */
-  Array.prototype.$method("pickup", function(min, max) {
-    min = min || 0;
-    max = max || this.length-1;
-    return this[ Math.randint(min, max) ];
-  });
-  
-  /**
-   * @method lot
-   * 配列からランダムで1つ取り出した要素を返します。
-   *
-   * {@link #random}、{@link #pickup} と同じです。
-   * @inheritdoc #random
-   */
-  Array.prototype.$method("lot", function(min, max) {
-    min = min || 0;
-    max = max || this.length-1;
-    return this[ Math.randint(min, max) ];
-  });
-  
+
+  // /**
+  //  * @method pickup
+  //  * 配列からランダムで1つ取り出した要素を返します。
+  //  *
+  //  * {@link #random}、{@link #lot} と同じです。
+  //  * @inheritdoc #random
+  //  */
+  // Array.prototype.$method("pickup", function(min, max) {
+  //   min = min || 0;
+  //   max = max || this.length-1;
+  //   return this[ Math.randint(min, max) ];
+  // });
+
+  // /**
+  //  * @method lot
+  //  * 配列からランダムで1つ取り出した要素を返します。
+  //  *
+  //  * {@link #random}、{@link #pickup} と同じです。
+  //  * @inheritdoc #random
+  //  */
+  // Array.prototype.$method("lot", function(min, max) {
+  //   min = min || 0;
+  //   max = max || this.length-1;
+  //   return this[ Math.randint(min, max) ];
+  // });
+
   /**
    * @method uniq
    * 要素の重複を取り除いた配列を生成して返します。
@@ -1591,41 +1592,41 @@
       return self.indexOf(value) === index;
     });
   });
-  
 
-  /**
-   * @method flatten
-   * 自身を再帰的に平滑化した配列を生成して返します。
-   *
-   * level を指定しなければ深さの際限なく完全に平滑化します。
-   *
-   * ### Example
-   *     arr = [1, 2, [3, [4, 5]]];
-   *     arr.flatten();  // => [1, 2, 3, 4, 5]
-   *     arr.flatten(1); // => [1, 2, 3, [4, 5]]
-   *
-   * @param {Number} [level=0]  平滑化の再帰の深さ
-   * @return {Object} 平滑化した配列
-   */
-  Array.prototype.$method("flatten", function(level) {
-    var arr = null;
 
-    if (level) {
-      arr = this;
-      for (var i=0; i<level; ++i) {
-        arr = Array.prototype.concat.apply([], arr);
-      }
-    }
-    else {
-      // 完全フラット
-      arr = this.reduce(function (previousValue, curentValue) {
-        return Array.isArray(curentValue) ?
-          previousValue.concat(curentValue.flatten()) : previousValue.concat(curentValue);
-      }, []);
-    }
+  // /**
+  //  * @method flatten
+  //  * 自身を再帰的に平滑化した配列を生成して返します。
+  //  *
+  //  * level を指定しなければ深さの際限なく完全に平滑化します。
+  //  *
+  //  * ### Example
+  //  *     arr = [1, 2, [3, [4, 5]]];
+  //  *     arr.flatten();  // => [1, 2, 3, 4, 5]
+  //  *     arr.flatten(1); // => [1, 2, 3, [4, 5]]
+  //  *
+  //  * @param {Number} [level=0]  平滑化の再帰の深さ
+  //  * @return {Object} 平滑化した配列
+  //  */
+  // Array.prototype.$method("flatten", function(level) {
+  //   var arr = null;
 
-    return arr;
-  });
+  //   if (level) {
+  //     arr = this;
+  //     for (var i=0; i<level; ++i) {
+  //       arr = Array.prototype.concat.apply([], arr);
+  //     }
+  //   }
+  //   else {
+  //     // 完全フラット
+  //     arr = this.reduce(function (previousValue, curentValue) {
+  //       return Array.isArray(curentValue) ?
+  //         previousValue.concat(curentValue.flatten()) : previousValue.concat(curentValue);
+  //     }, []);
+  //   }
+
+  //   return arr;
+  // });
 
   /**
    * @method clone
@@ -1673,40 +1674,40 @@
     this.length = 0;
     return this;
   });
-  
-  /**
-   * @method fill
-   * @chainable
-   * 自身の一部の要素を特定の値で埋めます。
-   *
-   * ### Example
-   *     arr = [1, 2, 3, 4, 5];
-   *     arr.fill("x");       // => ["x", "x", "x", "x", "x"]
-   *     arr.fill("x", 2, 4); // => [1, 2, "x", "x", 5]
-   *
-   * @param {Object} value 埋める値
-   * @param {Number} [start=0] 値を埋める最初のインデックス
-   * @param {Number} [end=自身の配列の長さ] 値を埋める最後のインデックス+1
-   */
-  Array.prototype.$method("fill", function(value, start, end) {
-    start = start || 0;
-    end   = end   || (this.length);
-    
-    for (var i=start; i<end; ++i) {
-      this[i] = value;
-    }
-    
-    return this;
-  });
-  
+
+  // /**
+  //  * @method fill
+  //  * @chainable
+  //  * 自身の一部の要素を特定の値で埋めます。
+  //  *
+  //  * ### Example
+  //  *     arr = [1, 2, 3, 4, 5];
+  //  *     arr.fill("x");       // => ["x", "x", "x", "x", "x"]
+  //  *     arr.fill("x", 2, 4); // => [1, 2, "x", "x", 5]
+  //  *
+  //  * @param {Object} value 埋める値
+  //  * @param {Number} [start=0] 値を埋める最初のインデックス
+  //  * @param {Number} [end=自身の配列の長さ] 値を埋める最後のインデックス+1
+  //  */
+  // Array.prototype.$method("fill", function(value, start, end) {
+  //   start = start || 0;
+  //   end   = end   || (this.length);
+
+  //   for (var i=start; i<end; ++i) {
+  //     this[i] = value;
+  //   }
+
+  //   return this;
+  // });
+
 
   /**
    * @method range
    * @chainable
    * 自身を等差数列（一定間隔の整数値の列）とします。
    *
-   * - 引数が1つの場合、0～end（end含まず）の整数の配列です。  
-   * - 引数が2つの場合、start～end（end含まず）の整数の配列です。  
+   * - 引数が1つの場合、0～end（end含まず）の整数の配列です。
+   * - 引数が2つの場合、start～end（end含まず）の整数の配列です。
    * - 引数が3つの場合、start～end（end含まず）かつ start + n * step (nは整数)を満たす整数の配列です。
    *
    * ### Example
@@ -1722,7 +1723,7 @@
    */
   Array.prototype.$method("range", function(start, end, step) {
     this.clear();
-    
+
     if (arguments.length == 1) {
       for (var i=0; i<start; ++i) this[i] = i;
     }
@@ -1742,10 +1743,10 @@
         }
       }
     }
-    
+
     return this;
   });
-  
+
   /**
    * @method shuffle
    * @chainable
@@ -1758,55 +1759,55 @@
   Array.prototype.$method("shuffle", function() {
     for (var i=0,len=this.length; i<len; ++i) {
       var j = Math.randint(0, len-1);
-      
+
       if (i != j) {
         this.swap(i, j);
       }
     }
-    
+
     return this;
   });
 
-  /**
-   * @method sum
-   * 要素の合計値を返します。
-   *
-   * 要素に数値以外が含まれる場合の挙動は不定です。
-   *
-   * ### Example
-   *     arr = [1, 2, 3, 4, 5, 6];
-   *     arr.sum(); // => 21
-   *
-   * @return {Number} 合計
-   */
-  Array.prototype.$method("sum", function() {
-    var sum = 0;
-    for (var i=0,len=this.length; i<len; ++i) {
-      sum += this[i];
-    }
-    return sum;
-  });
+  // /**
+  //  * @method sum
+  //  * 要素の合計値を返します。
+  //  *
+  //  * 要素に数値以外が含まれる場合の挙動は不定です。
+  //  *
+  //  * ### Example
+  //  *     arr = [1, 2, 3, 4, 5, 6];
+  //  *     arr.sum(); // => 21
+  //  *
+  //  * @return {Number} 合計
+  //  */
+  // Array.prototype.$method("sum", function() {
+  //   var sum = 0;
+  //   for (var i=0,len=this.length; i<len; ++i) {
+  //     sum += this[i];
+  //   }
+  //   return sum;
+  // });
 
-  /**
-   * @method average
-   * 要素の平均値を返します。
-   *
-   * 要素に数値以外が含まれる場合の挙動は不定です。
-   *
-   * ### Example
-   *     arr = [1, 2, 3, 4, 5, 6]
-   *     arr.average(); // => 3.5
-   *
-   * @return {Number} 平均値
-   */
-  Array.prototype.$method("average", function() {
-    var sum = 0;
-    var len = this.length;
-    for (var i=0; i<len; ++i) {
-      sum += this[i];
-    }
-    return sum/len;
-  });
+  // /**
+  //  * @method average
+  //  * 要素の平均値を返します。
+  //  *
+  //  * 要素に数値以外が含まれる場合の挙動は不定です。
+  //  *
+  //  * ### Example
+  //  *     arr = [1, 2, 3, 4, 5, 6]
+  //  *     arr.average(); // => 3.5
+  //  *
+  //  * @return {Number} 平均値
+  //  */
+  // Array.prototype.$method("average", function() {
+  //   var sum = 0;
+  //   var len = this.length;
+  //   for (var i=0; i<len; ++i) {
+  //     sum += this[i];
+  //   }
+  //   return sum/len;
+  // });
 
   /**
    * @method each
@@ -1835,24 +1836,24 @@
     return this;
   });
 
-  
-  /**
-   * @method toULElement
-   * ULElement に変換します（未実装）
-   */
-  Array.prototype.$method("toULElement", function(){
-      // TODO: 
-  });
 
-  /**
-   * @method toOLElement
-   * OLElement に変換します（未実装）
-   */
-  Array.prototype.$method("toOLElement", function(){
-      // TODO:
-  });
+  // /**
+  //  * @method toULElement
+  //  * ULElement に変換します（未実装）
+  //  */
+  // Array.prototype.$method("toULElement", function(){
+  //     // TODO:
+  // });
 
-  
+  // /**
+  //  * @method toOLElement
+  //  * OLElement に変換します（未実装）
+  //  */
+  // Array.prototype.$method("toOLElement", function(){
+  //     // TODO:
+  // });
+
+
   /**
    * @method range
    * @static
@@ -1866,289 +1867,132 @@
   });
 
 
-  /**
-   * @method of
-   * @static
-   * ES6 準拠の of 関数です。可変長引数をとって Array オブジェクトにして返します。
-   *
-   * ### Example
-   *     Array.of();        // => []
-   *     Array.of(1, 2, 3); // => [1, 2, 3]
-   *
-   * @param {Object} elementN 生成する配列の要素
-   * @return {Array} 生成した配列
-   */
-  Array.$method("of", function() {
-    return Array.prototype.slice.call(arguments);
-  });
+  // /**
+  //  * @method of
+  //  * @static
+  //  * ES6 準拠の of 関数です。可変長引数をとって Array オブジェクトにして返します。
+  //  *
+  //  * ### Example
+  //  *     Array.of();        // => []
+  //  *     Array.of(1, 2, 3); // => [1, 2, 3]
+  //  *
+  //  * @param {Object} elementN 生成する配列の要素
+  //  * @return {Array} 生成した配列
+  //  */
+  // Array.$method("of", function() {
+  //   return Array.prototype.slice.call(arguments);
+  // });
 
-  /**
-   * @method from
-   * @static
-   * ES6 準拠の from 関数です。array-like オブジェクトかiterable オブジェクトから新しい配列を生成します。
-   *
-   * array-like オブジェクトとは、length プロパティを持ち、数字の添字でアクセス可能なオブジェクトのことです。
-   * 通常の配列のほか、String、arguments、NodeList なども array-like オブジェクトです。
-   *
-   * iterable オブジェクトとは、Symbol.iterator プロパティを持つオブジェクトのことです。
-   * 通常の配列のほか、String、arguments、NodeList なども iterable オブジェクトです。
-   *
-   * ### Example
-   *     Array.from([1, 2, 3], function(elm){ return elm * elm} ); // => [1, 4, 9]
-   *     Array.from("foo");                                        // => ["f", "o", "o"]
-   *     Array.from( document.querySelectorAll("span"))            // => [Element, Element, Element,...]
-   *
-   * @param {Object} arrayLike 配列に変換する array-like オブジェクト
-   * @param {Function} [callback] arrayLike のすべての要素に対して実行するマップ関数
-   * @param {Object} [context] callback 内で this として参照される値
-   * @return {Array} 生成した配列
-   */
-  Array.$method("from", function(arrayLike, callback, context) {
-    if (!Object(arrayLike).length) return [];
+  // /**
+  //  * @method from
+  //  * @static
+  //  * ES6 準拠の from 関数です。array-like オブジェクトかiterable オブジェクトから新しい配列を生成します。
+  //  *
+  //  * array-like オブジェクトとは、length プロパティを持ち、数字の添字でアクセス可能なオブジェクトのことです。
+  //  * 通常の配列のほか、String、arguments、NodeList なども array-like オブジェクトです。
+  //  *
+  //  * iterable オブジェクトとは、Symbol.iterator プロパティを持つオブジェクトのことです。
+  //  * 通常の配列のほか、String、arguments、NodeList なども iterable オブジェクトです。
+  //  *
+  //  * ### Example
+  //  *     Array.from([1, 2, 3], function(elm){ return elm * elm} ); // => [1, 4, 9]
+  //  *     Array.from("foo");                                        // => ["f", "o", "o"]
+  //  *     Array.from( document.querySelectorAll("span"))            // => [Element, Element, Element,...]
+  //  *
+  //  * @param {Object} arrayLike 配列に変換する array-like オブジェクト
+  //  * @param {Function} [callback] arrayLike のすべての要素に対して実行するマップ関数
+  //  * @param {Object} [context] callback 内で this として参照される値
+  //  * @return {Array} 生成した配列
+  //  */
+  // Array.$method("from", function(arrayLike, callback, context) {
+  //   if (!Object(arrayLike).length) return [];
 
-    var result = [];
-    if (Symbol && Symbol.iterator && arrayLike[Symbol.iterator]) {
-        var iterator = arrayLike[Symbol.iterator]();
-        while (true) {
-            var iteratorResult = iterator.next();
-            if (iteratorResult.done) break;
+  //   var result = [];
+  //   if (Symbol && Symbol.iterator && arrayLike[Symbol.iterator]) {
+  //       var iterator = arrayLike[Symbol.iterator]();
+  //       while (true) {
+  //           var iteratorResult = iterator.next();
+  //           if (iteratorResult.done) break;
 
-            var value = typeof callback === 'function' ? callback.bind(context || this)(iteratorResult.value) : iteratorResult.value;
-            result.push(value);
-        }
-        return result;
-    }
+  //           var value = typeof callback === 'function' ? callback.bind(context || this)(iteratorResult.value) : iteratorResult.value;
+  //           result.push(value);
+  //       }
+  //       return result;
+  //   }
 
-    for (var i = 0, len = arrayLike.length; i < len; i++) {
-        result.push(arrayLike[i]);
-    }
-    return result.map(typeof callback == 'function' ? callback : function(item) {
-      return item;
-    }, context);
-  });
-  
-  /**
-   * @method most
-   * 指定した関数の返り値が最小となる要素と最大となる要素をまとめて返します。
-   *
-   * 空の配列に対して実行すると {max: Infinity, min: -Infinity} を返します。
-   *
-   * ### Example
-   *     [5,1,4,1,9,2,-10].most(); // => {max:9, min: -10}
-   *
-   *     points = [ {x:0, y:0}, {x:640, y:960}, {x:-80, y:100} ];
-   *     points.most(function(e){return e.x;}).min; // => [x:-80, y:100]
-   *     points.most(function(e){return e.y;}).max; // => [x:640, y:960]
-   *
-   * @param {Function} [callback] 各要素に対して実行するコールバック関数
-   * @param {Object} [self=this] 関数内で this として参照される値。デフォルトは自分自身。
-   * @return {Object} max と min をキーに持つオブジェクト
-   * @return {Object} return.min 関数の返り値が最小となる要素
-   * @return {Object} return.max 関数の返り値が最大となる要素
-   */
-  Array.prototype.$method("most", function(func, self) {
-    if(this.length < 1){
-      return {
-        max: -Infinity,
-        min: Infinity,
-      };
-    }
-    if(func){
-      var maxValue = -Infinity;
-      var minValue = Infinity;
-      var maxIndex = 0;
-      var minIndex = 0;
-      
-      if(typeof self === 'undefined'){self = this;}
-      
-      for (var i = 0, len = this.length; i < len; ++i) {
-        var v = func.call(self, this[i], i, this);
-        if(maxValue < v){
-          maxValue = v;
-          maxIndex = i;
-        }
-        if(minValue > v){
-          minValue = v;
-          minIndex = i;
-        }
-      }
-      return {
-        max: this[maxIndex],
-        min: this[minIndex],
-      };
-    }
-    else{
-      var max = -Infinity;
-      var min = Infinity;
-      for (var i = 0, len = this.length;i < len; ++i) {
-        if(max<this[i]){max=this[i];}
-        if(min>this[i]){min=this[i];}
-      }
-      return {
-        max: max,
-        min: min,
-      };
-    }
-    
-  });  
+  //   for (var i = 0, len = arrayLike.length; i < len; i++) {
+  //       result.push(arrayLike[i]);
+  //   }
+  //   return result.map(typeof callback == 'function' ? callback : function(item) {
+  //     return item;
+  //   }, context);
+  // });
 
-})();
+  // /**
+  //  * @method most
+  //  * 指定した関数の返り値が最小となる要素と最大となる要素をまとめて返します。
+  //  *
+  //  * 空の配列に対して実行すると {max: Infinity, min: -Infinity} を返します。
+  //  *
+  //  * ### Example
+  //  *     [5,1,4,1,9,2,-10].most(); // => {max:9, min: -10}
+  //  *
+  //  *     points = [ {x:0, y:0}, {x:640, y:960}, {x:-80, y:100} ];
+  //  *     points.most(function(e){return e.x;}).min; // => [x:-80, y:100]
+  //  *     points.most(function(e){return e.y;}).max; // => [x:640, y:960]
+  //  *
+  //  * @param {Function} [callback] 各要素に対して実行するコールバック関数
+  //  * @param {Object} [self=this] 関数内で this として参照される値。デフォルトは自分自身。
+  //  * @return {Object} max と min をキーに持つオブジェクト
+  //  * @return {Object} return.min 関数の返り値が最小となる要素
+  //  * @return {Object} return.max 関数の返り値が最大となる要素
+  //  */
+  // Array.prototype.$method("most", function(func, self) {
+  //   if(this.length < 1){
+  //     return {
+  //       max: -Infinity,
+  //       min: Infinity,
+  //     };
+  //   }
+  //   if(func){
+  //     var maxValue = -Infinity;
+  //     var minValue = Infinity;
+  //     var maxIndex = 0;
+  //     var minIndex = 0;
 
-/*
- * date.js
- */
+  //     if(typeof self === 'undefined'){self = this;}
 
-(function() {
-  
-  /**
-   * @class global.Date
-   * # 拡張した Date クラス
-   * 日付を扱う Date クラスを拡張しています。
-   */
-  
-  var MONTH = [
-    'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-  
-  var WEEK = [
-    'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
-  ];
-  
-  /**
-   * @method format
-   * 指定したフォーマットに従って日付を文字列化します。
-   *
-   * <table border="1">
-   *   <tr><td>変換指定文字列</td><td>意味</td></tr>
-   *   <tr><td>yyyy</td><td>西暦年（4桁）</td></tr>
-   *   <tr><td>yy</td><td>西暦年（2桁）</td></tr>
-   *   <tr><td>y</td><td>西暦年</td></tr>
-   *   <tr><td>MMMM</td><td>月（英語名）</td></tr>
-   *   <tr><td>MMM</td><td>月（英語省略名）</td></tr>
-   *   <tr><td>MM</td><td>月（2桁数字）</td></tr>
-   *   <tr><td>M</td><td>月</td></tr>
-   *   <tr><td>dd</td><td>日（2桁）</td></tr>
-   *   <tr><td>d</td><td>日</td></tr>
-   *   <tr><td>EEEE</td><td>曜日（英語名）</td></tr>
-   *   <tr><td>EEE</td><td>曜日（英語省略名）</td></tr>
-   *   <tr><td>HH</td><td>時（24時間表記・2桁）</td></tr>
-   *   <tr><td>H</td><td>時（24時間表記）</td></tr>
-   *   <tr><td>mm</td><td>分（2桁）</td></tr>
-   *   <tr><td>m</td><td>分</td></tr>
-   *   <tr><td>ss</td><td>秒（2桁）</td></tr>
-   *   <tr><td>s</td><td>秒</td></tr>
-   * </table>
-   * 桁数が指定されているものは0パディングされます。
-   *
-   * ### Example
-   *     (new Date()).format("yyyy-MM-dd(EEE)"); // => "2016-04-05(Tue)" など
-   *
-   * @param {String} pattern フォーマット文字列
-   * @return {String} フォーマット文字列に従って生成された文字列
-   */
-  Date.prototype.$method('format', function(pattern) {
-    var year    = this.getFullYear();
-    var month   = this.getMonth();
-    var date    = this.getDate();
-    var day     = this.getDay();
-    var hours   = this.getHours();
-    var minutes = this.getMinutes();
-    var seconds = this.getSeconds();
-    var millseconds = this.getMilliseconds();
-    
-    var patterns = {
-      'yyyy': String(year).padding(4, '0'),
-      'yy': year.toString().substr(2, 2),
-      'y': year,
+  //     for (var i = 0, len = this.length; i < len; ++i) {
+  //       var v = func.call(self, this[i], i, this);
+  //       if(maxValue < v){
+  //         maxValue = v;
+  //         maxIndex = i;
+  //       }
+  //       if(minValue > v){
+  //         minValue = v;
+  //         minIndex = i;
+  //       }
+  //     }
+  //     return {
+  //       max: this[maxIndex],
+  //       min: this[minIndex],
+  //     };
+  //   }
+  //   else{
+  //     var max = -Infinity;
+  //     var min = Infinity;
+  //     for (var i = 0, len = this.length;i < len; ++i) {
+  //       if(max<this[i]){max=this[i];}
+  //       if(min>this[i]){min=this[i];}
+  //     }
+  //     return {
+  //       max: max,
+  //       min: min,
+  //     };
+  //   }
 
-      'MMMM': MONTH[month],
-      'MMM': MONTH[month].substr(0, 3),
-      'MM': String(month+1).padding(2, '0'),
-      'M': (month+1),
+  // });
 
-      'dd': String(date).padding(2, '0'),
-      'd': date,
-
-      'EEEE': WEEK[day],
-      'EEE': WEEK[day].substr(0, 3),
-
-      'HH': String(hours).padding(2, '0'),
-      'H': hours,
-
-      'mm': String(minutes).padding(2, '0'),
-      'm': minutes,
-
-      'ss': String(seconds).padding(2, '0'),
-      's': seconds,
-      
-      // // date
-      // 'd': String('00' + date).slice(-2),
-      // 'D': WEEK[day].substr(0, 3),
-      // 'j': date,
-      // 'l': WEEK[day],
-      
-      // // month
-      // 'm': String('00' + (month+1)).slice(-2),
-      // 'M': MONTH[month].substr(0, 3),
-      // 'n': (month+1),
-      // 'F': MONTH[month],
-      
-      // // year
-      // 'y': year.toString().substr(2, 2),
-      // 'Y': year,
-      
-      // // time
-      // 'G': hours,
-      // 'H': String('00' + hours).slice(-2),
-      // 'i': String('00' + minutes).slice(-2),
-      // 's': String('00' + seconds).slice(-2),
-      // 'S': String('000' + millseconds).slice(-3),
-    };
-
-    var regstr = '(' + Object.keys(patterns).join('|') + ')';
-    var re = new RegExp(regstr, 'g');
-
-    return pattern.replace(re, function(str) {
-      return patterns[str];
-    });
-  });
-
-
-  /**
-   * @method calculateAge
-   * @static
-   * 指定した誕生日から、現在または指定した日付における年齢を計算します。
-   *
-   * ###Reference
-   * - [Javascriptで誕生日から現在の年齢を算出](http://qiita.com/n0bisuke/items/dd537bd4cbe9ab501ce8)
-   *
-   * ### Example
-   *     Date.calculateAge("1990-01-17"); // => 26 など
-   *
-   * @param {String/Date} birthday 誕生日
-   * @param {String/Date} [when=本日] 基準の日付
-   * @return {Number} 年齢
-   */
-  Date.$method('calculateAge', function(birthday, when) {
-    // birthday
-    if (typeof birthday === 'string') {
-      birthday = new Date(birthday);
-    }
-    // when
-    if (!when) {
-      when = new Date();
-    }
-    else if (typeof when === 'string') {
-      when = new Date(when);
-    }
-
-    var bn = new Date(birthday.getTime()).setFullYear(256);
-    var wn = new Date(when.getTime()).setFullYear(256);
-    var step = (wn < bn) ? 1 : 0;
-
-    return (when.getFullYear() - birthday.getFullYear()) - step;
-  });
-  
 })();
 
 /*
@@ -5617,383 +5461,6 @@ phina.namespace(function() {
   });
 
 })();
-/*
- * color.js
- */
-
-phina.namespace(function() {
-
-  /**
-   * @class phina.util.Color
-   * カラークラス
-   */
-  phina.define("phina.util.Color", {
-    /** R値 */
-    r: 255,
-    /** G値 */
-    g: 255,
-    /** B値 */
-    b: 255,
-    /** A値 */
-    a: 1.0,
-
-    /**
-     * 初期化
-     */
-    init: function(r, g, b, a) {
-      this.set.apply(this, arguments);
-    },
-
-    /**
-     * セッター.
-     */
-    set: function(r, g, b, a) {
-      this.r = r;
-      this.g = g;
-      this.b = b;
-      this.a = (a !== undefined) ? a : 1.0;
-      return this;
-    },
-
-    /**
-     * 数値によるセッター.
-     */
-    setFromNumber: function(r, g, b, a) {
-      this.r = r;
-      this.g = g;
-      this.b = b;
-      this.a = (a !== undefined) ? a : 1.0;
-      return this;
-    },
-
-    /**
-     * 配列によるセッター
-     */
-    setFromArray: function(arr) {
-      return this.set.apply(this, arr);
-    },
-
-    /**
-     * オブジェクトによるセッター
-     */
-    setFromObject: function(obj) {
-      return this.set(obj.r, obj.g, obj.b, obj.a);
-    },
-
-    /**
-     * 文字列によるセッター
-     */
-    setFromString: function(str) {
-      var color = phina.util.Color.stringToNumber(str);
-      return this.set(color[0], color[1], color[2], color[3]);
-    },
-
-    /**
-     * 賢いセッター
-     */
-    setSmart: function() {
-      var arg = arguments[0];
-      if (arguments.length >= 3) {
-        this.set(arguments.r, arguments.g, arguments.b, arguments.a);
-      } else if (arg instanceof Array) {
-        this.setFromArray(arg);
-      } else if (arg instanceof Object) {
-        this.setFromObject(arg);
-      } else if (typeof(arg) == "string") {
-        this.setFromString(arg);
-      }
-      return this;
-    },
-
-    /**
-     * CSS 用 16進数文字列に変換
-     */
-    toStyleAsHex: function() {
-      return "#{0}{1}{2}".format(
-        this.r.toString(16).padding(2, '0'),
-        this.g.toString(16).padding(2, '0'),
-        this.b.toString(16).padding(2, '0')
-      );
-    },
-
-    /**
-     * CSS 用 RGB文字列に変換
-     */
-    toStyleAsRGB: function() {
-      return "rgb({r},{g},{b})".format({
-        r: ~~this.r,
-        g: ~~this.g,
-        b: ~~this.b
-      });
-    },
-
-
-    /**
-     * CSS 用 RGBA文字列に変換
-     */
-    toStyleAsRGBA: function() {
-      return "rgba({r},{g},{b},{a})".format({
-        r: ~~this.r,
-        g: ~~this.g,
-        b: ~~this.b,
-        a: this.a
-      });
-    },
-
-    /**
-     * CSS 用 RGBA 文字列に変換
-     */
-    toStyle: function() {
-      return "rgba({r},{g},{b},{a})".format({
-        r: ~~this.r,
-        g: ~~this.g,
-        b: ~~this.b,
-        a: this.a
-      });
-    },
-
-    _static: {
-
-      /**
-       * @static
-       * カラーリスト
-       */
-      COLOR_LIST: {
-        /** @property black */
-        "black": [0x00, 0x00, 0x00],
-        /** @property silver */
-        "silver": [0xc0, 0xc0, 0xc0],
-        /** @property gray */
-        "gray": [0x80, 0x80, 0x80],
-        /** @property white */
-        "white": [0xff, 0xff, 0xff],
-        /** @property maroon */
-        "maroon": [0x80, 0x00, 0x00],
-        /** @property red */
-        "red": [0xff, 0x00, 0x00],
-        /** @property purple */
-        "purple": [0x80, 0x00, 0x80],
-        /** @property fuchsia */
-        "fuchsia": [0xff, 0x00, 0xff],
-        /** @property green */
-        "green": [0x00, 0x80, 0x00],
-        /** @property lime */
-        "lime": [0x00, 0xff, 0x00],
-        /** @property olive */
-        "olive": [0x80, 0x80, 0x00],
-        /** @property yellow */
-        "yellow": [0xff, 0xff, 0x00],
-        /** @property navy */
-        "navy": [0x00, 0x00, 0x80],
-        /** @property blue */
-        "blue": [0x00, 0x00, 0xff],
-        /** @property teal */
-        "teal": [0x00, 0x80, 0x80],
-        /** @property aqua */
-        "aqua": [0x00, 0xff, 0xff],
-      },
-
-      /**
-       * @static
-       * @member phina.util.Color
-       * @method strToNum
-       */
-      strToNum: function(str) {
-        return this.stringToNumber(str);
-      },
-      stringToNumber: function(str) {
-        var value = null;
-        var type = null;
-
-        if (str[0] === '#') {
-          type = (str.length == 4) ? "hex111" : "hex222";
-        } else if (str[0] === 'r' && str[1] === 'g' && str[2] === 'b') {
-          type = (str[3] == 'a') ? "rgba" : "rgb";
-        } else if (str[0] === 'h' && str[1] === 's' && str[2] === 'l') {
-          type = (str[3] == 'a') ? "hsla" : "hsl";
-        }
-
-        if (type) {
-          var match_set = MATCH_SET_LIST[type];
-          var m = str.match(match_set.reg);
-          value = match_set.exec(m);
-        } else if (phina.util.Color.COLOR_LIST[str]) {
-          value = phina.util.Color.COLOR_LIST[str];
-        }
-
-        return value;
-      },
-
-      /**
-       * @static
-       * @method
-       * hsl を rgb に変換
-       */
-      HSLtoRGB: function(h, s, l) {
-        var r, g, b;
-
-        h %= 360;
-        h += 360;
-        h %= 360;
-        s *= 0.01;
-        l *= 0.01;
-
-        if (s === 0) {
-          var l = Math.round(l * 255);
-          return [l, l, l];
-        }
-        var m2 = (l < 0.5) ? l * (1 + s) : l + s - l * s;
-        var m1 = l * 2 - m2;
-
-        // red
-        var temp = (h + 120) % 360;
-        if (temp < 60) {
-          r = m1 + (m2 - m1) * temp / 60;
-        } else if (temp < 180) {
-          r = m2;
-        } else {
-          r = m1;
-        }
-
-        // green
-        temp = h;
-        if (temp < 60) {
-          g = m1 + (m2 - m1) * temp / 60;
-        } else if (temp < 180) {
-          g = m2;
-        } else if (temp < 240) {
-          g = m1 + (m2 - m1) * (240 - temp) / 60;
-        } else {
-          g = m1;
-        }
-
-        // blue
-        temp = ((h - 120) + 360) % 360;
-        if (temp < 60) {
-          b = m1 + (m2 - m1) * temp / 60;
-        } else if (temp < 180) {
-          b = m2;
-        } else if (temp < 240) {
-          b = m1 + (m2 - m1) * (240 - temp) / 60;
-        } else {
-          b = m1;
-        }
-
-        return [
-          parseInt(r * 255),
-          parseInt(g * 255),
-          parseInt(b * 255)
-        ];
-      },
-
-      /**
-       * @static
-       * @method
-       * hsla を rgba に変換
-       */
-      HSLAtoRGBA: function(h, s, l, a) {
-        var temp = phina.util.Color.HSLtoRGB(h, s, l);
-        temp[3] = a;
-        return temp;
-      },
-
-      /**
-       * @static
-       * @method
-       * rgb 値を作成
-       */
-      createStyleRGB: function(r, g, b) {
-        return "rgba(" + r + "," + g + "," + b + ")";
-      },
-
-      /**
-       * @static
-       * @method
-       * rgba 値を作成
-       */
-      createStyleRGBA: function(r, g, b, a) {
-        return "rgba(" + r + "," + g + "," + b + "," + a + ")";
-      },
-
-      /**
-       * @static
-       * @method
-       * hsl 値を作成
-       */
-      createStyleHSL: function(h, s, l) {
-        return "hsl(" + h + "," + s + "%," + l + "%)";
-      },
-
-      /**
-       * @static
-       * @method
-       * hsla 値を作成
-       */
-      createStyleHSLA: function(h, s, l, a) {
-        return "hsla(" + h + "," + s + "%," + l + "%," + a + ")";
-      },
-    }
-  });
-
-
-  var MATCH_SET_LIST = {
-    "hex111": {
-      reg: /^#(\w{1})(\w{1})(\w{1})$/,
-      exec: function(m) {
-        return [
-          parseInt(m[1] + m[1], 16),
-          parseInt(m[2] + m[2], 16),
-          parseInt(m[3] + m[3], 16)
-        ];
-      }
-    },
-    "hex222": {
-      reg: /^#(\w{2})(\w{2})(\w{2})$/,
-      exec: function(m) {
-        return [
-          parseInt(m[1], 16),
-          parseInt(m[2], 16),
-          parseInt(m[3], 16)
-        ];
-      }
-    },
-    "rgb": {
-      reg: /^rgb\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3})\)$/,
-      exec: function(m) {
-        return [
-          parseInt(m[1]),
-          parseInt(m[2]),
-          parseInt(m[3])
-        ];
-      }
-    },
-    "rgba": {
-      reg: /^rgba\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3}),\s*(\d{1}(\.{1}\d+)?)\)$/,
-      exec: function(m) {
-        return [
-          parseInt(m[1]),
-          parseInt(m[2]),
-          parseInt(m[3]),
-          parseFloat(m[4])
-        ];
-      }
-    },
-    "hsl": {
-      reg: /^hsl\((\d{1,3}),\s*(\d{1,3})%,\s*(\d{1,3})%\)$/,
-      exec: function(m) {
-        return phina.util.Color.HSLtoRGB(m[1], m[2], m[3]);
-      }
-    },
-    "hsla": {
-      reg: /^rgba\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3}),\s*(\d{1}(\.{1}\d+)?)\)$/,
-      exec: function(m) {
-        return phina.util.Color.HSLAtoRGBA(m[1], m[2], m[3], m[4]);
-      },
-    }
-  };
-
-});
-
 /*
  * random.js
  */
@@ -11997,190 +11464,6 @@ phina.namespace(function() {
   });
 });
 
-/*
- *
- */
-
-
-phina.namespace(function() {
-
-  /**
-   * @class phina.graphics.CanvasRecorder
-   * Reference <https://github.com/jnordberg/gif.js/>
-   * @extends phina.util.EventDispatcher
-   */
-  phina.define('phina.graphics.CanvasRecorder', {
-
-    superClass: 'phina.util.EventDispatcher',
-
-    _id: null,
-    objectURL: null,
-
-    init: function(canvas, options) {
-      this.superInit();
-
-      this.canvas = canvas;
-
-      this.gif = new GIF((options || {}).$safe({
-        workers: 4,
-        quality: 10,
-        width: canvas.width,
-        height: canvas.height,
-      }));
-
-      this.gif.on('finished', function(blob) {
-        this.objectURL = URL.createObjectURL(blob);
-        this.flare('finished');
-      }.bind(this));
-    },
-
-    /**
-     * key と value はアクセサを参照
-     */
-    setOption: function(key, value) {
-      this.gif.setOption(key, value);
-      return this;
-    },
-
-    /**
-     * key と value はアクセサを参照
-     */
-    setOptions: function(options) {
-      this.gif.setOptions(options);
-      return this;
-    },
-
-    start: function(fps, recordingTime) {
-      fps = fps || 30;
-      recordingTime = recordingTime || 2000;
-      var frameTime = 1000 / fps;
-      var time = 0;
-      this._id = setInterval(function() {
-        var ctx = this.canvas.context;
-        this.gif.addFrame(ctx, {
-          copy: true,
-          delay: frameTime,
-        });
-
-        time += frameTime;
-
-        if (time > recordingTime) {
-          this.stop();
-        }
-      }.bind(this), frameTime);
-
-      return this;
-    },
-
-    stop: function() {
-      if (this._id === null) return this;
-      clearInterval(this._id);
-
-      // レンダリング
-      this.gif.render();
-      this._id = null;
-      return this;
-    },
-
-    open: function() {
-      window.open(this.objectURL);
-    },
-
-    _accessor: {
-
-      width: {
-        get: function() {
-          return this.gif.options.width || this.canvas.width;
-        },
-        set: function(width) {
-          this.setOption('width', width);
-        },
-      },
-
-      height: {
-        get: function() {
-          return this.gif.options.height || this.canvas.height;
-        },
-        set: function(height) {
-          this.setOption('height', height);
-        },
-      },
-
-      // GIF のクオリティ。低いほどハイクオリティ
-      quality: {
-        get: function() {
-          return this.gif.options.quality;
-        },
-        set: function(quality) {
-          this.setOption('quality', quality);
-        },
-      },
-
-      // Worker の URL デフォルトで gif.worker.js
-      workerScript: {
-        get: function() {
-          return this.gif.options.workerScript;
-        },
-        set: function(workerScript) {
-          this.setOption('workerScript', workerScript);
-        },
-      },
-
-      // 起動する Worker の数
-      workers: {
-        get: function() {
-          return this.gif.options.workers;
-        },
-        set: function(workers) {
-          this.setOption('workers', workers);
-        },
-      },
-
-      // ループするか 0 でループ -1 でループしない
-      repeat: {
-        get: function() {
-          return this.gif.options.repeat;
-        },
-        set: function(repeat) {
-          this.setOption('repeat', repeat);
-        },
-      },
-
-      // true で ループ false でループしない
-      loop: {
-        get: function() {
-          return this.gif.options.repeat === 0;
-        },
-        set: function(loop) {
-          this.setOption('repeat', loop ? 0 : -1);
-        },
-      },
-
-      // 透過する色 ? transparent hex color, 0x00FF00 = green
-      transparent: {
-        get: function() {
-          return this.gif.options.transparent;
-        },
-        set: function(transparent) {
-          this.setOption('transparent', transparent);
-        },
-      },
-
-      // background color where source image is transparent
-      background: {
-        get: function() {
-          return this.gif.options.background;
-        },
-        set: function(background) {
-          this.setOption('background', background);
-        },
-      },
-    }
-  });
-
-
-});
-
 
 phina.namespace(function() {
 
@@ -13481,38 +12764,6 @@ phina.namespace(function() {
     },
 
   });
-});
-
-
-phina.namespace(function() {
-
-  /**
-   * @class phina.effect.Wave
-   * Button
-   * @extends phina.display.CircleShape
-   */
-  phina.define('phina.effect.Wave', {
-    superClass: 'phina.display.CircleShape',
-    /**
-     * @constructor
-     */
-    init: function(options) {
-      options = (options || {}).$safe({
-        fill: 'white',
-        stroke: false,
-      });
-
-      this.superInit(options);
-
-      var tweener = phina.accessory.Tweener().attachTo(this);
-      tweener
-        .to({scaleX:2, scaleY:2, alpha:0}, 500)
-        .call(function() {
-          this.remove();
-        }, this);
-    },
-  });
-
 });
 
 
@@ -14859,32 +14110,98 @@ phina.namespace(function() {
 
 });
 
-
 phina.namespace(function() {
 
   /**
    * @class phina.social.Twitter
-   * 
+   * # Twitter の共有リンクを生成するクラス
+   * Twitter の共有リンクの URL を生成してくれるクラスです。
    */
   phina.define('phina.social.Twitter', {
     /**
      * @constructor
+     * 
+     * コンストラクタは存在しますがインスタンスメンバはありません。
      */
     init: function() {
     },
 
     _static: {
+      /**
+       * @property {String} [phina.social.Twitter.baseURL = 'https://twitter.com/intent']
+       * Twitter の共有リンクのベースとなる URL です。
+       * 
+       * @static
+       */
       baseURL: 'https://twitter.com/intent',
+
+      /**
+       * @property {Object} phina.social.Twitter.defaults
+       * デフォルト値を格納しているオブジェクトです。{@link #phina.social.Twitter.defaults.text}, {@link #phina.social.Twitter.defaults.hashtags}, {@link #phina.social.Twitter.defaults.url} を内包しています。
+       * 
+       * @static
+       */
       defaults: {
         // type: 'tweet',
+        /**
+         * @property {String} [phina.social.Twitter.defaults.text = 'Hello, World']
+         * デフォルトでツイートに含まれる文字列です。
+         * 
+         * @static
+         */
         text: 'Hello, world!',
+
         // screen_name: 'phi_jp',
-        hashtags: 'javascript,phina',
+
+        /**
+         * @property {String} [phina.social.Twitter.defaults.hashtags = 'javascript, phina_js']
+         * デフォルトでツイートに含まれるハッシュタグです。
+         * 
+         * @static
+         */
+        hashtags: 'javascript,phina_js',
+
         // url: 'http://github.com/phi-jp/phina.js',
-        url: phina.global.location && phina.global.location.href,
+
+        /**
+         * @property {String} [phina.social.Twitter.defaults.url = phina.global.location && phina.global.location.href]
+         * デフォルトでツイートに含まれる URL です。
+         * 
+         * @static
+         */
+        url: phina.global.location && phina.global.location.href
+
         // via: 'phi_jp',
       },
 
+      /**
+       * @method phina.social.Twitter.createURL
+       * Twitterの共有リンクを生成します。引数にオブジェクトを渡すことで様々なパラメーターを設定出来ます。引数のオブジェクトは {@link #phina.social.Twitter.defaults} で安全拡張されます。
+       * 
+       * ### Example
+       *     phina.social.Twitter.createURL(); // => http://twitter.com/intent/tweet?text=Hello%2C%20world!&hashtags=javascript%2Cphina&url={現在のURL}
+       * 
+       *     phina.social.Twitter.createURL({
+       *       text: 'This is text',
+       *       hashtags: 'hashtag1,hashtag2',
+       *       url: 'http://phinajs.com'
+       *     }); // => http://twitter.com/intent/tweet?text=This%20is%20text&hashtags=hashtag1%2Chashtag2&url=http%3A%2F%2Fphinajs.com
+       * 
+       *     phina.social.Twitter.createURL({
+       *       text: 'This is text',
+       *       hashtags: 'hashtag1,hashtag2',
+       *       url: 'http://phinajs.com',
+       *       other: 'This is other'//設定項目は適当に増やせる
+       *     }); // => http://twitter.com/intent/tweet?text=This%20is%20text&hashtags=hashtag1%2Chashtag2&url=http%3A%2F%2Fphinajs.com&other=This%20is%20other
+       * 
+       *     phina.social.Twitter.createURL({
+       *       url: 'http://phinajs.com'
+       *     }); // => http://twitter.com/intent/tweet?url=http%3A%2F%2Fphinajs.com&text=Hello%2C%20world!&hashtags=javascript%2Cphina
+       * 
+       * @param {Object}
+       * @return {String} Twitter の共有リンク
+       * @static
+       */
       createURL: function(options) {
         options = (options || {}).$safe(this.defaults);
 
@@ -14903,210 +14220,10 @@ phina.namespace(function() {
         });
 
         return url;
-      },
+      }
     }
   });
-
 });
-
-
-phina.namespace(function() {
-
-  if (!phina.global.Box2D) {
-    return ;
-  }
-
-  // http://box2dweb-doc.readthedocs.org/ja/latest/00_ready.html#id2
-  phina.box2d = {
-    b2: {
-      Vec2          : Box2D.Common.Math.b2Vec2,
-      AABB          : Box2D.Collision.b2AABB,
-      BodyDef       : Box2D.Dynamics.b2BodyDef,
-      Body          : Box2D.Dynamics.b2Body,
-      FixtureDef    : Box2D.Dynamics.b2FixtureDef,
-      Fixture       : Box2D.Dynamics.b2Fixture,
-      World         : Box2D.Dynamics.b2World,
-      MassData      : Box2D.Collision.Shapes.b2MassData,
-      PolygonShape  : Box2D.Collision.Shapes.b2PolygonShape,
-      CircleShape   : Box2D.Collision.Shapes.b2CircleShape,
-      DebugDraw     : Box2D.Dynamics.b2DebugDraw,
-      MouseJointDef : Box2D.Dynamics.Joints.b2MouseJointDef
-    },
-  };
-
-  var b2 = phina.box2d.b2;
-
-  /**
-   * @class phina.box2d.Box2dLayer
-   * @extends phina.display.Layer
-   */
-  phina.define('phina.box2d.Box2dLayer', {
-    superClass: 'phina.display.CanvasLayer',
-
-
-    init: function(params) {
-      this.superInit(params);
-
-      params = (params || {}).$safe({
-        worldScale: 50, // or 50
-      });
-
-      // 重力と物理世界の設定
-      var gravity = new b2.Vec2(0, 9.8);
-      var world = new b2.World(gravity, true);
-      
-      this.world = world;
-      this.world._scale = params.worldScale;
-
-      this._setupDebugDraw();
-    },
-
-    _setupDebugDraw: function() {
-      // デバッグ用スプライト
-      var debugDraw = new b2.DebugDraw();
-      debugDraw.SetSprite(this.canvas.context);
-      debugDraw.SetDrawScale(this.world._scale);
-      debugDraw.SetLineThickness(1.0);
-      debugDraw.SetAlpha(1);
-      debugDraw.SetFillAlpha(0.4);
-      debugDraw.SetFlags(b2.DebugDraw.e_shapeBit);
-      this.world.SetDebugDraw(debugDraw);
-    },
-
-    createBody: function(params) {
-      params.world = this.world;
-      var body = phina.box2d.Box2dBody(params);
-      return body;
-    },
-
-    update: function(app) {
-      // var timeStep = app.ticker.frameTime/1000;
-      var timeStep = app.ticker.deltaTime/1000;
-      var velocityIterations = 10;
-      var positionIterations = 10;
-      // 物理空間の更新
-      this.world.Step(timeStep,velocityIterations,positionIterations);
-    },
-
-    draw: function(canvas) {
-      // debug画面の更新
-      this.world.ClearForces();
-      this.world.DrawDebugData();
-      var domElement = this.canvas.domElement;
-      canvas.context.drawImage(domElement, 0, 0, domElement.width, domElement.height);
-    },
-  });
-});
-
-
-
-
-phina.namespace(function() {
-  
-  if (!phina.global.Box2D) {
-    return ;
-  }
-
-  var b2 = phina.box2d.b2;
-
-  /**
-   * @class phina.box2d.Box2dBody
-   * @extends phina.accessory.Accessory
-   */
-  phina.define('phina.box2d.Box2dBody', {
-    superClass: 'phina.accessory.Accessory',
-
-
-    init: function(params) {
-      this.superInit();
-
-      this.world = params.world;
-      this.type = params.type;
-      this.shape = params.shape;
-
-      this._init();
-
-      this.on('attached', function() {
-        var target = this.target;
-
-        var p = new b2.Vec2(target.x/this.world._scale, target.y/this.world._scale);
-        this.body.SetPosition(p);
-        this.body.SetAngle(target.rotation * Math.PI/180);
-
-        this._bindFixture(this.target);
-      });
-    },
-
-    update: function(app) {
-      var target = this.target;
-
-      target.x = this.body.GetPosition().x * this.world._scale;
-      target.y = this.body.GetPosition().y * this.world._scale;
-      target.rotation = this.body.GetAngle() * 180/Math.PI;
-    },
-
-    _init: function() {
-      this._setupBody();
-      return this;
-    },
-
-    _setupBody: function() {
-      var self = this;
-      var world = this.world;
-      var scale = world._scale;
-      var bodyDef = new b2.BodyDef();
-      bodyDef.type = (function() {
-        return {
-          'dynamic': b2.Body.b2_dynamicBody, 
-          'kinematic': b2.Body.b2_kinematicBody, 
-          'static': b2.Body.b2_staticBody, 
-        }[self.type || 'dynamic'];
-      })();
-      bodyDef.position.Set(0, 0);
-      var body = world.CreateBody(bodyDef);
-      this.body = body;
-
-      return this;
-    },
-
-    _bindFixture: function() {
-      var self = this;
-      var target = this.target;
-      var fixture = this.body.GetFixtureList();
-      if (fixture) {
-        this.body.DestroyFixture(fixture);
-      }
-
-      // 
-      var world = this.world;
-      var scale = world._scale;
-      // shape を取得
-      var shape = (function() {
-        var shape = null;
-        if (self.shape === 'circle') {
-          shape = new b2.CircleShape(target.radius / scale);
-        }
-        else if (self.shape === 'box'){
-          shape = new b2.PolygonShape();
-          shape.SetAsBox(target.width / scale / 2, target.height / scale / 2 );
-        }
-        else {
-          shape = new b2.CircleShape(32 / scale);
-        }
-        return shape;
-      })();
-
-      var fixture = new b2.FixtureDef();
-      fixture.shape = shape;
-      // TODO: このへんは引数で指定できるようにする
-      fixture.density = 1;
-      fixture.friction = 0.3;
-      fixture.restitution = 0.5;
-      this.body.CreateFixture(fixture);
-    },
-  });
-});
-
 
 
 

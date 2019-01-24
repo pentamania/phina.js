@@ -20,7 +20,7 @@
    *     (13.87).round(); // => 14
    *     (-1.87).round(); // => -2
    *     (-1.27).round(); // => -1
-   *     
+   *
    *     (2.345).round(); // => 2
    *     (2.345).round(1); // => 2.3
    *     (2.345).round(2); // => 2.35
@@ -37,7 +37,7 @@
     temp = Math.round(temp);
     return temp/base;
   });
-  
+
   /**
    * @method ceil
    * 指定した小数の位を切り上げた値を返します。
@@ -47,7 +47,7 @@
    * ### Example
    *     (-1.27).ceil(); // => -1
    *     (-1.87).ceil(); // => -1
-   *     
+   *
    *     (2.345).ceil(); // => 3
    *     (2.345).ceil(1); // => 2.4
    *     (2.345).ceil(2); // => 2.35
@@ -74,7 +74,7 @@
    * ### Example
    *     (-1.27).floor(); // => -2
    *     (-1.87).floor(); // => -2
-   *     
+   *
    *     (2.345).floor(); // => 2
    *     (2.345).floor(1); // => 2.3
    *     (2.345).floor(2); // => 2.34
@@ -89,13 +89,13 @@
     var base = Math.pow(10, figure);
     var temp = this * base;
     temp = Math.floor(temp);
-    
+
     // ~~this
     // this|0
-    
+
     return temp/base;
   });
-  
+
   /**
    * @method toInt
    * 数値を整数に変換します。
@@ -108,44 +108,44 @@
   Number.prototype.$method("toInt",  function() {
     return (this | 0);
   });
-  
-  /**
-   * @method toHex
-   * 数値を16進数表記にした文字列を返します。
-   *
-   * ### Example
-   *     (26).toHex(); // => "1a"
-   *     (-26).toHex(); // => "-1a"
-   *     (26.25).toHex(); // => "1a.4"
-   *
-   * @return {String} 16進数表記の文字列
-   */
-  Number.prototype.$method("toHex",  function() {
-    return this.toString(16);
-  });
-  
-  /**
-   * @method toBin
-   * 数値を2進数表記にした文字列を返します。
-   *
-   * ### Example
-   *     (6).toBin(); // => "110"
-   *     (-6).toBin(); // => "-110"
-   *     (0xA3).toBin(); // => "10100011"
-   *     (6.25).toHex(); // => "110.01"
-   *
-   * @return {String} 2進数表記の文字列
-   */
-  Number.prototype.$method("toBin",  function() {
-    return this.toString(2);
-  });
-  
-  
+
+  // /**
+  //  * @method toHex
+  //  * 数値を16進数表記にした文字列を返します。
+  //  *
+  //  * ### Example
+  //  *     (26).toHex(); // => "1a"
+  //  *     (-26).toHex(); // => "-1a"
+  //  *     (26.25).toHex(); // => "1a.4"
+  //  *
+  //  * @return {String} 16進数表記の文字列
+  //  */
+  // Number.prototype.$method("toHex",  function() {
+  //   return this.toString(16);
+  // });
+
+  // /**
+  //  * @method toBin
+  //  * 数値を2進数表記にした文字列を返します。
+  //  *
+  //  * ### Example
+  //  *     (6).toBin(); // => "110"
+  //  *     (-6).toBin(); // => "-110"
+  //  *     (0xA3).toBin(); // => "10100011"
+  //  *     (6.25).toHex(); // => "110.01"
+  //  *
+  //  * @return {String} 2進数表記の文字列
+  //  */
+  // Number.prototype.$method("toBin",  function() {
+  //   return this.toString(2);
+  // });
+
+
   /**
    * @method toUnsigned
    * 数値を unsigned int 型に変換します。
    *
-   * 数値を符号無し整数として評価した値を返します。  
+   * 数値を符号無し整数として評価した値を返します。
    * Javascriptのビット演算では数値を符号付きの32bit整数として扱うため、RGBA を
    * 整数値で表現して演算する場合、期待通りの結果が得られない場合があります。
    * そこで本関数で unsigned int 型に変換することで期待通りの値を得ることができます。
@@ -160,7 +160,7 @@
   Number.prototype.$method("toUnsigned",  function() {
     return this >>> 0;
   });
-  
+
   /**
    * @method padding
    * 指定した桁になるように文字を埋めます。
@@ -178,9 +178,9 @@
     var str = this+'';
     n  = n-str.length;
     ch = (ch || '0')[0];
-    
+
     while(n-- > 0) { str = ch + str; }
-    
+
     if (str.indexOf("-") >= 0) {
       str = "-" + str.replace("-", "");
     }
@@ -210,57 +210,57 @@
     return this;
   });
 
-  /**
-   * @method upto
-   * 自分自身の数から指定した数まで、カウンタをインクリメントしながら関数を繰り返し実行します。
-   *
-   * 指定した数が自分自身の数より小さい場合は関数は実行されません。
-   *
-   * ### Example
-   *     arr = [];
-   *     (6).upto(8, function(i){
-   *       arr.push(i);
-   *     });
-   *     arr; // => [6, 7, 8]
-   *
-   *     (3).upto(0, function(i){
-   *       arr.push(i);
-   *     });
-   *     arr; // => [6, 7, 8]
-   *
-   * @param {Function} fn コールバック関数。引数にカウンタが渡される。
-   * @param {Object} [self=this] 関数内で this として参照される値。デフォルトは自分自身。
-   */
-  Number.prototype.$method("upto",  function(t, fn, self) {
-    self = self || this;
-    for (var i=+this; i<=t; ++i) {
-      fn.call(self, i, this);
-    }
-    return this;
-  });
-  
-  /**
-   * @method downto
-   * 自分自身の数から指定した数まで、カウンタをデクリメントしながら関数を繰り返し実行します。
-   *
-   * 指定した数が自分自身の数より大きい場合は関数は実行されません。
-   *
-   * ### Example
-   *     arr = [];
-   *     (7).downto(4, function(i){
-   *       arr.push(i);
-   *     }); // => [7, 6, 5, 4]
-   *
-   * @param {Function} fn コールバック関数。引数にカウンタが渡される。
-   * @param {Object} [self=this] 関数内で this として参照される値。デフォルトは自分自身。
-   */
-  Number.prototype.$method("downto",  function(t, fn, self) {
-    self = self || this;
-    for (var i=+this; i>=t; --i) {
-      fn.call(self, i, this);
-    }
-    return this;
-  });
+  // /**
+  //  * @method upto
+  //  * 自分自身の数から指定した数まで、カウンタをインクリメントしながら関数を繰り返し実行します。
+  //  *
+  //  * 指定した数が自分自身の数より小さい場合は関数は実行されません。
+  //  *
+  //  * ### Example
+  //  *     arr = [];
+  //  *     (6).upto(8, function(i){
+  //  *       arr.push(i);
+  //  *     });
+  //  *     arr; // => [6, 7, 8]
+  //  *
+  //  *     (3).upto(0, function(i){
+  //  *       arr.push(i);
+  //  *     });
+  //  *     arr; // => [6, 7, 8]
+  //  *
+  //  * @param {Function} fn コールバック関数。引数にカウンタが渡される。
+  //  * @param {Object} [self=this] 関数内で this として参照される値。デフォルトは自分自身。
+  //  */
+  // Number.prototype.$method("upto",  function(t, fn, self) {
+  //   self = self || this;
+  //   for (var i=+this; i<=t; ++i) {
+  //     fn.call(self, i, this);
+  //   }
+  //   return this;
+  // });
+
+  // /**
+  //  * @method downto
+  //  * 自分自身の数から指定した数まで、カウンタをデクリメントしながら関数を繰り返し実行します。
+  //  *
+  //  * 指定した数が自分自身の数より大きい場合は関数は実行されません。
+  //  *
+  //  * ### Example
+  //  *     arr = [];
+  //  *     (7).downto(4, function(i){
+  //  *       arr.push(i);
+  //  *     }); // => [7, 6, 5, 4]
+  //  *
+  //  * @param {Function} fn コールバック関数。引数にカウンタが渡される。
+  //  * @param {Object} [self=this] 関数内で this として参照される値。デフォルトは自分自身。
+  //  */
+  // Number.prototype.$method("downto",  function(t, fn, self) {
+  //   self = self || this;
+  //   for (var i=+this; i>=t; --i) {
+  //     fn.call(self, i, this);
+  //   }
+  //   return this;
+  // });
 
   /**
    * @method step
