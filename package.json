@@ -4,6 +4,8 @@
   "description": "phina.js is a game library in javascript",
   "main": "build/phina.js",
   "scripts": {
+    "start": "gulp",
+    "build": "gulp build & gulp uglify",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
