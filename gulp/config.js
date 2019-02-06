@@ -80,7 +80,7 @@ var files = [
   "dom/event.js",
 
   "graphics/canvas.js",
-  "graphics/canvasrecorder.js",
+  // "graphics/canvasrecorder.js",
 
   "display/displayelement.js",
   "display/plainelement.js",
@@ -112,8 +112,8 @@ var files = [
   "social/twitter.js",
 
 
-  "box2d/box2dlayer.js",
-  "box2d/box2dbody.js",
+  // "box2d/box2dlayer.js",
+  // "box2d/box2dbody.js",
 
   "dirty.js"
 ];
