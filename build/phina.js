@@ -6223,6 +6223,117 @@ phina.namespace(function() {
 });
 
 
+phina.namespace(function() {
+
+  /**
+   * phina.util.ObjectPool
+   * オブジェクトプールクラス
+   * 後述の管理クラスを経由して使うのがおすすめ
+   */
+  phina.define('phina.util.ObjectPool', {
+    superClass: 'phina.util.EventDispatcher',
+
+    init: function() {
+      this.superInit();
+      this._pool = [];
+    },
+
+    /**
+     * @method  add
+     * @chainable
+     * プールへオブジェクトを追加する
+     * @param {T} obj getParentを持っていること
+     * @return {this}
+     */
+    add: function(obj) {
+      this._pool.push(obj);
+      return this;
+    },
+
+    /**
+     * @method  pick
+     * プール内から親を持ってない（addChildされてない）objを探す。
+     * 見つかったらコールバックで引数として返す。
+     *
+     * @param {function} [success] 取得成功時のコールバック
+     * @param {function} [failure] 取得失敗時のコールバック
+     * @return {T | null}
+     */
+    pick: function(success, failure) {
+      var foundObj = this._pool.find(function(obj) {
+        if (obj.getParent() == null) {
+          obj.has('picked') && obj.flare('picked');
+          success(obj);
+          return true;
+        }
+      });
+
+      /* not found */
+      if (!foundObj && failure) failure();
+      return foundObj;
+    },
+
+    _accessor: {
+      length: {
+        get: function() { return this._pool.length; }
+      },
+    },
+
+  });
+
+
+  /**
+   * phina.util.ObjectPoolManager
+   * オブジェクトプール管理用シングルトンクラス
+   */
+  phina.define('phina.util.ObjectPoolManager', {
+    _static: {
+
+      pools: {},
+
+      /**
+       * @method setPool
+       * @static
+       * @param {string} key       プールを取得する際のキー名
+       * @param {Number} objectNum プールするオブジェクトの数
+       * @param {function|string} ObjClass  プールするオブジェクトクラス
+       * @param {Array} args      クラス引数
+       */
+      setPool: function(key, objectNum, ObjClass, args) {
+        var pool = phina.util.ObjectPool();
+        if (typeof ObjClass === 'string') {
+          ObjClass = phina.using(ObjClass);
+        }
+        if (!(typeof ObjClass === 'function')) {
+          console.error("[phina.js] Pooling ObjClass should be function or phina registered class string");
+        }
+
+        objectNum.times(function() {
+          var instance = ObjClass.apply(null, args);
+          pool.add(instance);
+        });
+
+        this.pools[key] = pool;
+        return this;
+      },
+
+      getPool: function(key) {
+        return this.pools[key];
+      },
+
+      add: function(key, obj) {
+        return this.pools[key].add(obj);
+      },
+
+      pick: function(key, success, failure) {
+        return this.pools[key].pick(success, failure);
+      },
+
+    }
+
+  });
+
+});
 
 phina.namespace(function() {
 
@@ -6338,7 +6449,7 @@ phina.namespace(function() {
       params.forIn(function(type, assets) {
         length += Object.keys(assets).length;
       });
-      
+
       params.forIn(function(type, assets) {
         assets.forIn(function(key, value) {
           var func = phina.asset.AssetLoader.assetLoadFunctions[type];
@@ -6431,6 +6542,10 @@ phina.namespace(function() {
         text: function(key, path) {
           var text = phina.asset.File();
           return text.load(path);
+        },
+        filter: function(key, func) {
+          var filter = phina.asset.Filter()
+          return filter.load(func);
         }
       },
       register: function(key, func) {
@@ -7387,6 +7502,52 @@ phina.namespace(function() {
 
   });
 });
+
+
+phina.namespace(function() {
+
+  var getTexture = function(texture) {
+    if (typeof texture === 'string') {
+      texture = phina.asset.AssetManager.get('image', texture);
+    }
+    return texture;
+  };
+
+  /**
+   * @class phina.asset.Filter
+   * @extends phina.asset.Asset
+   */
+  phina.define('phina.asset.Filter', {
+    superClass: "phina.asset.Asset",
+
+    /**
+     * @constructor
+     */
+    init: function() {
+      this.superInit();
+    },
+
+    _load: function(resolve) {
+      this._filterFunc = this.src;
+      resolve(this);
+    },
+
+    applyFilter: function(texture) {
+      var txt = getTexture(texture);
+      txt.filter(this._filterFunc);
+      return this;
+    },
+
+    registerFilteredImage: function(srcTexture, filteredImageKey) {
+      var filtered = getTexture(srcTexture).clone().filter(this._filterFunc);
+      phina.asset.AssetManager.set('image', filteredImageKey, filtered);
+      return this;
+    },
+
+  });
+
+});
+
 
 
 ;(function() {
@@ -11997,190 +12158,6 @@ phina.namespace(function() {
   });
 });
 
-/*
- *
- */
-
-
-phina.namespace(function() {
-
-  /**
-   * @class phina.graphics.CanvasRecorder
-   * Reference <https://github.com/jnordberg/gif.js/>
-   * @extends phina.util.EventDispatcher
-   */
-  phina.define('phina.graphics.CanvasRecorder', {
-
-    superClass: 'phina.util.EventDispatcher',
-
-    _id: null,
-    objectURL: null,
-
-    init: function(canvas, options) {
-      this.superInit();
-
-      this.canvas = canvas;
-
-      this.gif = new GIF((options || {}).$safe({
-        workers: 4,
-        quality: 10,
-        width: canvas.width,
-        height: canvas.height,
-      }));
-
-      this.gif.on('finished', function(blob) {
-        this.objectURL = URL.createObjectURL(blob);
-        this.flare('finished');
-      }.bind(this));
-    },
-
-    /**
-     * key と value はアクセサを参照
-     */
-    setOption: function(key, value) {
-      this.gif.setOption(key, value);
-      return this;
-    },
-
-    /**
-     * key と value はアクセサを参照
-     */
-    setOptions: function(options) {
-      this.gif.setOptions(options);
-      return this;
-    },
-
-    start: function(fps, recordingTime) {
-      fps = fps || 30;
-      recordingTime = recordingTime || 2000;
-      var frameTime = 1000 / fps;
-      var time = 0;
-      this._id = setInterval(function() {
-        var ctx = this.canvas.context;
-        this.gif.addFrame(ctx, {
-          copy: true,
-          delay: frameTime,
-        });
-
-        time += frameTime;
-
-        if (time > recordingTime) {
-          this.stop();
-        }
-      }.bind(this), frameTime);
-
-      return this;
-    },
-
-    stop: function() {
-      if (this._id === null) return this;
-      clearInterval(this._id);
-
-      // レンダリング
-      this.gif.render();
-      this._id = null;
-      return this;
-    },
-
-    open: function() {
-      window.open(this.objectURL);
-    },
-
-    _accessor: {
-
-      width: {
-        get: function() {
-          return this.gif.options.width || this.canvas.width;
-        },
-        set: function(width) {
-          this.setOption('width', width);
-        },
-      },
-
-      height: {
-        get: function() {
-          return this.gif.options.height || this.canvas.height;
-        },
-        set: function(height) {
-          this.setOption('height', height);
-        },
-      },
-
-      // GIF のクオリティ。低いほどハイクオリティ
-      quality: {
-        get: function() {
-          return this.gif.options.quality;
-        },
-        set: function(quality) {
-          this.setOption('quality', quality);
-        },
-      },
-
-      // Worker の URL デフォルトで gif.worker.js
-      workerScript: {
-        get: function() {
-          return this.gif.options.workerScript;
-        },
-        set: function(workerScript) {
-          this.setOption('workerScript', workerScript);
-        },
-      },
-
-      // 起動する Worker の数
-      workers: {
-        get: function() {
-          return this.gif.options.workers;
-        },
-        set: function(workers) {
-          this.setOption('workers', workers);
-        },
-      },
-
-      // ループするか 0 でループ -1 でループしない
-      repeat: {
-        get: function() {
-          return this.gif.options.repeat;
-        },
-        set: function(repeat) {
-          this.setOption('repeat', repeat);
-        },
-      },
-
-      // true で ループ false でループしない
-      loop: {
-        get: function() {
-          return this.gif.options.repeat === 0;
-        },
-        set: function(loop) {
-          this.setOption('repeat', loop ? 0 : -1);
-        },
-      },
-
-      // 透過する色 ? transparent hex color, 0x00FF00 = green
-      transparent: {
-        get: function() {
-          return this.gif.options.transparent;
-        },
-        set: function(transparent) {
-          this.setOption('transparent', transparent);
-        },
-      },
-
-      // background color where source image is transparent
-      background: {
-        get: function() {
-          return this.gif.options.background;
-        },
-        set: function(background) {
-          this.setOption('background', background);
-        },
-      },
-    }
-  });
-
-
-});
-
 
 phina.namespace(function() {
 
@@ -12302,19 +12279,8 @@ phina.namespace(function() {
     superClass: 'phina.display.PlainElement',
 
     init: function(options) {
-      options = ({}).$safe(options, {
-        width: 64,
-        height: 64,
-        padding: 8,
+      options = ({}).$safe(options || {}, phina.display.Shape.defaults);
 
-        backgroundColor: '#aaa',
-        fill: '#00a',
-        stroke: '#aaa',
-        strokeWidth: 4,
-
-        shadow: false,
-        shadowBlur: 4,
-      });
       this.superInit(options);
 
       this.padding = options.padding;
@@ -12323,6 +12289,8 @@ phina.namespace(function() {
       this.fill = options.fill;
       this.stroke = options.stroke;
       this.strokeWidth = options.strokeWidth;
+      this.lineCap = options.lineCap;
+      this.lineJoin = options.lineJoin;
 
       this.shadow = options.shadow;
       this.shadowBlur = options.shadowBlur;
@@ -12391,7 +12359,8 @@ phina.namespace(function() {
       if (this.isStrokable()) {
         context.strokeStyle = this.stroke;
         context.lineWidth = this.strokeWidth;
-        context.lineJoin = "round";
+        context.lineCap = this.lineCap;
+        context.lineJoin = this.lineJoin;
         context.shadowBlur = 0;
         this.renderStroke(canvas);
       }
@@ -12432,6 +12401,21 @@ phina.namespace(function() {
           watchRenderProperty.call(this, key);
         }, this);
       },
+      defaults: {
+        width: 64,
+        height: 64,
+        padding: 8,
+
+        backgroundColor: '#aaa',
+        fill: '#00a',
+        stroke: '#aaa',
+        strokeWidth: 4,
+        lineCap: 'round',
+        lineJoin: 'round',
+
+        shadow: false,
+        shadowBlur: 4,
+      },
     },
 
     _defined: function() {
@@ -12444,6 +12428,8 @@ phina.namespace(function() {
         'fill',
         'stroke',
         'strokeWidth',
+        'lineCap',
+        'lineJoin',
         'shadow',
         'shadowBlur',
       ]);
@@ -12460,14 +12446,8 @@ phina.namespace(function() {
   phina.define('phina.display.RectangleShape', {
     superClass: 'phina.display.Shape',
     init: function(options) {
-      options = ({}).$safe(options, {
-        backgroundColor: 'transparent',
-        fill: 'blue',
-        stroke: '#aaa',
-        strokeWidth: 4,
+      options = ({}).$safe(options || {}, phina.display.RectangleShape.defaults);
 
-        cornerRadius: 0,
-      });
       this.superInit(options);
 
       this.cornerRadius = options.cornerRadius;
@@ -12480,6 +12460,17 @@ phina.namespace(function() {
     _defined: function() {
       phina.display.Shape.watchRenderProperty.call(this, 'cornerRadius');
     },
+
+    _static: {
+      defaults: {
+        backgroundColor: 'transparent',
+        fill: 'blue',
+        stroke: '#aaa',
+        strokeWidth: 4,
+
+        cornerRadius: 0,
+      },
+    }
   });
 });
 
@@ -12493,13 +12484,8 @@ phina.namespace(function() {
     superClass: 'phina.display.Shape',
 
     init: function(options) {
-      options = ({}).$safe(options, {
-        backgroundColor: 'transparent',
-        fill: 'red',
-        stroke: '#aaa',
-        strokeWidth: 4,
-        radius: 32,
-      });
+      options = ({}).$safe(options || {}, phina.display.CircleShape.defaults);
+
       this.superInit(options);
 
       this.setBoundingType('circle');
@@ -12508,6 +12494,16 @@ phina.namespace(function() {
     prerender: function(canvas) {
       canvas.circle(0, 0, this.radius);
     },
+
+    _static: {
+      defaults: {
+        backgroundColor: 'transparent',
+        fill: 'red',
+        stroke: '#aaa',
+        strokeWidth: 4,
+        radius: 32,
+      },
+    }
   });
 });
 
@@ -12520,14 +12516,8 @@ phina.namespace(function() {
     superClass: 'phina.display.Shape',
 
     init: function(options) {
-      options = ({}).$safe(options, {
-        backgroundColor: 'transparent',
-        fill: 'green',
-        stroke: '#aaa',
-        strokeWidth: 4,
+      options = ({}).$safe(options || {}, phina.display.TriangleShape.defaults);
 
-        radius: 32,
-      });
       this.superInit(options);
 
       this.setBoundingType('circle');
@@ -12537,6 +12527,16 @@ phina.namespace(function() {
       canvas.polygon(0, 0, this.radius, 3);
     },
 
+    _static: {
+      defaults: {
+        backgroundColor: 'transparent',
+        fill: 'green',
+        stroke: '#aaa',
+        strokeWidth: 4,
+
+        radius: 32,
+      },
+    }
   });
 
 });
@@ -12549,16 +12549,8 @@ phina.namespace(function() {
   phina.define('phina.display.StarShape', {
     superClass: 'phina.display.Shape',
     init: function(options) {
-      options = ({}).$safe(options, {
-        backgroundColor: 'transparent',
-        fill: 'yellow',
-        stroke: '#aaa',
-        strokeWidth: 4,
+      options = ({}).$safe(options || {}, phina.display.StarShape.defaults);
 
-        radius: 32,
-        sides: 5,
-        sideIndent: 0.38,
-      });
       this.superInit(options);
 
       this.setBoundingType('circle');
@@ -12574,6 +12566,19 @@ phina.namespace(function() {
       phina.display.Shape.watchRenderProperty.call(this, 'sides');
       phina.display.Shape.watchRenderProperty.call(this, 'sideIndent');
     },
+
+    _static: {
+      defaults: {
+        backgroundColor: 'transparent',
+        fill: 'yellow',
+        stroke: '#aaa',
+        strokeWidth: 4,
+
+        radius: 32,
+        sides: 5,
+        sideIndent: 0.38,
+      },
+    }
   });
 
 });
@@ -12586,15 +12591,8 @@ phina.namespace(function() {
   phina.define('phina.display.PolygonShape', {
     superClass: 'phina.display.Shape',
     init: function(options) {
-      options = ({}).$safe(options, {
-        backgroundColor: 'transparent',
-        fill: 'cyan',
-        stroke: '#aaa',
-        strokeWidth: 4,
+      options = ({}).$safe(options || {}, phina.display.PolygonShape.defaults);
 
-        radius: 32,
-        sides: 5,
-      });
       this.superInit(options);
 
       this.setBoundingType('circle');
@@ -12608,6 +12606,18 @@ phina.namespace(function() {
     _defined: function() {
       phina.display.Shape.watchRenderProperty.call(this, 'sides');
     },
+
+    _static: {
+      defaults: {
+        backgroundColor: 'transparent',
+        fill: 'cyan',
+        stroke: '#aaa',
+        strokeWidth: 4,
+
+        radius: 32,
+        sides: 5,
+      },
+    }
   });
 
 });
@@ -12621,15 +12631,8 @@ phina.namespace(function() {
   phina.define('phina.display.HeartShape', {
     superClass: 'phina.display.Shape',
     init: function(options) {
-      options = ({}).$safe(options, {
-        backgroundColor: 'transparent',
-        fill: 'pink',
-        stroke: '#aaa',
-        strokeWidth: 4,
+      options = ({}).$safe(options || {}, phina.display.HeartShape.defaults);
 
-        radius: 32,
-        cornerAngle: 45,
-      });
       this.superInit(options);
 
       this.setBoundingType('circle');
@@ -12643,6 +12646,18 @@ phina.namespace(function() {
     _defined: function() {
       phina.display.Shape.watchRenderProperty.call(this, 'cornerAngle');
     },
+
+    _static: {
+      defaults: {
+        backgroundColor: 'transparent',
+        fill: 'pink',
+        stroke: '#aaa',
+        strokeWidth: 4,
+
+        radius: 32,
+        cornerAngle: 45,
+      },
+    }
   });
 
 });
@@ -12657,7 +12672,7 @@ phina.namespace(function () {
     paths: null,
 
     init: function (options) {
-      options = ({}).$safe(options || {}, PathShape.defaults);
+      options = ({}).$safe(options || {}, phina.display.PathShape.defaults);
 
       this.superInit(options);
       this.paths = options.paths || [];
@@ -12738,8 +12753,6 @@ phina.namespace(function () {
     },
 
     prerender: function (canvas) {
-      canvas.lineCap = this.lineCap;
-      canvas.lineJoin = this.lineJoin;
       var paths = this.paths;
       if (paths.length > 1) {
         var c = canvas.context;
@@ -12753,26 +12766,16 @@ phina.namespace(function () {
       }
     },
 
-    _defined: function () {
-      phina.display.Shape.watchRenderProperties.call(this, [
-        'lineCap',
-        'lineJoin'
-      ]);
-    },
-
     _static: {
       defaults: {
         fill: false,
         backgroundColor: 'transparent',
-        lineCap: 'round',
-        lineJoin:'round',
       },
     }
 
   });
 
 });
-
 
 phina.namespace(function() {
 
@@ -12787,22 +12790,32 @@ phina.namespace(function() {
       this.superInit();
 
       this.srcRect = phina.geom.Rect();
+      this.tint = "";
       this.setImage(image, width, height);
     },
 
     draw: function(canvas) {
       var image = this.image.domElement;
-
-      // canvas.context.drawImage(image,
-      //   0, 0, image.width, image.height,
-      //   -this.width*this.origin.x, -this.height*this.origin.y, this.width, this.height
-      //   );
-
       var srcRect = this.srcRect;
+      var left = -this._width*this.originX;
+      var top = -this._height*this.originY;
+
       canvas.context.drawImage(image,
         srcRect.x, srcRect.y, srcRect.width, srcRect.height,
-        -this._width*this.originX, -this._height*this.originY, this._width, this._height
+        left, top, this._width, this._height
+      );
+
+      if (this.tint) {
+        canvas.globalCompositeOperation = 'multiply';
+        canvas.fillStyle = this.tint;
+        canvas.fillRect(left, top, this._width, this._height);
+
+        canvas.globalCompositeOperation = 'destination-in';
+        canvas.context.drawImage(image,
+          srcRect.x, srcRect.y, srcRect.width, srcRect.height,
+          left, top, this._width, this._height
         );
+      }
     },
 
     setImage: function(image, width, height) {
@@ -12828,7 +12841,7 @@ phina.namespace(function() {
       var col = ~~(this.image.domElement.height / th);
       var maxIndex = row*col;
       index = index%maxIndex;
-      
+
       var x = index%row;
       var y = ~~(index/row);
       this.srcRect.x = x*tw;
@@ -12970,13 +12983,13 @@ phina.namespace(function() {
         stroke: null,
         strokeWidth: 2,
 
-        // 
+        //
         text: 'Hello, world!',
-        // 
+        //
         fontSize: 32,
         fontWeight: '',
         fontFamily: "'HiraKakuProN-W3'", // Hiragino or Helvetica,
-        // 
+        //
         align: 'center',
         baseline: 'middle',
         lineHeight: 1.2,
@@ -12997,7 +13010,50 @@ phina.namespace(function() {
 
 });
 
+phina.namespace(function() {
 
+  /**
+   * @class phina.display.IconLabel
+   * @extends phina.display.Label
+   */
+  phina.define('phina.display.IconLabel', {
+    superClass: 'phina.display.Label',
+
+    init: function(options) {
+      if (typeof arguments[0] !== 'object') {
+        options = { text: arguments[0] };
+      }
+      else {
+        options = arguments[0];
+      }
+
+      options = ({}).$safe(options, phina.display.IconLabel.defaults);
+
+      this.superInit(options);
+
+      this.setSize(this.fontSize, this.fontSize);
+    },
+
+    _accessor: {
+      text: {
+        get: function()  { return this._text; },
+        set: function(v) {
+          var iconInt = (typeof v === 'string') ? parseInt(v, 16) : v;
+          this._text = String.fromCharCode(iconInt);
+          this._lines = (this.text + '').split('\n');
+        },
+      }
+    },
+
+    _static: {
+      defaults: {
+        text: 'f024',
+        fontSize: 100,
+        fontFamily: "FontAwesome",
+      },
+    },
+  });
+});
 
 phina.namespace(function() {
 
@@ -13017,7 +13073,7 @@ phina.namespace(function() {
       this.canvas.setSize(params.width, params.height);
       this.renderer = phina.display.CanvasRenderer(this.canvas);
       this.backgroundColor = (params.backgroundColor) ? params.backgroundColor : null;
-      
+
       this.width = params.width;
       this.height = params.height;
       this.gridX = phina.util.Grid(params.width, 16);
@@ -13030,6 +13086,13 @@ phina.namespace(function() {
       };
       this._overFlags = {};
       this._touchFlags = {};
+
+      if (params.antialias === false) {
+        var ctx = this.canvas.context;
+        ctx.imageSmoothingEnabled = false;
+        ctx.webkitImageSmoothingEnabled = false;
+        ctx.msImageSmoothingEnabled = false;
+      }
     },
 
     hitTest: function() {
@@ -13050,6 +13113,7 @@ phina.namespace(function() {
       defaults: {
         width: 640,
         height: 960,
+        antialias: true,
       },
     }
 
@@ -13601,7 +13665,6 @@ phina.namespace(function() {
 
     init: function(options) {
       options = ({}).$safe(options || {}, phina.ui.Gauge.defaults);
-      
       this.superInit(options);
 
       this._value = (options.value !== undefined) ? options.value : options.maxValue;
@@ -13706,7 +13769,7 @@ phina.namespace(function() {
       phina.display.Shape.watchRenderProperty.call(this, 'gaugeColor');
       phina.display.Shape.watchRenderProperty.call(this, 'cornerRadius');
     },
-    
+
     _static: {
       defaults: {
         width: 256,
@@ -13762,7 +13825,7 @@ phina.namespace(function() {
       this.endAngle = end;
 
       this.canvas.rotate(-Math.PI*0.5);
-      this.canvas.scale(1, -1);
+      if (this.anticlockwise) this.canvas.scale(1, -1);
     },
 
     renderFill: function(canvas) {
@@ -13787,6 +13850,63 @@ phina.namespace(function() {
 
 });
 
+
+phina.namespace(function() {
+
+  /**
+   * @classs phina.ui.RingGauge
+   * @extends phina.ui.CircleGauge
+   *
+   */
+  phina.define('phina.ui.RingGauge', {
+    superClass: 'phina.ui.CircleGauge',
+
+    init: function(options) {
+      options = ({}).$safe(options, {
+        gaugeBackgroundColor: '#aaa',
+        gaugeColor: '#26EE71',
+        gaugeWidth: 12,
+        anticlockwise: false,
+      });
+
+      this.superInit(options);
+
+      this.stroke = true; // 必ずrenderStrokeさせる
+      this.fill = false; // 塗りはさせない
+      this.gaugeWidth = options.gaugeWidth;
+      this.gaugeBackgroundColor = options.gaugeBackgroundColor;
+      this.gaugeBackgroundWidth = (options.gaugeBackgroundWidth != null)
+        ? options.gaugeBackgroundWidth
+        : this.gaugeWidth* 1.5;
+    },
+
+    renderFill: function(canvas) {},
+
+    renderStroke: function(canvas) {
+      var ctx = canvas.context;
+      var radius = this.radius - this.gaugeBackgroundWidth/2;
+
+      // 背景部
+      if (this.gaugeBackgroundWidth && this.gaugeBackgroundColor) {
+        ctx.lineWidth = this.gaugeBackgroundWidth;
+        ctx.strokeStyle = this.gaugeBackgroundColor;
+        canvas.strokeCircle(0, 0, radius);
+      }
+
+      // メインゲージ部
+      ctx.lineWidth = this.gaugeWidth;
+      ctx.strokeStyle = this.gaugeColor;
+      canvas.strokeArc(0, 0, radius, this.startAngle, this.endAngle);
+    },
+
+    _defined: function() {
+      phina.display.Shape.watchRenderProperty.call(this, 'gaugeBackgroundColor');
+      phina.display.Shape.watchRenderProperty.call(this, 'gaugeWidth');
+      phina.display.Shape.watchRenderProperty.call(this, 'gaugeBackgroundWidth');
+    },
+  });
+
+});
 
 
 phina.namespace(function() {
@@ -14629,7 +14749,7 @@ phina.namespace(function() {
       });
 
       if (options.count instanceof Array) {
-        this.countList = options.count.reverse();
+        this.countList = options.count.clone().reverse();
       }
       else {
         this.countList = Array.range(1, options.count+1);
@@ -14974,205 +15094,6 @@ phina.namespace(function() {
     }
   });
 });
-
-
-phina.namespace(function() {
-
-  if (!phina.global.Box2D) {
-    return ;
-  }
-
-  // http://box2dweb-doc.readthedocs.org/ja/latest/00_ready.html#id2
-  phina.box2d = {
-    b2: {
-      Vec2          : Box2D.Common.Math.b2Vec2,
-      AABB          : Box2D.Collision.b2AABB,
-      BodyDef       : Box2D.Dynamics.b2BodyDef,
-      Body          : Box2D.Dynamics.b2Body,
-      FixtureDef    : Box2D.Dynamics.b2FixtureDef,
-      Fixture       : Box2D.Dynamics.b2Fixture,
-      World         : Box2D.Dynamics.b2World,
-      MassData      : Box2D.Collision.Shapes.b2MassData,
-      PolygonShape  : Box2D.Collision.Shapes.b2PolygonShape,
-      CircleShape   : Box2D.Collision.Shapes.b2CircleShape,
-      DebugDraw     : Box2D.Dynamics.b2DebugDraw,
-      MouseJointDef : Box2D.Dynamics.Joints.b2MouseJointDef
-    },
-  };
-
-  var b2 = phina.box2d.b2;
-
-  /**
-   * @class phina.box2d.Box2dLayer
-   * @extends phina.display.Layer
-   */
-  phina.define('phina.box2d.Box2dLayer', {
-    superClass: 'phina.display.CanvasLayer',
-
-
-    init: function(params) {
-      this.superInit(params);
-
-      params = (params || {}).$safe({
-        worldScale: 50, // or 50
-      });
-
-      // 重力と物理世界の設定
-      var gravity = new b2.Vec2(0, 9.8);
-      var world = new b2.World(gravity, true);
-      
-      this.world = world;
-      this.world._scale = params.worldScale;
-
-      this._setupDebugDraw();
-    },
-
-    _setupDebugDraw: function() {
-      // デバッグ用スプライト
-      var debugDraw = new b2.DebugDraw();
-      debugDraw.SetSprite(this.canvas.context);
-      debugDraw.SetDrawScale(this.world._scale);
-      debugDraw.SetLineThickness(1.0);
-      debugDraw.SetAlpha(1);
-      debugDraw.SetFillAlpha(0.4);
-      debugDraw.SetFlags(b2.DebugDraw.e_shapeBit);
-      this.world.SetDebugDraw(debugDraw);
-    },
-
-    createBody: function(params) {
-      params.world = this.world;
-      var body = phina.box2d.Box2dBody(params);
-      return body;
-    },
-
-    update: function(app) {
-      // var timeStep = app.ticker.frameTime/1000;
-      var timeStep = app.ticker.deltaTime/1000;
-      var velocityIterations = 10;
-      var positionIterations = 10;
-      // 物理空間の更新
-      this.world.Step(timeStep,velocityIterations,positionIterations);
-    },
-
-    draw: function(canvas) {
-      // debug画面の更新
-      this.world.ClearForces();
-      this.world.DrawDebugData();
-      var domElement = this.canvas.domElement;
-      canvas.context.drawImage(domElement, 0, 0, domElement.width, domElement.height);
-    },
-  });
-});
-
-
-
-
-phina.namespace(function() {
-  
-  if (!phina.global.Box2D) {
-    return ;
-  }
-
-  var b2 = phina.box2d.b2;
-
-  /**
-   * @class phina.box2d.Box2dBody
-   * @extends phina.accessory.Accessory
-   */
-  phina.define('phina.box2d.Box2dBody', {
-    superClass: 'phina.accessory.Accessory',
-
-
-    init: function(params) {
-      this.superInit();
-
-      this.world = params.world;
-      this.type = params.type;
-      this.shape = params.shape;
-
-      this._init();
-
-      this.on('attached', function() {
-        var target = this.target;
-
-        var p = new b2.Vec2(target.x/this.world._scale, target.y/this.world._scale);
-        this.body.SetPosition(p);
-        this.body.SetAngle(target.rotation * Math.PI/180);
-
-        this._bindFixture(this.target);
-      });
-    },
-
-    update: function(app) {
-      var target = this.target;
-
-      target.x = this.body.GetPosition().x * this.world._scale;
-      target.y = this.body.GetPosition().y * this.world._scale;
-      target.rotation = this.body.GetAngle() * 180/Math.PI;
-    },
-
-    _init: function() {
-      this._setupBody();
-      return this;
-    },
-
-    _setupBody: function() {
-      var self = this;
-      var world = this.world;
-      var scale = world._scale;
-      var bodyDef = new b2.BodyDef();
-      bodyDef.type = (function() {
-        return {
-          'dynamic': b2.Body.b2_dynamicBody, 
-          'kinematic': b2.Body.b2_kinematicBody, 
-          'static': b2.Body.b2_staticBody, 
-        }[self.type || 'dynamic'];
-      })();
-      bodyDef.position.Set(0, 0);
-      var body = world.CreateBody(bodyDef);
-      this.body = body;
-
-      return this;
-    },
-
-    _bindFixture: function() {
-      var self = this;
-      var target = this.target;
-      var fixture = this.body.GetFixtureList();
-      if (fixture) {
-        this.body.DestroyFixture(fixture);
-      }
-
-      // 
-      var world = this.world;
-      var scale = world._scale;
-      // shape を取得
-      var shape = (function() {
-        var shape = null;
-        if (self.shape === 'circle') {
-          shape = new b2.CircleShape(target.radius / scale);
-        }
-        else if (self.shape === 'box'){
-          shape = new b2.PolygonShape();
-          shape.SetAsBox(target.width / scale / 2, target.height / scale / 2 );
-        }
-        else {
-          shape = new b2.CircleShape(32 / scale);
-        }
-        return shape;
-      })();
-
-      var fixture = new b2.FixtureDef();
-      fixture.shape = shape;
-      // TODO: このへんは引数で指定できるようにする
-      fixture.density = 1;
-      fixture.friction = 0.3;
-      fixture.restitution = 0.5;
-      this.body.CreateFixture(fixture);
-    },
-  });
-});
-
 
 
 
