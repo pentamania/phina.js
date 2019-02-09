@@ -31,8 +31,8 @@ phina.namespace(function() {
       this._overFlags = {};
       this._touchFlags = {};
 
-      if (params.antialias === false) {
-        var ctx = this.canvas.context;
+      var ctx = this.canvas.context;
+      if (params.imageSmoothing === false) {
         ctx.imageSmoothingEnabled = false;
         ctx.webkitImageSmoothingEnabled = false;
         ctx.msImageSmoothingEnabled = false;
@@ -57,7 +57,11 @@ phina.namespace(function() {
       defaults: {
         width: 640,
         height: 960,
+<<<<<<< HEAD
         antialias: true,
+=======
+        imageSmoothing: true,
+>>>>>>> feature/imageSmoothing_option
       },
     }
 
