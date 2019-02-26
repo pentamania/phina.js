@@ -5,7 +5,7 @@
   "main": "build/phina.js",
   "scripts": {
     "start": "gulp",
-    "build": "gulp build & gulp uglify",
+    "build": "gulp build && gulp uglify",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -36,6 +36,7 @@
     "gulp-util": "^3.0.3",
     "gulp-webserver": "^0.9.1",
     "ip": "^0.3.3",
+    "pump": "^3.0.0",
     "require-dir": "^0.3.1"
   }
 }
