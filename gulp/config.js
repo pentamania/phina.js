@@ -86,6 +86,7 @@ var files = [
   "display/plainelement.js",
   "display/shape.js",
   "display/sprite.js",
+  "display/tiledsprite.js",
   "display/label.js",
   "display/displayscene.js",
   "display/canvaslayer.js",
