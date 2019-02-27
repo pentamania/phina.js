@@ -23,7 +23,7 @@ var files = [
   "core/math.js",
 
   "phina.js",
-  
+
   "geom/vector2.js",
   "geom/vector3.js",
   "geom/matrix33.js",
@@ -84,6 +84,7 @@ var files = [
   "display/plainelement.js",
   "display/shape.js",
   "display/sprite.js",
+  "display/tiledsprite.js",
   "display/label.js",
   "display/displayscene.js",
   "display/canvaslayer.js",
