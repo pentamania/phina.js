@@ -57,11 +57,7 @@ phina.namespace(function() {
       defaults: {
         width: 640,
         height: 960,
-<<<<<<< HEAD
-        antialias: true,
-=======
         imageSmoothing: true,
->>>>>>> feature/imageSmoothing_option
       },
     }
 
