@@ -197,6 +197,9 @@ phina.namespace(function() {
       this.sticks = Array.range(0, 2).map(function() {
         return phina.geom.Vector2(0, 0);
       });
+      this._prevSticks = Array.range(0, 2).map(function () {
+        return phina.geom.Vector2(0, 0);
+      });
     },
 
     /**
@@ -302,6 +305,34 @@ phina.namespace(function() {
     },
 
     /**
+     * スティックを傾けたかどうかをチェック
+     * @param  {Number} stickId
+     * @param  {Number} threshold 傾いてたと見なす傾きベクトルサイズ、最大1.0
+     * @return {Boolean} 結果
+     */
+    getStickTilt: function (stickId, threshold) {
+      stickId = stickId || 0;
+      threshold = threshold || phina.input.Gamepad.STICK_TILT_THRESHOLD;
+      var prev = this._prevSticks ? this._prevSticks[stickId] : phina.geom.Vector2(0, 0);
+      var current = this.sticks ? this.sticks[stickId] : phina.geom.Vector2(0, 0);
+      return (prev.length() < threshold) && (current.length() > threshold);
+    },
+
+    /**
+     * 傾いたスティックを元に戻したかをチェック
+     * @param  {Number} stickId
+     * @param  {Number} threshold 傾いてたと見なす傾きベクトルサイズ、最大1.0
+     * @return {Boolean} 結果
+     */
+    getStickStraight: function (stickId, threshold) {
+      stickId = stickId || 0;
+      threshold = threshold || phina.input.Gamepad.STICK_TILT_THRESHOLD;
+      var prev = this._prevSticks ? this._prevSticks[stickId] : phina.geom.Vector2(0, 0);
+      var current = this.sticks ? this.sticks[stickId] : phina.geom.Vector2(0, 0);
+      return (prev.length() > threshold) && (current.length() < threshold);
+    },
+
+    /**
      * @private
      */
     _updateState: function(gamepad) {
@@ -343,7 +374,7 @@ phina.namespace(function() {
           up: false,
         };
       }
-      
+
       var button = this.buttons[buttonId];
 
       button.last = button.pressed;
@@ -366,7 +397,9 @@ phina.namespace(function() {
     _updateStick: function(value, stickId, axisName) {
       if (this.sticks[stickId] === undefined) {
         this.sticks[stickId] = phina.geom.Vector2(0, 0);
+        this._prevSticks[stickId] = phina.geom.Vector2(0, 0);
       }
+      this._prevSticks[stickId][axisName] = this.sticks[stickId][axisName];
       this.sticks[stickId][axisName] = value;
     },
 
@@ -381,6 +414,9 @@ phina.namespace(function() {
 
       /** アナログ入力対応のボタンの場合、どの程度まで押し込むとonになるかを表すしきい値. */
       ANALOGUE_BUTTON_THRESHOLD: 0.5,
+
+      /** アナログスティックの傾きベクトルがこの長さになったら傾いたとするしきい値 */
+      STICK_TILT_THRESHOLD: 0.5,
 
       /** ボタン名とボタンIDのマップ. */
       BUTTON_CODE: {
