@@ -1,267 +1,261 @@
-phina.namespace(function() {
+/**
+ * @class phina.util.Random
+ * # 乱数を扱うためのクラス
+ * 乱数を扱うためのメソッドやプロパティを定義しているクラスです。
+ */
+export class Random {
 
   /**
-   * @class phina.util.Random
-   * # 乱数を扱うためのクラス
-   * 乱数を扱うためのメソッドやプロパティを定義しているクラスです。
+   * @property {Number} [seed = 1]
+   * 乱数のシードです。
    */
-  phina.define('phina.util.Random', {
+  // seed = 1
 
-    /**
-     * @property {Number} [seed = 1]
-     * 乱数のシードです。
-     */
-    seed: 1,
+  /**
+   * @constructor
+   * コンストラクタです。引数で {@link #seed} を設定できます。
+   * 
+   * @param {Number} [seed = (Date.now()) || 1] シード
+   */
+  constructor(seed) {
+    this.seed = seed || (Date.now()) || 1;
+  }
 
-    /**
-     * @constructor
-     * コンストラクタです。引数で {@link #seed} を設定できます。
-     * 
-     * @param {Number} [seed = (Date.now()) || 1] シード
-     */
-    init: function(seed) {
-      this.seed = seed || (Date.now()) || 1;
-    },
+  /**
+   * @method random
+   * 0~1の乱数を返します。実行すると {@link #seed} は変わってしまいます。
+   * 
+   * @return {Number} 0~1 の乱数
+   */
+  random() {
+    var seed = this.seed;
+    seed = seed ^ (seed << 13);
+    seed = seed ^ (seed >>> 17);
+    seed = (seed ^ (seed << 5));
 
-    /**
-     * @method random
-     * 0~1の乱数を返します。実行すると {@link #seed} は変わってしまいます。
-     * 
-     * @return {Number} 0~1 の乱数
-     */
-    random: function() {
-      var seed = this.seed;
-      seed = seed ^ (seed << 13);
-      seed = seed ^ (seed >>> 17);
-      seed = (seed ^ (seed << 5));
+    this.seed = seed;
 
-      this.seed = seed;
+    return (seed >>> 0) / phina.util.Random.MAX;
+  }
 
-      return (seed >>> 0) / phina.util.Random.MAX;
-    },
+  /**
+   * @method randint
+   * 指定された範囲内でランダムな整数値を返します。実行すると {@link #seed} は変わってしまいます。
+   * 
+   * @param {Number} min 範囲の最小値
+   * @param {Number} max 範囲の最大値
+   * @return {Number} ランダムな整数値
+   */
+  randint(min, max) {
+    return Math.floor( this.random()*(max-min+1) ) + min;
+  }
 
-    /**
-     * @method randint
-     * 指定された範囲内でランダムな整数値を返します。実行すると {@link #seed} は変わってしまいます。
-     * 
-     * @param {Number} min 範囲の最小値
-     * @param {Number} max 範囲の最大値
-     * @return {Number} ランダムな整数値
-     */
-    randint: function(min, max) {
-      return Math.floor( this.random()*(max-min+1) ) + min;
-    },
+  /**
+   * @method randfloat
+   * 指定された範囲内でランダムな数値を返します。実行すると {@link #seed} は変わってしまいます。
+   * 
+   * @param {Number} min 範囲の最小値
+   * @param {Number} max 範囲の最大値
+   * @return {Number} ランダムな数値
+   */
+  randfloat(min, max) {
+    return this.random()*(max-min)+min;
+  }
 
-    /**
-     * @method randfloat
-     * 指定された範囲内でランダムな数値を返します。実行すると {@link #seed} は変わってしまいます。
-     * 
-     * @param {Number} min 範囲の最小値
-     * @param {Number} max 範囲の最大値
-     * @return {Number} ランダムな数値
-     */
-    randfloat: function(min, max) {
-      return this.random()*(max-min)+min;
-    },
+  /**
+   * @method randbool
+   * ランダムな真偽値を返します。引数で百分率を指定できます。実行すると {@link #seed} は変わってしまいます。
+   * 
+   * @param {Number} [perecent = 50] 真になる百分率
+   * @return {Boolean} ランダムな真偽値
+   */
+  randbool(percent) {
+    return this.random() < (percent === undefined ? 50 : percent) / 100;
+  }
 
-    /**
-     * @method randbool
-     * ランダムな真偽値を返します。引数で百分率を指定できます。実行すると {@link #seed} は変わってしまいます。
-     * 
-     * @param {Number} [perecent = 50] 真になる百分率
-     * @return {Boolean} ランダムな真偽値
-     */
-    randbool: function(percent) {
-      return this.random() < (percent === undefined ? 50 : percent) / 100;
-    },
+  /**
+   * @method randarray
+   * 任意の範囲でランダムな整数値を格納した任意の長さの配列を返します。実行すると {@link #seed} は変わってしまいます。
+   * 
+   * @param {Number} [len = 100] 配列の長さ
+   * @param {Number} [min = 0] 範囲の最小値
+   * @param {Number} [max = 100] 範囲の最大値
+   * @return {Number} ランダムな整数値の入った配列
+   */
+  randarray(len, min, max) {
+    len = len || 100;
+    min = min || 0;
+    max = max || 100;
 
-    /**
-     * @method randarray
-     * 任意の範囲でランダムな整数値を格納した任意の長さの配列を返します。実行すると {@link #seed} は変わってしまいます。
-     * 
-     * @param {Number} [len = 100] 配列の長さ
-     * @param {Number} [min = 0] 範囲の最小値
-     * @param {Number} [max = 100] 範囲の最大値
-     * @return {Number} ランダムな整数値の入った配列
-     */
-    randarray: function(len, min, max) {
-      len = len || 100;
-      min = min || 0;
-      max = max || 100;
+    return (len).map(function() {
+      return this.randint(min, max);
+    }, this);
+  }
 
-      return (len).map(function() {
-        return this.randint(min, max);
-      }, this);
-    },
+  get seed() { return this._seed; }
+  set seed(v) { this._seed = (v >>> 0) || 1; }
 
-    _accessor: {
-      seed: {
-        get: function() { return this._seed; },
-        set: function (v) { this._seed = (v >>> 0) || 1; },
-      },
-    },
+  /**
+   * @method getSeed 
+   * {@link #seed} の値を取得します。
+   * 
+   * @return {Number} シード
+   * @static
+   */
+  static getSeed() {
+    return this.seed;
+  }
 
-    _static: {
-      /**
-       * @property {Number} MAX
-       * 内部的に使用される定数です。
-       * 
-       * @static
-       */
-      MAX: 4294967295,
+  /**
+   * @method setSeed
+   * {@link #seed} の値をセットします。
+   * 
+   * @param {Number} [seed = 1] シード
+   * @static
+   * @chainable
+   */
+  static setSeed(seed) {
+    this.seed = (seed >>> 0) || 1;
+    return this;
+  }
 
-      /**
-       * @property {Number} [seed = (Date.now())] シード
-       * static メソッドの乱数のシードです。
-       * 
-       * @static
-       */
-      seed: (Date.now()),
+  /**
+   * @method random
+   * 0~1の乱数を返します。実行すると {@link #seed} は変わってしまいます。
+   * インスタンスメソッドの {@link #random} と同じです。
+   * 
+   * @return {Number} 0~1 の乱数
+   * @static
+   */
+  static random() {
+    this.seed = this.xor32(this.seed);
+    return (this.seed >>> 0) / phina.util.Random.MAX;
+  }
 
-      /**
-       * @method getSeed 
-       * {@link #seed} の値を取得します。
-       * 
-       * @return {Number} シード
-       * @static
-       */
-      getSeed: function() {
-        return this.seed;
-      },
+  /**
+   * @method randint
+   * 指定された範囲内でランダムな整数値を返します。実行すると {@link #seed} は変わってしまいます。
+   * インスタンスメソッドの {@link #randint} と同じです。
+   * 
+   * @param {Number} min 範囲の最小値
+   * @param {Number} max 範囲の最大値
+   * @return {Number} ランダムな整数値
+   * @static
+   */
+  static randint(min, max) {
+    return phina.global.Math.floor( this.random()*(max-min+1) ) + min;
+  }
 
-      /**
-       * @method setSeed
-       * {@link #seed} の値をセットします。
-       * 
-       * @param {Number} [seed = 1] シード
-       * @static
-       * @chainable
-       */
-      setSeed: function(seed) {
-        this.seed = (seed >>> 0) || 1;
-        return this;
-      },
+  /**
+   * @method randfloat
+   * 指定された範囲内でランダムな数値を返します。実行すると {@link #seed} は変わってしまいます。
+   * インスタンスメソッドの {@link #randfloat} と同じです。
+   * 
+   * @param {Number} min 範囲の最小値
+   * @param {Number} max 範囲の最大値
+   * @return {Number} ランダムな数値
+   * @static
+   */
+  static randfloat(min, max) {
+    return this.random()*(max-min)+min;
+  }
 
-      /**
-       * @method random
-       * 0~1の乱数を返します。実行すると {@link #seed} は変わってしまいます。
-       * インスタンスメソッドの {@link #random} と同じです。
-       * 
-       * @return {Number} 0~1 の乱数
-       * @static
-       */
-      random: function() {
-        this.seed = this.xor32(this.seed);
-        return (this.seed >>> 0) / phina.util.Random.MAX;
-      },
+  /**
+   * @method randbool
+   * ランダムな真偽値を返します。引数で百分率を指定できます。実行すると {@link #seed} は変わってしまいます。
+   * インスタンスメソッドの {@link #randbool} と同じです。
+   * 
+   * @param {Number} [perecent = 50] 真になる百分率
+   * @return {Number} ランダムな真偽値
+   * @static
+   */
+  static randbool(perecent) {
+    return this.randint(0, 99) < (perecent || 50);
+  }
 
-      /**
-       * @method randint
-       * 指定された範囲内でランダムな整数値を返します。実行すると {@link #seed} は変わってしまいます。
-       * インスタンスメソッドの {@link #randint} と同じです。
-       * 
-       * @param {Number} min 範囲の最小値
-       * @param {Number} max 範囲の最大値
-       * @return {Number} ランダムな整数値
-       * @static
-       */
-      randint: function(min, max) {
-        return phina.global.Math.floor( this.random()*(max-min+1) ) + min;
-      },
+  /**
+   * @method randarray
+   * 任意の範囲でランダムな整数値を格納した任意の長さの配列を返します。実行すると {@link #seed} は変わってしまいます。
+   * インスタンスメソッドの {@link #randarray} と同じです。
+   * 
+   * @param {Number} [len = 100] 配列の長さ
+   * @param {Number} [min = 0] 範囲の最小値
+   * @param {Number} [max = 100] 範囲の最大値
+   * @return {Number} ランダムな整数値の入った配列
+   * @static
+   */
+  static randarray(len, min, max) {
+    len = len || 100;
+    min = min || 0;
+    max = max || 100;
 
-      /**
-       * @method randfloat
-       * 指定された範囲内でランダムな数値を返します。実行すると {@link #seed} は変わってしまいます。
-       * インスタンスメソッドの {@link #randfloat} と同じです。
-       * 
-       * @param {Number} min 範囲の最小値
-       * @param {Number} max 範囲の最大値
-       * @return {Number} ランダムな数値
-       * @static
-       */
-      randfloat: function(min, max) {
-        return this.random()*(max-min)+min;
-      },
+    return (len).map(function() {
+      return this.randint(min, max);
+    }, this);
+  }
 
-      /**
-       * @method randbool
-       * ランダムな真偽値を返します。引数で百分率を指定できます。実行すると {@link #seed} は変わってしまいます。
-       * インスタンスメソッドの {@link #randbool} と同じです。
-       * 
-       * @param {Number} [perecent = 50] 真になる百分率
-       * @return {Number} ランダムな真偽値
-       * @static
-       */
-      randbool: function(perecent) {
-        return this.randint(0, 99) < (perecent || 50);
-      },
 
-      /**
-       * @method randarray
-       * 任意の範囲でランダムな整数値を格納した任意の長さの配列を返します。実行すると {@link #seed} は変わってしまいます。
-       * インスタンスメソッドの {@link #randarray} と同じです。
-       * 
-       * @param {Number} [len = 100] 配列の長さ
-       * @param {Number} [min = 0] 範囲の最小値
-       * @param {Number} [max = 100] 範囲の最大値
-       * @return {Number} ランダムな整数値の入った配列
-       * @static
-       */
-      randarray: function(len, min, max) {
-        len = len || 100;
-        min = min || 0;
-        max = max || 100;
+  /**
+   * @method xor32
+   * xorshift を用いて疑似乱数列を生成します。
+   * 
+   * @param {Number} seed
+   * @return {Number} 疑似乱数列
+   * @static
+   */
+  static xor32(seed) {
+    seed = seed ^ (seed << 13);
+    seed = seed ^ (seed >>> 17);
+    seed = (seed ^ (seed << 5));
 
-        return (len).map(function() {
-          return this.randint(min, max);
-        }, this);
-      },
+    return seed;
+  }
 
-      /**
-       * @method xor32
-       * xorshift を用いて疑似乱数列を生成します。
-       * 
-       * @param {Number} seed
-       * @return {Number} 疑似乱数列
-       * @static
-       */
-      xor32: function(seed) {
-        seed = seed ^ (seed << 13);
-        seed = seed ^ (seed >>> 17);
-        seed = (seed ^ (seed << 5));
+  /**
+   * @method uuid
+   * uuid を生成して返します。
+   * 
+   * @return {String} uuid
+   * @static
+   */
+  //http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+  static uuid() {
+    var d = new Date().getTime();
+    if(phina.global.performance && typeof phina.global.performance.now === 'function'){
+      d += performance.now(); //use high-precision timer if available
+    }
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = (d + Math.random()*16)%16 | 0;
+      d = Math.floor(d/16);
+      return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+    });
+    return uuid;
+  }
 
-        return seed;
-      },
+}
 
-      /**
-       * @method uuid
-       * uuid を生成して返します。
-       * 
-       * @return {String} uuid
-       * @static
-       */
-      //http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
-      uuid: function() {
-        var d = new Date().getTime();
-        if(phina.global.performance && typeof phina.global.performance.now === 'function'){
-          d += performance.now(); //use high-precision timer if available
-        }
-        var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-          var r = (d + Math.random()*16)%16 | 0;
-          d = Math.floor(d/16);
-          return (c=='x' ? r : (r&0x3|0x8)).toString(16);
-        });
-        return uuid;
-      },
+/**
+ * @property {Number} MAX
+ * 内部的に使用される定数です。
+ * 
+ * @static
+ */
+Random.MAX = 4294967295
 
-    },
-  });
+/**
+ * @property {Number} [seed = (Date.now())] シード
+ * static メソッドの乱数のシードです。
+ * 
+ * @static
+ */
+Random.seed = (Date.now())
 
-  Math.$method("randint", function(min, max) {
-    return phina.util.Random.randint(min, max);
-  });
-  Math.$method("randfloat", function(min, max) {
-    return phina.util.Random.randfloat(min, max);
-  });
 
-});
+// prototype拡張はしない
+// Math.$method("randint", function(min, max) {
+//   return phina.util.Random.randint(min, max);
+// });
+
+// Math.$method("randfloat", function(min, max) {
+//   return phina.util.Random.randfloat(min, max);
+// });

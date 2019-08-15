@@ -1,71 +1,73 @@
+import { EventDispatcher } from "../util/eventdispatcher"
+// import { Element } from "../app/element"
 
-phina.namespace(function() {
+/**
+ * @class phina.accessory.Accessory
+ * @extends phina.util.EventDispatcher
+ */
+export class Accessory extends EventDispatcher {
 
   /**
-   * @class phina.accessory.Accessory
-   * @extends phina.util.EventDispatcher
+   * @constructor
    */
-  phina.define('phina.accessory.Accessory', {
-    superClass: 'phina.util.EventDispatcher',
+  constructor(target) {
+    super();
 
-    /**
-     * @constructor
-     */
-    init: function(target) {
-      this.superInit();
+    this.target = target;
+  }
 
-      this.target = target;
-    },
-    setTarget: function(target) {
-      if (this.target === target) return ;
+  setTarget(target) {
+    if (this.target === target) return ;
 
-      this.target = target;
-      return this;
-    },
-    getTarget: function() {
-      return this.target;
-    },
-    isAttached: function() {
-      return !!this.target;
-    },
-    attachTo: function(element) {
-      element.attach(this);
-      this.setTarget(element);
-      return this;
-    },
-    remove: function() {
-      this.target.detach(this);
-      this.target = null;
-    },
-  });
-
-  phina.app.Element.prototype.$method('attach', function(accessory) {
-    if (!this.accessories) {
-      this.accessories = [];
-      this.on('enterframe', function(e) {
-        this.accessories.each(function(accessory) {
-          accessory.update && accessory.update(e.app);
-        });
-      });
-    }
-
-    this.accessories.push(accessory);
-    accessory.setTarget(this);
-    accessory.flare('attached');
-
+    this.target = target;
     return this;
-  });
+  }
 
-  phina.app.Element.prototype.$method('detach', function(accessory) {
-    if (this.accessories) {
-      this.accessories.erase(accessory);
-      accessory.setTarget(null);
-      accessory.flare('detached');
-    }
+  getTarget() {
+    return this.target;
+  }
 
+  isAttached() {
+    return !!this.target;
+  }
+
+  attachTo(element) {
+    element.attach(this);
+    this.setTarget(element);
     return this;
-  });
+  }
 
-});
+  remove() {
+    this.target.detach(this);
+    this.target = null;
+  }
 
+}
 
+// Element側で拡張
+// phina.app.Element.prototype.$method('attach', function(accessory) {
+//   if (!this.accessories) {
+//     this.accessories = [];
+//     this.on('enterframe', function(e) {
+//       this.accessories.each(function(accessory) {
+//         accessory.update && accessory.update(e.app);
+//       });
+//     });
+//   }
+
+//   this.accessories.push(accessory);
+//   accessory.setTarget(this);
+//   accessory.flare('attached');
+
+//   return this;
+// });
+
+// phina.app.Element.prototype.$method('detach', function(accessory) {
+//   if (this.accessories) {
+//     this.accessories.erase(accessory);
+//     accessory.setTarget(null);
+//     accessory.flare('detached');
+//   }
+
+//   return this;
+// });

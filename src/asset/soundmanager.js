@@ -1,173 +1,175 @@
-phina.namespace(function() {
+import { AssetManager } from "./assetmanager";
 
-  /**
-   * @class phina.asset.SoundManager
-   * ### Ref
-   * - http://evolve.reintroducing.com/_source/classes/as3/SoundManager/SoundManager.html
-   * - https://github.com/nicklockwood/SoundManager
+/**
+ * @class phina.asset.SoundManager
+ * ### Ref
+ * - http://evolve.reintroducing.com/_source/classes/as3/SoundManager/SoundManager.html
+ * - https://github.com/nicklockwood/SoundManager
+ */
+export class SoundManager {
+  // volume: 0.8,
+  // musicVolume: 0.8,
+  // muteFlag: false,
+  // currentMusic: null,
+
+  static play(name, when, offset, duration) {
+    var sound = AssetManager.get('sound', name);
+
+    sound.volume = this.getVolume();
+    sound.play(when, offset, duration);
+
+    return sound;
+  }
+
+  static stop() {
+    // TODO: 
+  }
+  static pause() {
+    // TODO: 
+  }
+  static fade() {
+    // TODO: 
+  }
+  static setVolume(volume) {
+    this.volume = volume;
+  }
+  static getVolume() {
+    return this.volume;
+  }
+
+  /*
+   * ミュート
    */
-  phina.define('phina.asset.SoundManager', {
-    _static: {
-      volume: 0.8,
-      musicVolume: 0.8,
-      muteFlag: false,
-      currentMusic: null,
+  static mute() {
+    this.muteFlag = true;
+    if (this.currentMusic) {
+      this.currentMusic.volume = 0;
+    }
+    return this;
+  }
+  /*
+   * ミュート解除
+   */
+  static unmute() {
+    this.muteFlag = false;
+    if (this.currentMusic) {
+      this.currentMusic.volume = this.getVolumeMusic();
+    }
+    return this;
+  }
+  static isMute() {
+    return this.muteFlag;
+  }
 
-      play: function(name, when, offset, duration) {
-        var sound = phina.asset.AssetManager.get('sound', name);
+  static playMusic(name, fadeTime, loop, when, offset, duration) {
+    loop = (loop !== undefined) ? loop : true;
 
-        sound.volume = this.getVolume();
-        sound.play(when, offset, duration);
+    if (this.currentMusic) {
+      this.stopMusic(fadeTime);
+    }
 
-        return sound;
-      },
+    var music = AssetManager.get('sound', name);
 
-      stop: function() {
-        // TODO: 
-      },
-      pause: function() {
-        // TODO: 
-      },
-      fade: function() {
-        // TODO: 
-      },
-      setVolume: function(volume) {
-        this.volume = volume;
-      },
-      getVolume: function() {
-        return this.volume;
-      },
+    music.setLoop(loop);
+    music.play(when, offset, duration);
 
-      /*
-       * ミュート
-       */
-      mute: function() {
-        this.muteFlag = true;
-        if (this.currentMusic) {
-          this.currentMusic.volume = 0;
-        }
-        return this;
-      },
-      /*
-       * ミュート解除
-       */
-      unmute: function() {
-        this.muteFlag = false;
-        if (this.currentMusic) {
-          this.currentMusic.volume = this.getVolumeMusic();
-        }
-        return this;
-      },
-      isMute: function() {
-        return this.muteFlag;
-      },
+    if (fadeTime > 0) {
+      var count = 32;
+      var counter = 0;
+      var unitTime = fadeTime/count;
+      var volume = this.getVolumeMusic();
 
-      playMusic: function(name, fadeTime, loop, when, offset, duration) {
-        loop = (loop !== undefined) ? loop : true;
+      music.volume = 0;
+      var id = setInterval(function() {
+        counter += 1;
+        var rate = counter/count;
+        music.volume = rate*volume;
 
-        if (this.currentMusic) {
-          this.stopMusic(fadeTime);
+        if (rate >= 1) {
+          clearInterval(id);
+          return false;
         }
 
-        var music = phina.asset.AssetManager.get('sound', name);
+        return true;
+      }, unitTime);
+    }
+    else {
+      music.volume = this.getVolumeMusic();
+    }
 
-        music.setLoop(loop);
-        music.play(when, offset, duration);
+    this.currentMusic = music;
 
-        if (fadeTime > 0) {
-          var count = 32;
-          var counter = 0;
-          var unitTime = fadeTime/count;
-          var volume = this.getVolumeMusic();
+    return this.currentMusic;
+  }
 
-          music.volume = 0;
-          var id = setInterval(function() {
-            counter += 1;
-            var rate = counter/count;
-            music.volume = rate*volume;
+  static stopMusic(fadeTime) {
+    if (!this.currentMusic) { return ; }
 
-            if (rate >= 1) {
-              clearInterval(id);
-              return false;
-            }
+    var music = this.currentMusic;
+    this.currentMusic = null;
 
-            return true;
-          }, unitTime);
-        }
-        else {
-          music.volume = this.getVolumeMusic();
-        }
+    if (fadeTime > 0) {
+      var count = 32;
+      var counter = 0;
+      var unitTime = fadeTime/count;
+      var volume = this.getVolumeMusic();
 
-        this.currentMusic = music;
+      music.volume = 0;
+      var id = setInterval(function() {
+        counter += 1;
+        var rate = counter/count;
+        music.volume = volume*(1-rate);
 
-        return this.currentMusic;
-      },
-
-      stopMusic: function(fadeTime) {
-        if (!this.currentMusic) { return ; }
-
-        var music = this.currentMusic;
-        this.currentMusic = null;
-
-        if (fadeTime > 0) {
-          var count = 32;
-          var counter = 0;
-          var unitTime = fadeTime/count;
-          var volume = this.getVolumeMusic();
-
-          music.volume = 0;
-          var id = setInterval(function() {
-            counter += 1;
-            var rate = counter/count;
-            music.volume = volume*(1-rate);
-
-            if (rate >= 1) {
-              music.stop();
-              clearInterval(id);
-              return false;
-            }
-
-            return true;
-          }, unitTime);
-        }
-        else {
+        if (rate >= 1) {
           music.stop();
-        }
-      },
-
-      /*
-       * 音楽を一時停止
-       */
-      pauseMusic: function() {
-        if (!this.currentMusic) { return ; }
-        this.currentMusic.pause();
-      },
-      /*
-       * 音楽を再開
-       */
-      resumeMusic: function() {
-        if (!this.currentMusic) { return ; }
-        this.currentMusic.resume();
-      },
-      /*
-       * 音楽のボリュームを設定
-       */
-      setVolumeMusic: function(volume) {
-        this.musicVolume = volume;
-        if (this.currentMusic) {
-          this.currentMusic.volume = volume;
+          clearInterval(id);
+          return false;
         }
 
-        return this;
-      },
-      /*
-       * 音楽のボリュームを取得
-       */
-      getVolumeMusic: function() {
-        return this.musicVolume;
-      },
+        return true;
+      }, unitTime);
+    }
+    else {
+      music.stop();
+    }
+  }
 
-    },
-  });
+  /*
+   * 音楽を一時停止
+   */
+  static pauseMusic() {
+    if (!this.currentMusic) { return ; }
+    this.currentMusic.pause();
+  }
+  /*
+   * 音楽を再開
+   */
+  static resumeMusic() {
+    if (!this.currentMusic) { return ; }
+    this.currentMusic.resume();
+  }
+  /*
+   * 音楽のボリュームを設定
+   */
+  static setVolumeMusic(volume) {
+    this.musicVolume = volume;
+    if (this.currentMusic) {
+      this.currentMusic.volume = volume;
+    }
 
-});
+    return this;
+  }
+  /*
+   * 音楽のボリュームを取得
+   */
+  static getVolumeMusic() {
+    return this.musicVolume;
+  }
+
+}
+
+// static props
+SoundManager.volume = 0.8
+SoundManager.musicVolume = 0.8
+SoundManager.muteFlag = false
+SoundManager.currentMusic = null

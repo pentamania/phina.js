@@ -1,31 +1,31 @@
+import { $safe } from "../core/object"
+import { CircleShape } from "../display/shape"
+import { Tweener } from "../accessory/tweener"
 
-phina.namespace(function() {
+/**
+ * @class phina.effect.Wave
+ * Button
+ * @extends phina.display.CircleShape
+ */
+export class Wave extends CircleShape {
 
   /**
-   * @class phina.effect.Wave
-   * Button
-   * @extends phina.display.CircleShape
+   * @constructor
    */
-  phina.define('phina.effect.Wave', {
-    superClass: 'phina.display.CircleShape',
-    /**
-     * @constructor
-     */
-    init: function(options) {
-      options = (options || {}).$safe({
-        fill: 'white',
-        stroke: false,
-      });
+  constructor(options) {
+    options = $safe.call(options || {}, {
+    // options = (options || {}).$safe({
+      fill: 'white',
+      stroke: false,
+    });
 
-      this.superInit(options);
+    super(options);
 
-      var tweener = phina.accessory.Tweener().attachTo(this);
-      tweener
-        .to({scaleX:2, scaleY:2, alpha:0}, 500)
-        .call(function() {
-          this.remove();
-        }, this);
-    },
-  });
-
-});
+    var tweener = new Tweener().attachTo(this);
+    tweener
+      .to({scaleX:2, scaleY:2, alpha:0}, 500)
+      .call(function() {
+        this.remove();
+      }, this);
+  }
+}
