@@ -1,33 +1,29 @@
 
-phina.namespace(function() {
+/**
+ * @class phina.asset.AssetManager
+ * 
+ */
+export class AssetManager {
 
-  /**
-   * @class phina.asset.AssetManager
-   * 
-   */
-  phina.define('phina.asset.AssetManager', {
-    _static: {
-      assets: {
-        image: {},
-        sound: {},
-        spritesheet: {},
-      },
-      
-      get: function(type, key) {
-        return this.assets[type] && this.assets[type][key];
-      },
-      set: function(type, key, asset) {
-        if (!this.assets[type]) {
-          this.assets[type] = {};
-        }
-        this.assets[type][key] = asset;
-      },
-      contains: function(type, key) {
-        return ;
-      }
-    },
+  static get(type, key) {
+    return this.assets[type] && this.assets[type][key];
+  }
 
-  });
+  static set(type, key, asset) {
+    if (!this.assets[type]) {
+      this.assets[type] = {};
+    }
+    this.assets[type][key] = asset;
+  }
 
-});
+  static contains(type, key) {
+    return ;
+  }
 
+}
+
+AssetManager.assets = {
+  image: {},
+  sound: {},
+  spritesheet: {},
+}

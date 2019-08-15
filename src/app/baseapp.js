@@ -1,238 +1,221 @@
-phina.namespace(function() {
+import phina from "../phina";
+import {EventDispatcher} from "../util/eventdispatcher";
+import {Scene} from "./scene";
+import {Updater} from "./updater";
+import {Interactive} from "./interactive";
+import {Ticker} from "../util/ticker";
+
+/**
+ * @class phina.app.BaseApp
+ * ベースとなるアプリケーションクラス
+ * @extends phina.util.EventDispatcher
+ */
+export class BaseApp extends EventDispatcher {
+
+  // /** awake */
+  // awake = null
+  // /** fps */
+  // fps = null
+  // /** frame */
+  // frame = null
 
   /**
-   * @class phina.app.BaseApp
-   * ベースとなるアプリケーションクラス
-   * @extends phina.util.EventDispatcher
+   * @constructor
    */
-  phina.define('phina.app.BaseApp', {
-    superClass: 'phina.util.EventDispatcher',
+  constructor() {
+    super();
+    this._scenes = [new Scene()];
+    this._sceneIndex = 0;
 
-    /** awake */
-    awake: null,
-    /** fps */
-    fps: null,
-    /** frame */
-    frame: null,
+    this.updater = new Updater(this);
+    this.interactive = new Interactive(this);
 
-    /**
-     * @constructor
-     */
-    init: function() {
-      this.superInit();
-      this._scenes = [phina.app.Scene()];
-      this._sceneIndex = 0;
+    this.awake = true;
+    this.ticker = new Ticker();
+  }
 
-      this.updater = phina.app.Updater(this);
-      this.interactive = phina.app.Interactive(this);
+  run() {
+    var self = this;
+    this._loopCaller = function() {
+      self._loop();
+    };
+    this.ticker.tick(this._loopCaller);
 
-      this.awake = true;
-      this.ticker = phina.util.Ticker();
-    },
+    this.ticker.start();
 
-    run: function() {
-      var self = this;
-      this._loopCaller = function() {
-        self._loop();
-      };
-      this.ticker.tick(this._loopCaller);
+    return this;
+  }
 
-      this.ticker.start();
+  kill() {
+    this.ticker.stop();
+    this.ticker.untick(this._loopCaller);
+    return this;
+  }
 
-      return this;
-    },
+  replaceScene(scene) {
+    this.flare('replace');
+    this.flare('changescene');
 
-    kill: function() {
-      this.ticker.stop();
-      this.ticker.untick(this._loopCaller);
-      return this;
-    },
+    var e = null;
+    if (this.currentScene) {
+      this.currentScene.app = null;
+    }
+    this.currentScene = scene;
+    this.currentScene.app = this;
+    this.currentScene.flare('enter', {
+      app: this,
+    });
 
-    replaceScene: function(scene) {
-      this.flare('replace');
-      this.flare('changescene');
+    return this;
+  }
 
-      var e = null;
-      if (this.currentScene) {
-        this.currentScene.app = null;
-      }
-      this.currentScene = scene;
-      this.currentScene.app = this;
-      this.currentScene.flare('enter', {
-        app: this,
-      });
+  pushScene(scene) {
+    this.flare('push');
+    this.flare('changescene');
 
-      return this;
-    },
+    this.currentScene.flare('pause', {
+      app: this,
+    });
 
-    pushScene: function(scene) {
-      this.flare('push');
-      this.flare('changescene');
+    this._scenes.push(scene);
+    ++this._sceneIndex;
 
-      this.currentScene.flare('pause', {
-        app: this,
-      });
-      
-      this._scenes.push(scene);
-      ++this._sceneIndex;
+    this.flare('pushed');
 
-      this.flare('pushed');
-      
-      scene.app = this;
-      scene.flare('enter', {
-        app: this,
-      });
+    scene.app = this;
+    scene.flare('enter', {
+      app: this,
+    });
 
-      return this;
-    },
+    return this;
+  }
 
-    /**
-     * シーンをポップする(ポーズやオブション画面などで使用)
-     */
-    popScene: function() {
-      this.flare('pop');
-      this.flare('changescene');
+  /**
+   * シーンをポップする(ポーズやオブション画面などで使用)
+   */
+  popScene() {
+    this.flare('pop');
+    this.flare('changescene');
 
-      var scene = this._scenes.pop();
-      --this._sceneIndex;
+    var scene = this._scenes.pop();
+    --this._sceneIndex;
 
-      scene.flare('exit', {
-        app: this,
-      });
-      scene.app = null;
+    scene.flare('exit', {
+      app: this,
+    });
+    scene.app = null;
 
-      this.flare('poped');
-      
-      // 
-      this.currentScene.flare('resume', {
-        app: this,
-        prevScene: scene,
-      });
-      
-      return scene;
-    },
+    this.flare('poped');
 
-    /**
-     * シーンのupdateを実行するようにする
-     */
-    start: function() {
-      this.awake = true;
+    //
+    this.currentScene.flare('resume', {
+      app: this,
+      prevScene: scene,
+    });
 
-      return this;
-    },
-    
-    /**
-     * シーンのupdateを実行しないようにする
-     */
-    stop: function() {
-      this.awake = false;
+    return scene;
+  }
 
-      return this;
-    },
+  /**
+   * シーンのupdateを実行するようにする
+   */
+  start() {
+    this.awake = true;
 
-    enableStats: function() {
-      if (phina.global.Stats) {
-        this.stats = new Stats();
-        document.body.appendChild(this.stats.domElement);
-      }
-      else {
-        // console.warn("not defined stats.");
-        var STATS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/stats.js/r14/Stats.js';
-        var script = document.createElement('script');
-        script.src = STATS_URL;
-        document.body.appendChild(script);
-        script.onload = function() {
-          this.enableStats();
-        }.bind(this);
-      }
-      return this;
-    },
+    return this;
+  }
 
-    enableDatGUI: function(callback) {
-      if (phina.global.dat) {
+  /**
+   * シーンのupdateを実行しないようにする
+   */
+  stop() {
+    this.awake = false;
+
+    return this;
+  }
+
+  enableStats() {
+    if (phina.global.Stats) {
+      this.stats = new Stats();
+      document.body.appendChild(this.stats.domElement);
+    }
+    else {
+      // console.warn("not defined stats.");
+      var STATS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/stats.js/r14/Stats.js';
+      var script = document.createElement('script');
+      script.src = STATS_URL;
+      document.body.appendChild(script);
+      script.onload = function() {
+        this.enableStats();
+      }.bind(this);
+    }
+    return this;
+  }
+
+  enableDatGUI(callback) {
+    if (phina.global.dat) {
+      var gui = new phina.global.dat.GUI();
+      callback(gui);
+    }
+    else {
+      // console.warn("not defined dat.GUI.");
+      var URL = 'https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.5.1/dat.gui.js';
+      var script = document.createElement('script');
+      script.src = URL;
+      document.body.appendChild(script);
+      script.onload = function() {
         var gui = new phina.global.dat.GUI();
         callback(gui);
+      }.bind(this);
+    }
+    return this;
+  }
+
+  _loop() {
+    this._update();
+    this.interactive.check(this.currentScene);
+    this._draw();
+
+    // stats update
+    if (this.stats) this.stats.update();
+  }
+
+  _update() {
+    if (this.awake) {
+      // エンターフレームイベント
+      if (this.has('enterframe')) {
+        this.flare('enterframe');
       }
-      else {
-        // console.warn("not defined dat.GUI.");
-        var URL = 'https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.5.1/dat.gui.js';
-        var script = document.createElement('script');
-        script.src = URL;
-        document.body.appendChild(script);
-        script.onload = function() {
-          var gui = new phina.global.dat.GUI();
-          callback(gui);
-        }.bind(this);
-      }
-      return this;
-    },
 
-    _loop: function() {
-      this._update();
-      this.interactive.check(this.currentScene);
-      this._draw();
+      this.update && this.update();
+      this.updater.update(this.currentScene);
+    }
+  }
 
-      // stats update
-      if (this.stats) this.stats.update();
-    },
+  /**
+   * 描画用仮想関数
+   * @private
+   */
+  _draw() {}
 
-    _update: function() {
-      if (this.awake) {
-        // エンターフレームイベント
-        if (this.has('enterframe')) {
-          this.flare('enterframe');
-        }
+  get currentScene()   { return this._scenes[this._sceneIndex]; }
+  set currentScene(v)  { this._scenes[this._sceneIndex] = v; }
 
-        this.update && this.update();
-        this.updater.update(this.currentScene);
-      }
-    },
+  get rootScene()   { return this._scenes[0]; }
+  set rootScene(v)  { this._scenes[0] = v; }
 
-    /**
-     * 描画用仮想関数
-     * @private
-     */
-    _draw: function() {},
+  get frame() { return this.ticker.frame; }
+  set frame(v) { this.ticker.frame = v; }
 
-    _accessor: {
-      currentScene: {
-        "get": function()   { return this._scenes[this._sceneIndex]; },
-        "set": function(v)  { this._scenes[this._sceneIndex] = v; },
-      },
+  get fps() { return this.ticker.fps; }
+  set fps(v) { this.ticker.fps = v; }
 
-      rootScene: {
-        "get": function()   { return this._scenes[0]; },
-        "set": function(v)  { this._scenes[0] = v; },
-      },
+  get deltaTime() { return this.ticker.deltaTime; }
 
-      frame: {
-        "get": function () { return this.ticker.frame; },
-        "set": function (v) { this.ticker.frame = v; },
-      },
+  get elapsedTime() { return this.ticker.elapsedTime; }
 
-      fps: {
-        "get": function () { return this.ticker.fps; },
-        "set": function (v) { this.ticker.fps = v; },
-      },
+  get currentTime() { return this.ticker.currentTime; }
 
-      deltaTime: {
-        "get": function () { return this.ticker.deltaTime; },
-      },
+  get startTime() { return this.ticker.startTime; }
 
-      elapsedTime: {
-        "get": function () { return this.ticker.elapsedTime; },
-      },
-
-      currentTime: {
-        "get": function () { return this.ticker.currentTime; },
-      },
-
-      startTime: {
-        "get": function () { return this.ticker.startTime; },
-      },
-    },
-
-  });
-
-  
-});
+}

@@ -1,67 +1,65 @@
+import { $safe } from "../core/object"
+import { Scene } from "../app/scene"
+import { Canvas } from "../graphics/canvas"
+import { CanvasRenderer } from "../display/canvasrenderer"
+import { Grid } from "../util/grid"
 
-phina.namespace(function() {
+/**
+ * @class phina.display.DisplayScene
+ * @extends phina.app.Scene
+ */
+export class DisplayScene extends Scene {
 
-  /**
-   * @class phina.display.DisplayScene
-   * @extends phina.app.Scene
-   */
-  phina.define('phina.display.DisplayScene', {
-    superClass: 'phina.app.Scene',
+  constructor(params) {
+    super();
 
-    init: function(params) {
-      this.superInit();
+    params = $safe.call({}, params, DisplayScene.defaults)
+    // params = ({}).$safe(params, DisplayScene.defaults);
 
-      params = ({}).$safe(params, phina.display.DisplayScene.defaults);
+    this.canvas = new Canvas();
+    this.canvas.setSize(params.width, params.height);
+    this.renderer = new CanvasRenderer(this.canvas);
+    this.backgroundColor = (params.backgroundColor) ? params.backgroundColor : null;
 
-      this.canvas = phina.graphics.Canvas();
-      this.canvas.setSize(params.width, params.height);
-      this.renderer = phina.display.CanvasRenderer(this.canvas);
-      this.backgroundColor = (params.backgroundColor) ? params.backgroundColor : null;
+    this.width = params.width;
+    this.height = params.height;
+    this.gridX = new Grid(params.width, 16);
+    this.gridY = new Grid(params.height, 16);
 
-      this.width = params.width;
-      this.height = params.height;
-      this.gridX = phina.util.Grid(params.width, 16);
-      this.gridY = phina.util.Grid(params.height, 16);
+    // TODO: 一旦むりやり対応
+    this.interactive = true;
+    this.setInteractive = function(flag) {
+      this.interactive = flag;
+    };
+    this._overFlags = {};
+    this._touchFlags = {};
 
-      // TODO: 一旦むりやり対応
-      this.interactive = true;
-      this.setInteractive = function(flag) {
-        this.interactive = flag;
-      };
-      this._overFlags = {};
-      this._touchFlags = {};
-
-      var ctx = this.canvas.context;
-      if (params.imageSmoothing === false) {
-        ctx.imageSmoothingEnabled = false;
-        ctx.webkitImageSmoothingEnabled = false;
-        ctx.msImageSmoothingEnabled = false;
-      }
-    },
-
-    hitTest: function() {
-      return true;
-    },
-
-    _update: function() {
-      if (this.update) {
-        this.update();
-      }
-    },
-
-    _render: function() {
-      this.renderer.render(this);
-    },
-
-    _static: {
-      defaults: {
-        width: 640,
-        height: 960,
-        imageSmoothing: true,
-      },
+    var ctx = this.canvas.context;
+    if (params.imageSmoothing === false) {
+      ctx.imageSmoothingEnabled = false;
+      ctx.webkitImageSmoothingEnabled = false;
+      ctx.msImageSmoothingEnabled = false;
     }
+  }
 
-  });
+  hitTest() {
+    return true;
+  }
 
+  _update() {
+    if (this.update) {
+      this.update();
+    }
+  }
 
-});
+  _render() {
+    this.renderer.render(this);
+  }
+
+}
+
+DisplayScene.defaults = {
+  width: 640,
+  height: 960,
+  imageSmoothing: true,
+}
