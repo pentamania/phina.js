@@ -1,47 +1,46 @@
+import { EventDispatcher } from "../util/eventdispatcher"
+import { Flow } from "../util/flow"
 
-phina.namespace(function() {
+/**
+ * @class phina.asset.Asset
+ * @extends phina.util.EventDispatcher
+ */
+export class Asset extends EventDispatcher {
+
+  // serverError: false,
+  // notFound: false,
+  // loadError: false,
 
   /**
-   * @class phina.asset.Asset
-   * @extends phina.util.EventDispatcher
+   * @constructor
    */
-  phina.define('phina.asset.Asset', {
-    superClass: "phina.util.EventDispatcher",
+  constructor(src) {
+    super();
 
-    serverError: false,
-    notFound: false,
-    loadError: false,
+    this.loaded = false;
+    this.serverError = false
+    this.notFound = false
+    this.loadError = false
+  }
 
-    /**
-     * @constructor
-     */
-    init: function(src) {
-      this.superInit();
+  load(src) {
+    this.src = src;
+    return new Flow(this._load.bind(this));
+  }
 
-      this.loaded = false;
-    },
+  isLoaded() {
+    return this.loaded;
+  }
 
-    load: function(src) {
-      this.src = src;
-      return phina.util.Flow(this._load.bind(this));
-    },
+  _load(resolve) {
+    var self = this;
+    setTimeout(function() {
+      self.loaded = true;
+      resolve();
+    }, 100);
+  }
 
-    isLoaded: function() {
-      return this.loaded;
-    },
+  // ロード失敗時にダミーをセットする
+  loadDummy() { }
 
-    _load: function(resolve) {
-      var self = this;
-      setTimeout(function() {
-        self.loaded = true;
-        resolve();
-      }, 100);
-    },
-
-    // ロード失敗時にダミーをセットする
-    loadDummy: function() { },
-
-  });
-
-});
-
+}

@@ -1,33 +1,31 @@
-phina.namespace(function() {
+import {Element} from "./element"
 
-  /**
-   * @class phina.app.Scene
-   * @extends phina.app.Element
-   */
-  phina.define('phina.app.Scene', {
-    superClass: 'phina.app.Element',
+/**
+ * @class phina.app.Scene
+ * @extends phina.app.Element
+ */
+export class Scene extends Element {
 
-    init: function() {
-      this.superInit();
-    },
+  constructor() {
+    super();
+  }
 
-    exit: function(nextLabel, nextArguments) {
-      if (!this.app) return ;
+  exit(nextLabel, nextArguments) {
+    if (!this.app) return ;
 
-      if (arguments.length > 0) {
-        if (typeof arguments[0] === 'object') {
-          nextLabel = arguments[0].nextLabel || this.nextLabel;
-          nextArguments = arguments[0];
-        }
-
-        this.nextLabel = nextLabel;
-        this.nextArguments = nextArguments;
+    if (arguments.length > 0) {
+      if (typeof arguments[0] === 'object') {
+        nextLabel = arguments[0].nextLabel || this.nextLabel;
+        nextArguments = arguments[0];
       }
 
-      this.app.popScene();
+      this.nextLabel = nextLabel;
+      this.nextArguments = nextArguments;
+    }
 
-      return this;
-    },
-  });
-  
-});
+    this.app.popScene();
+
+    return this;
+  }
+
+}

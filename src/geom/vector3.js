@@ -1,29 +1,25 @@
 
-phina.namespace(function() {
+/**
+ * @class phina.geom.Vector3
+ * # 3次元ベクトルクラス（未実装）
+ * 3次元のベクトルや座標を表すクラスです。
+ */
+export class Vector3 {
+
+  /** x座標 */
+  // x: 0,
+  /** y座標 */
+  // y: 0,
+  /** z座標 */
+  // z: 0,
 
   /**
-   * @class phina.geom.Vector3
-   * # 3次元ベクトルクラス（未実装）
-   * 3次元のベクトルや座標を表すクラスです。
+   * @constructor
    */
-  phina.define('phina.geom.Vector3', {
+  constructor(x, y, z) {
+    this.x = x || 0;
+    this.y = y || 0;
+    this.z = z || 0;
+  }
 
-    /** x座標 */
-    x: 0,
-    /** y座標 */
-    y: 0,
-    /** z座標 */
-    z: 0,
-
-    /**
-     * @constructor
-     */
-    init: function(x, y, z) {
-      this.x = x;
-      this.y = y;
-      this.z = z;
-    },
-
-  });
-
-});
+}

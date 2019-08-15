@@ -1,72 +1,71 @@
+import { $extend, $safe } from "../core/object";
+import { Asset } from "./asset";
 
-phina.namespace(function() {
+/**
+ * @class phina.asset.File
+ * @extends phina.asset.Asset
+ */
+export class File extends Asset {
 
   /**
-   * @class phina.asset.File
-   * @extends phina.asset.Asset
+   * @constructor
    */
-  phina.define('phina.asset.File', {
-    superClass: "phina.asset.Asset",
+  constructor() {
+    super();
+  }
 
-    /**
-     * @constructor
-     */
-    init: function() {
-      this.superInit();
-    },
+  _load(resolve) {
 
-    _load: function(resolve) {
+    var params = {};
 
-      var params = {};
-
-      if (typeof this.src === 'string') {
-        params.$extend({
-          path: this.src,
-        });
-      }
-      else if (typeof this.src === 'object') {
-        params.$extend(this.src);
-      }
-
-      params.$safe({
-        path: '',
-        dataType: 'text',
+    if (typeof this.src === 'string') {
+      $extend.call(params, {
+      // params.$extend({
+        path: this.src,
       });
+    }
+    else if (typeof this.src === 'object') {
+      $extend.call(params, this.src);
+      // params.$extend(this.src);
+    }
 
-      // load
-      var self = this;
-      var xml = new XMLHttpRequest();
-      xml.open('GET', params.path);
-      xml.onreadystatechange = function() {
-        if (xml.readyState === 4) {
-          if ([200, 201, 0].indexOf(xml.status) !== -1) {
-            var data = xml.responseText;
+    $safe.call(params, {
+    // params.$safe({
+      path: '',
+      dataType: 'text',
+    });
 
-            if (params.dataType === 'json') {
-              data = JSON.parse(data);
-            } else if (params.dataType === 'xml') {
-              data = (new DOMParser()).parseFromString(data, "text/xml");
-            }
-            self.dataType = params.dataType;
+    // load
+    var self = this;
+    var xml = new XMLHttpRequest();
+    xml.open('GET', params.path);
+    xml.onreadystatechange = function() {
+      if (xml.readyState === 4) {
+        if ([200, 201, 0].indexOf(xml.status) !== -1) {
+          var data = xml.responseText;
 
-            self.data = data;
-            resolve(self);
+          if (params.dataType === 'json') {
+            data = JSON.parse(data);
+          } else if (params.dataType === 'xml') {
+            data = (new DOMParser()).parseFromString(data, "text/xml");
           }
+          self.dataType = params.dataType;
+
+          self.data = data;
+          resolve(self);
         }
-      };
+      }
+    };
 
-      xml.send(null);
-      // this.domElement = new Image();
-      // this.domElement.src = this.src;
+    xml.send(null);
+    // this.domElement = new Image();
+    // this.domElement.src = this.src;
 
-      // var self = this;
-      // this.domElement.onload = function() {
-      //   self.loaded = true;
-      //   resolve(self);
-      // };
-    },
+    // var self = this;
+    // this.domElement.onload = function() {
+    //   self.loaded = true;
+    //   resolve(self);
+    // };
+  }
 
-  });
-
-});
-
+}

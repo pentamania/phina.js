@@ -1,33 +1,28 @@
+import { Asset } from "./asset";
 
-phina.namespace(function() {
+/**
+ * @class phina.asset.Script
+ * @extends phina.asset.Asset
+ */
+export class Script extends Asset {
 
   /**
-   * @class phina.asset.Script
-   * @extends phina.asset.Asset
+   * @constructor
    */
-  phina.define('phina.asset.Script', {
-    superClass: "phina.asset.Asset",
+  constructor() {
+    super();
+  }
 
-    /**
-     * @constructor
-     */
-    init: function() {
-      this.superInit();
-    },
+  _load(resolve) {
+    var self = this;
+    this.domElement = document.createElement('script');
+    this.domElement.src = this.src;
 
-    _load: function(resolve) {
-      var self = this;
-      this.domElement = document.createElement('script');
-      this.domElement.src = this.src;
+    this.domElement.onload = function() {
+      resolve(self);
+    }.bind(this);
 
-      this.domElement.onload = function() {
-        resolve(self);
-      }.bind(this);
+    document.body.appendChild(this.domElement);
+  }
 
-      document.body.appendChild(this.domElement);
-    },
-
-  });
-
-});
-
+}
