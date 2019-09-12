@@ -41,6 +41,57 @@ phina.namespace(function() {
       this.height = options.height;
       this.radius = options.radius;
       this.boundingType = options.boundingType;
+      this._collider = null;
+    },
+
+    /**
+     * 当たり判定用のRectもしくはCircleをセットアップする。
+     * radiusもしくはwidthどちらかは必ず指定する。
+     * @param {Object} params
+     * @param {Number} [params.x=0] - 相対位置x
+     * @param {Number} [params.y=0] - 相対位置y
+     * @param {Number} [params.radius] - 円形にする場合に指定：0は無効
+     * @param {Number} [params.width] - 矩形にする場合に指定：0は無効、radius優先
+     * @param {Number} [params.height] - 矩形にする場合に指定：0は無効、指定なければwidthの値が適用される
+     * @returns {this}
+     */
+    setCollider: function(params) {
+      params = ({}).$safe(params, {
+        x: 0,
+        y: 0,
+      });
+      if (params.radius) {
+        this._collider = phina.geom.Circle(params.x, params.y, params.radius);
+      } else if (params.width) {
+        params.height = params.height || params.width;
+        this._collider = phina.geom.Rect(params.x, params.y, params.width, params.height);
+      }
+      return this;
+    },
+
+    /**
+     * colliderのグローバル領域を取得する
+     * TODO: Rect/Circleは毎回作りなおさず、キャッシュする？
+     *
+     * @return {phina.geom.Rect|phina.geom.Circle|null}
+     */
+    getGlobalCollider: function() {
+      if (!this._collider) return null;
+
+      if (this.colliderType === "rect") {
+        return phina.geom.Rect(
+          this.colliderGlobalX,
+          this.colliderGlobalY,
+          this._collider.width,
+          this._collider.height
+        );
+      } else {
+        return phina.geom.Circle(
+          this.colliderGlobalX,
+          this.colliderGlobalY,
+          this._collider.radius
+        );
+      }
     },
 
     /**
@@ -58,6 +109,19 @@ phina.namespace(function() {
       else {
         // none の場合
         return true;
+      }
+    },
+
+    /**
+     * 対象の位置が判定範囲内にあるかどうかを判定
+     * @param {Object} elm
+     */
+    hitTestElementPosition: function(elm) {
+      var col = this.getGlobalCollider();
+      if (col) {
+        return col.contains(elm.globalX, elm.globalY);
+      } else {
+        return this.hitTest(elm.globalX, elm.globalY);
       }
     },
 
@@ -82,16 +146,40 @@ phina.namespace(function() {
     },
 
     /**
-     * 要素と衝突しているかを判定
+     * @method
+     * 要素と衝突しているかを判定。
+     * 自身と対象がcolliderを持ってたらCollisionメソッドを使って判定を行う。
      * @param {Object} elm
      */
     hitTestElement: function(elm) {
-      var rect0 = this;
-      var rect1 = elm;
-      return (rect0.left < rect1.right) && (rect0.right > rect1.left) &&
-             (rect0.top < rect1.bottom) && (rect0.bottom > rect1.top);
+      if (this._collider && elm._collider) {
+        var thisCol = this.getGlobalCollider();
+        var targetCol = elm.getGlobalCollider();
+        if (this.colliderType === 'rect') {
+          if (elm.colliderType === 'rect') {
+            // 矩形 vs 矩形
+            return phina.geom.Collision.testRectRect(thisCol, targetCol);
+          } else {
+            // 矩形 vs 円形
+            return phina.geom.Collision.testCircleRect(targetCol, thisCol);
+          }
+        } else {
+          if (elm.colliderType === 'rect') {
+            // 円形 vs 矩形
+            return phina.geom.Collision.testCircleRect(thisCol, targetCol);
+          } else {
+            // 円形 vs 円形
+            return phina.geom.Collision.testCircleCircle(thisCol, targetCol);
+          }
+        }
+      } else {
+        // 従来の処理
+        var rect0 = this;
+        var rect1 = elm;
+        return (rect0.left < rect1.right) && (rect0.right > rect1.left) &&
+               (rect0.top < rect1.bottom) && (rect0.bottom > rect1.top);
+      }
     },
-
 
     globalToLocal: function(p) {
       var matrix = this._worldMatrix.clone();
@@ -120,7 +208,7 @@ phina.namespace(function() {
       this.position.x = x;
       return this;
     },
-    
+
     /**
      * Y 座標値をセット
      * @param {Number} y
@@ -129,7 +217,7 @@ phina.namespace(function() {
       this.position.y = y;
       return this;
     },
-    
+
     /**
      * XY 座標をセット
      * @param {Number} x
@@ -164,7 +252,7 @@ phina.namespace(function() {
       }
       return this;
     },
-    
+
     /**
      * 基準点をセット
      * @param {Number} x
@@ -175,7 +263,7 @@ phina.namespace(function() {
       this.origin.y = y;
       return this;
     },
-    
+
     /**
      * 幅をセット
      * @param {Number} width
@@ -184,7 +272,7 @@ phina.namespace(function() {
       this.width = width;
       return this;
     },
-    
+
     /**
      * 高さをセット
      * @param {Number} height
@@ -193,7 +281,7 @@ phina.namespace(function() {
       this.height = height;
       return this;
     },
-    
+
     /**
      * サイズ(幅, 高さ)をセット
      * @param {Number} width
@@ -290,7 +378,7 @@ phina.namespace(function() {
         "get": function()   { return this.origin.x; },
         "set": function(v)  { this.origin.x = v; }
       },
-      
+
       /**
        * @property    originY
        * y座標値
@@ -299,7 +387,7 @@ phina.namespace(function() {
         "get": function()   { return this.origin.y; },
         "set": function(v)  { this.origin.y = v; }
       },
-      
+
       /**
        * @property    scaleX
        * スケールX値
@@ -308,7 +396,7 @@ phina.namespace(function() {
         "get": function()   { return this.scale.x; },
         "set": function(v)  { this.scale.x = v; }
       },
-      
+
       /**
        * @property    scaleY
        * スケールY値
@@ -317,7 +405,7 @@ phina.namespace(function() {
         "get": function()   { return this.scale.y; },
         "set": function(v)  { this.scale.y = v; }
       },
-      
+
       /**
        * @property    width
        * width
@@ -355,7 +443,7 @@ phina.namespace(function() {
           this._diameter = v*2;
         },
       },
-      
+
       /**
        * @property    top
        * 左
@@ -364,7 +452,7 @@ phina.namespace(function() {
         "get": function()   { return this.y - this.height*this.originY; },
         "set": function(v)  { this.y = v + this.height*this.originY; },
       },
-   
+
       /**
        * @property    right
        * 左
@@ -373,7 +461,7 @@ phina.namespace(function() {
         "get": function()   { return this.x + this.width*(1-this.originX); },
         "set": function(v)  { this.x = v - this.width*(1-this.originX); },
       },
-   
+
       /**
        * @property    bottom
        * 左
@@ -382,7 +470,7 @@ phina.namespace(function() {
         "get": function()   { return this.y + this.height*(1-this.originY); },
         "set": function(v)  { this.y = v - this.height*(1-this.originY); },
       },
-   
+
       /**
        * @property    left
        * 左
@@ -402,7 +490,7 @@ phina.namespace(function() {
           // TODO: どうしようかな??
         }
       },
-   
+
       /**
        * @property    centerY
        * centerY
@@ -412,6 +500,82 @@ phina.namespace(function() {
         "set": function(v)  {
           // TODO: どうしようかな??
         }
+      },
+
+      /**
+       * @property    globalX
+       * @readonly
+       * global position x
+       */
+      globalX: {
+        "get": function()   { return this._worldMatrix.m02; },
+      },
+
+      /**
+       * @property    globalY
+       * @readonly
+       * global position y
+       */
+      globalY: {
+        "get": function()   { return this._worldMatrix.m12; },
+      },
+
+      /**
+       * @property    collider
+       * the collider
+       */
+      collider: {
+        "get": function()   { return this._collider.clone(); },
+        "set": function(v)   {
+          this.setCollider(v);
+        },
+      },
+
+      /**
+       * @property    colliderGlobalX
+       * @readonly
+       * global position x of the collider
+       */
+      colliderGlobalX: {
+        "get": function()   {
+          if (this.colliderType === 'rect') {
+            return this.globalX + this._collider.x - this._collider.width * this.originX;
+          } else {
+            return this.globalX + this._collider.x;
+          }
+        },
+      },
+
+      /**
+       * @property    colliderGlobalY
+       * @readonly
+       * global position y of the collider
+       */
+      colliderGlobalY: {
+        "get": function()   {
+          if (this.colliderType === 'rect') {
+            return this.globalY + this._collider.y - this._collider.height * this.originY;
+          } else {
+            return this.globalY + this._collider.y;
+          }
+        },
+      },
+
+      /**
+       * @property    colliderType
+       * @readonly
+       * the type of the collider
+       * @returns {string} - 'rect', 'circle', or null
+       */
+      colliderType: {
+        "get": function()   {
+          if (!this._collider) return null;
+          if (this._collider instanceof phina.geom.Rect) {
+            return 'rect';
+          } else {
+            return 'circle';
+          }
+        },
       },
     },
     _static: {
@@ -423,7 +587,7 @@ phina.namespace(function() {
         rotation: 0,
         originX: 0.5,
         originY: 0.5,
-        
+
         width: 64,
         height: 64,
         radius: 32,
@@ -433,5 +597,5 @@ phina.namespace(function() {
 
   });
 
-  
+
 });
