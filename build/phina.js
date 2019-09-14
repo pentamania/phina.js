@@ -1,9 +1,29 @@
 /* 
  * phina.js 0.2.3
  * phina.js is a game library in javascript
- * MIT Licensed
+ * Released under the MIT license
  * 
- * Copyright (C) 2015 phi, http://phinajs.com
+ * MIT License
+ * 
+ * Copyright (c) 2015 phi and other contributors, http://phinajs.com
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
 
@@ -2296,16 +2316,11 @@
    * @param {Number} percent  真になる百分率
    * @return {Boolean} ランダムな真偽値
    */
-  Math.$method("randbool", function(perecent) {
-    return Math.randint(0, 100) < (perecent || 50);
+  Math.$method("randbool", function(percent) {
+    return Math.random() < (percent === undefined ? 50 : percent) / 100;
   });
     
 })();
-/*
- *
- */
-
-
 
 /*
  * phina.js namespace
@@ -2316,16 +2331,96 @@ var phina = phina || {};
 
   /**
    * @class phina
-   * phina.js namespace
+   * # phina.js namespace
+   * phina.js のネームスペースです。phina.js の提供する機能は（コア拡張以外）全てこのオブジェクトに入っています。
+   * 
+   * ## phina.js のクラス定義について
+   * 
+   * phina.js では独自のクラスシステムを実装しています。
+   * phina.js のクラスの特徴としては new 構文を使用しないため、メソッドチェーンがしやすいことや、文字列でクラスを定義したり親クラスを指定したりできる点が挙げられます。
+   * 文字列を使用できることで、クラスを定義する段階で親クラスが指定されていなくても、クラスを呼び出す段階で親クラスが定義されていればいいというメリットがあります。
+   * 
+   * クラスの定義には {@link #createClass}, {@link #define} を使用します。詳しい使い方はそれぞれの関数の項を参照してください。
+   * 
+   * ## クラスについての補足
+   * 
+   * phina.js のクラスでは superClass を指定すると以下のメソッドが自動で追加されます。
+   * 
+   * - superInit(): 親クラスのコンストラクタを呼び出す（初期化）
+   * - superMethod(): 親クラスのメソッドを呼び出す
+   * 
+   * superInit は引数を変えることで親クラスのコンストラクタを呼ぶときの引数を変えられます。
+   * superMethod は一つ目の引数に呼び出したい親クラスのメソッド名を文字列で、二つ目以降に呼び出したいメソッドの引数を渡します。
+   * 
+   * また phina.js のクラスでは以下の特別な役割をもったプロパティ、メソッドが存在します。
+   * 
+   * - _accessor: アクセッサー（ゲッターとセッター）を定義するためのプロパティ
+   * - _static: static メンバを定義するためのプロパティ
+   * - _defined(): クラスが定義されたときに呼ばれるメソッド
+   * 
+   * ### _accessor の使用例
+   *     var Class = phina.createClass({
+   *       init: function() {
+   *         ...
+   *       },
+   * 
+   *       _accessor: function() {
+   *         value: {
+   *           get: function() {
+   *             return this._value;
+   *           },
+   * 
+   *           set: function(v) {
+   *             this._value = v;
+   *             console.log('valueがセットされました！');
+   *           }
+   *         }
+   *       }
+   *     });
+   * 
+   * ### _static の使用例
+   *     var Class = phina.createClass({
+   *       init: function() {
+   *         ...
+   *       },
+   *
+   *       _static: {
+   *
+   *         staticProperty1: 1,
+   *         staticProperty2: 2,
+   *
+   *         staticMethod1: function(){},
+   *         staticMethod2: function(){}
+   *
+   *       }
+   *     });
+   *
+   *     console.log(Class.staticProperty1); // => 1
+   * 
+   * ### _defined の使用例
+   *     var Class = phina.createClass({
+   *       init: function() {
+   *       },
+   *
+   *       _defined: function() {
+   *         console.log('defined!');
+   *       }
+   *     }); // => defined!
    */
 
   /**
-   * バージョン
+   * @property {String} [VERSION = 0.2.3]
+   * phina.js のバージョンです。
+   * 
+   * @member phina
+   * @static
    */
   phina.VERSION = '0.2.3';
 
   /**
    * @method isNode
+   * Node.js の module かどうかをチェックします。
+   * 
    * @member phina
    * @static
    */
@@ -2335,6 +2430,9 @@ var phina = phina || {};
 
   /**
    * @method namespace
+   * 引数は関数で、その関数内での this は phina になります。
+   * 
+   * @param {Function} fn 関数
    * @member phina
    * @static
    */
@@ -2345,8 +2443,13 @@ var phina = phina || {};
   var ns = phina.isNode() ? global : window;
 
   /**
-   * @method global
-   * global
+   * @property {Object} global
+   * Node.js なら global ブラウザなら window を返します。
+   * ゲッターのみ定義されています。
+   * 
+   * @member phina
+   * @readonly
+   * @static
    */
   phina.accessor('global', {
     get: function() {
@@ -2354,10 +2457,13 @@ var phina = phina || {};
     },
   });
 
-  
+
   /**
    * @method testUA
-   * UAを正規表現テスト
+   * 引数の RegExp オブジェクトとユーザーエージェントを比較して返します。
+   * 
+   * @param {RegExp} 
+   * @return {Boolean}
    * @member phina
    * @static
    */
@@ -2369,37 +2475,45 @@ var phina = phina || {};
 
   /**
    * @method isAndroid
-   * Android かどうかをチェック
+   * Android かどうかを返します。
+   * 
+   * @return {Boolean} Android かどうか
    * @member phina
    * @static
    */
   phina.$method('isAndroid', function() {
     return phina.testUA(/Android/);
   });
-  
+
   /**
    * @method isIPhone
-   * iPhone かどうかをチェック
+   * iPhone かどうかを返します。
+   * 
+   * @return {Boolean} iPhone かどうか
    * @member phina
    * @static
    */
   phina.$method('isIPhone', function() {
     return phina.testUA(/iPhone/);
   });
-  
+
   /**
    * @method isIPad
-   * iPad かどうかをチェック
+   * iPad かどうかを返します。
+   * 
+   * @return {Boolean} iPad かどうか
    * @member phina
    * @static
    */
   phina.$method('isIPad', function() {
     return phina.testUA(/iPad/);
   });
-  
+
   /**
    * @method isIOS
-   * iOS かどうかをチェック
+   * iOS かどうかを返します。
+   * 
+   * @return {Boolean} iOS かどうか
    * @member phina
    * @static
    */
@@ -2409,16 +2523,15 @@ var phina = phina || {};
 
   /**
    * @method isMobile
-   * mobile かどうかをチェック
+   * モバイルかどうかを返します。具体的には Android, iPhone, iPad のいずれかだと true になります。
+   * 
+   * @return {Boolean} モバイルかどうか
    * @member phina
    * @static
    */
   phina.$method('isMobile', function() {
     return phina.testUA(/iPhone|iPad|Android/);
   });
-  
-  
-
 
   // support node.js
   if (phina.isNode()) {
@@ -2433,10 +2546,40 @@ var phina = phina || {};
 phina.namespace(function() {
 
   /**
+   * @method createClass
+   * クラスを作成する関数です。
+   * 親クラスの指定は文字列でも可能です。
+   * 何も継承しない場合 superClass の指定は不要です。また、親クラスを継承している場合、コンストラクタ内で this.superInit() を実行して親クラスを初期化することが必須です。
+   *
+   * ### Example
+   *     var Class = phina.createClass({
+   * 　　  superClass: 'namespace.Super',//親クラス継承
+   *
+   * 　　  //メンバ変数
+   * 　　  member1: 100,
+   * 　　  member2: 'test',
+   * 　　  member3: null,  
+   *
+   *
+   * 　　  //コンストラクタ
+   * 　　  //Class()を呼び出したとき実行される
+   * 　　  init: function(a, b){
+   * 　　    //スーパークラス(継承したクラス)のinit
+   * 　　    this.superInit(a, b);
+   * 　　    this.a = a;
+   * 　　    this.b = b;
+   * 　　  },
+   * 　　
+   * 　　  //メソッド
+   * 　　  method1: function(){},
+   * 　　  method2: function(){},
+   * 　　
+   * 　　});
+   *
+   * @param {Object}
+   * @return {Function} クラス
    * @member phina
    * @static
-   * @method createClass
-   * クラスを生成
    */
   phina.$method('createClass', function(params) {
     var props = {};
@@ -2521,9 +2664,25 @@ phina.namespace(function() {
   });
 
   var chachedClasses = {};
-  
+
   /**
    * @method using
+   * 文字列で定義したパスを使ってオブジェクトを取り出します。パスは , . / \ :: で区切ることができます。
+   * {@link #phina.register} で登録したオブジェクトを取り出すときなどに使うと便利な関数です。
+   * 
+   * ### Example
+   *     hoge = {
+   *       foo: {
+   *         bar: {
+   *           num: 100
+   *         }
+   *       }
+   *     };
+   *     var bar = phina.using('hoge.foo.bar');
+   *     console.log(bar.num); // => 100
+   * 
+   * @param {String} path オブジェクトへのパス
+   * @return {Object} 取り出したオブジェクト
    * @member phina
    * @static
    */
@@ -2541,10 +2700,20 @@ phina.namespace(function() {
 
     return current;
   });
-  
+
   /**
    * @method register
+   * パス指定でオブジェクトを登録する関数です。パスは , . / \ :: で区切ることができます。
    * 
+   * ### Example
+   *     phina.register('hoge.foo.bar', {
+   *       num: 100,
+   *     });
+   *     console.log(hoge.foo.bar.num); // => 100
+   * 
+   * @param {String} path 登録するオブジェクトのパス
+   * @param {Object} _class 登録するオブジェクト
+   * @return {Object} 登録したオブジェクト
    * @member phina
    * @static
    */
@@ -2558,14 +2727,46 @@ phina.namespace(function() {
 
     return _class;
   });
-  
+
   var _classDefinedCallback = {};
 
   /**
+   * @method define
+   * クラスを定義する関数です。使い方は {@link #createClass} とほとんど同じです。
+   * ただし、引数は2つあり、第一引数は定義するクラスのパスを文字列で渡します。第二引数のオブジェクトは {@link #createClass} の引数と同じようにします。
+   * {@link #createClass} と違い、変数に代入する必用がなく、パス指定でクラスを定義できます。
+   * 内部的には {@link #register}, {@link #using} を使用しているため、パスは , . / \ :: で区切ることができます。
+   * 
+   * ### Example
+   *     phina.define('namespace.Class', {
+   *       superClass: 'namespace.Super',//親クラス継承
+   *     
+   *       //メンバ変数
+   *       member1: 100,
+   *       member2: 'test',
+   *       member3: null,  
+   *     
+   *     
+   *       //コンストラクタ
+   *       //Class()を呼び出したとき実行される
+   *       init: function(a, b){
+   *         //スーパークラス(継承したクラス)のinit
+   *         this.superInit(a, b);
+   *         this.a = a;
+   *         this.b = b;
+   *       },
+   *     
+   *       //メソッド
+   *       method1: function(){},
+   *       method2: function(){},
+   *     
+   *     });
+   * 
+   * @param {String} path パス
+   * @param {Object} params オブジェクト
+   * @return {Function} 定義したクラス
    * @member phina
    * @static
-   * @method define
-   * クラスを定義
    */
   phina.$method('define', function(path, params) {
     if (params.superClass) {
@@ -2611,6 +2812,12 @@ phina.namespace(function() {
 
   /**
    * @method globalize
+   * phina.js が用意している全てのクラスをグローバルに展開します。（具体的には phina が持つオブジェクトが一通りグローバルに展開されます。）
+   * この関数を実行することで、いちいち global からたどっていかなくても phina.js の用意しているクラスをクラス名だけで呼び出すことができます。
+   * 
+   * ### Example
+   *     phina.globalize();
+   * 
    * @member phina
    * @static
    */
@@ -2635,6 +2842,20 @@ phina.namespace(function() {
 
   phina._mainListeners = [];
   phina._mainLoaded = false;
+
+  /**
+   * @method main
+   * phina.js でプログラミングする際、メインの処理を記述するための関数です。基本的に phina.js でのプログラミングではこの中にプログラムを書いていくことになります。
+   * 
+   * ### Example
+   *     phina.main(function() {
+   *       //ここにメインの処理を書く
+   *     });
+   * 
+   * @param {Function} func メインの処理
+   * @member phina
+   * @static
+   */
   phina.$method('main', function(func) {
     if (phina._mainLoaded) {
       func();
@@ -2669,17 +2890,7 @@ phina.namespace(function() {
   else {
     phina._mainLoaded = true;
   }
-
-
-
 });
-
-
-
-
-
-
-
 
 
 phina.namespace(function() {
@@ -5575,7 +5786,7 @@ phina.namespace(function() {
             });
           }
           else {
-            flow.resolve(arg);
+            flow.resolve(resultValue);
           }
         });
 
@@ -5994,24 +6205,37 @@ phina.namespace(function() {
 
 });
 
-/*
- * random.js
- */
-
 phina.namespace(function() {
 
   /**
    * @class phina.util.Random
-   * ランダムクラス
+   * # 乱数を扱うためのクラス
+   * 乱数を扱うためのメソッドやプロパティを定義しているクラスです。
    */
-  phina.define("phina.util.Random", {
+  phina.define('phina.util.Random', {
 
+    /**
+     * @property {Number} [seed = 1]
+     * 乱数のシードです。
+     */
     seed: 1,
 
+    /**
+     * @constructor
+     * コンストラクタです。引数で {@link #seed} を設定できます。
+     * 
+     * @param {Number} [seed = (Date.now()) || 1] シード
+     */
     init: function(seed) {
       this.seed = seed || (Date.now()) || 1;
     },
 
+    /**
+     * @method random
+     * 0~1の乱数を返します。実行すると {@link #seed} は変わってしまいます。
+     * 
+     * @return {Number} 0~1 の乱数
+     */
     random: function() {
       var seed = this.seed;
       seed = seed ^ (seed << 13);
@@ -6023,15 +6247,50 @@ phina.namespace(function() {
       return (seed >>> 0) / phina.util.Random.MAX;
     },
 
+    /**
+     * @method randint
+     * 指定された範囲内でランダムな整数値を返します。実行すると {@link #seed} は変わってしまいます。
+     * 
+     * @param {Number} min 範囲の最小値
+     * @param {Number} max 範囲の最大値
+     * @return {Number} ランダムな整数値
+     */
     randint: function(min, max) {
       return Math.floor( this.random()*(max-min+1) ) + min;
     },
+
+    /**
+     * @method randfloat
+     * 指定された範囲内でランダムな数値を返します。実行すると {@link #seed} は変わってしまいます。
+     * 
+     * @param {Number} min 範囲の最小値
+     * @param {Number} max 範囲の最大値
+     * @return {Number} ランダムな数値
+     */
     randfloat: function(min, max) {
       return this.random()*(max-min)+min;
     },
-    randbool: function() {
-      return this.randint(0, 1) === 1;
+
+    /**
+     * @method randbool
+     * ランダムな真偽値を返します。引数で百分率を指定できます。実行すると {@link #seed} は変わってしまいます。
+     * 
+     * @param {Number} [perecent = 50] 真になる百分率
+     * @return {Boolean} ランダムな真偽値
+     */
+    randbool: function(percent) {
+      return this.random() < (percent === undefined ? 50 : percent) / 100;
     },
+
+    /**
+     * @method randarray
+     * 任意の範囲でランダムな整数値を格納した任意の長さの配列を返します。実行すると {@link #seed} は変わってしまいます。
+     * 
+     * @param {Number} [len = 100] 配列の長さ
+     * @param {Number} [min = 0] 範囲の最小値
+     * @param {Number} [max = 100] 範囲の最大値
+     * @return {Number} ランダムな整数値の入った配列
+     */
     randarray: function(len, min, max) {
       len = len || 100;
       min = min || 0;
@@ -6050,32 +6309,111 @@ phina.namespace(function() {
     },
 
     _static: {
+      /**
+       * @property {Number} MAX
+       * 内部的に使用される定数です。
+       * 
+       * @static
+       */
       MAX: 4294967295,
 
+      /**
+       * @property {Number} [seed = (Date.now())] シード
+       * static メソッドの乱数のシードです。
+       * 
+       * @static
+       */
       seed: (Date.now()),
 
+      /**
+       * @method getSeed 
+       * {@link #seed} の値を取得します。
+       * 
+       * @return {Number} シード
+       * @static
+       */
       getSeed: function() {
         return this.seed;
       },
+
+      /**
+       * @method setSeed
+       * {@link #seed} の値をセットします。
+       * 
+       * @param {Number} [seed = 1] シード
+       * @static
+       * @chainable
+       */
       setSeed: function(seed) {
         this.seed = (seed >>> 0) || 1;
         return this;
       },
 
+      /**
+       * @method random
+       * 0~1の乱数を返します。実行すると {@link #seed} は変わってしまいます。
+       * インスタンスメソッドの {@link #random} と同じです。
+       * 
+       * @return {Number} 0~1 の乱数
+       * @static
+       */
       random: function() {
         this.seed = this.xor32(this.seed);
         return (this.seed >>> 0) / phina.util.Random.MAX;
       },
 
+      /**
+       * @method randint
+       * 指定された範囲内でランダムな整数値を返します。実行すると {@link #seed} は変わってしまいます。
+       * インスタンスメソッドの {@link #randint} と同じです。
+       * 
+       * @param {Number} min 範囲の最小値
+       * @param {Number} max 範囲の最大値
+       * @return {Number} ランダムな整数値
+       * @static
+       */
       randint: function(min, max) {
         return phina.global.Math.floor( this.random()*(max-min+1) ) + min;
       },
+
+      /**
+       * @method randfloat
+       * 指定された範囲内でランダムな数値を返します。実行すると {@link #seed} は変わってしまいます。
+       * インスタンスメソッドの {@link #randfloat} と同じです。
+       * 
+       * @param {Number} min 範囲の最小値
+       * @param {Number} max 範囲の最大値
+       * @return {Number} ランダムな数値
+       * @static
+       */
       randfloat: function(min, max) {
         return this.random()*(max-min)+min;
       },
-      randbool: function() {
-        return this.randint(0, 1) === 1;
+
+      /**
+       * @method randbool
+       * ランダムな真偽値を返します。引数で百分率を指定できます。実行すると {@link #seed} は変わってしまいます。
+       * インスタンスメソッドの {@link #randbool} と同じです。
+       * 
+       * @param {Number} [perecent = 50] 真になる百分率
+       * @return {Number} ランダムな真偽値
+       * @static
+       */
+      randbool: function(perecent) {
+        return this.randint(0, 99) < (perecent || 50);
       },
+
+      /**
+       * @method randarray
+       * 任意の範囲でランダムな整数値を格納した任意の長さの配列を返します。実行すると {@link #seed} は変わってしまいます。
+       * インスタンスメソッドの {@link #randarray} と同じです。
+       * 
+       * @param {Number} [len = 100] 配列の長さ
+       * @param {Number} [min = 0] 範囲の最小値
+       * @param {Number} [max = 100] 範囲の最大値
+       * @return {Number} ランダムな整数値の入った配列
+       * @static
+       */
       randarray: function(len, min, max) {
         len = len || 100;
         min = min || 0;
@@ -6086,6 +6424,14 @@ phina.namespace(function() {
         }, this);
       },
 
+      /**
+       * @method xor32
+       * xorshift を用いて疑似乱数列を生成します。
+       * 
+       * @param {Number} seed
+       * @return {Number} 疑似乱数列
+       * @static
+       */
       xor32: function(seed) {
         seed = seed ^ (seed << 13);
         seed = seed ^ (seed >>> 17);
@@ -6094,12 +6440,17 @@ phina.namespace(function() {
         return seed;
       },
 
-      /*
-       * http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+      /**
+       * @method uuid
+       * uuid を生成して返します。
+       * 
+       * @return {String} uuid
+       * @static
        */
+      //http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
       uuid: function() {
         var d = new Date().getTime();
-        if(phina.global.performance && typeof phina.global.performance.now === "function"){
+        if(phina.global.performance && typeof phina.global.performance.now === 'function'){
           d += performance.now(); //use high-precision timer if available
         }
         var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -8693,6 +9044,9 @@ phina.namespace(function() {
       this.sticks = Array.range(0, 2).map(function() {
         return phina.geom.Vector2(0, 0);
       });
+      this._prevSticks = Array.range(0, 2).map(function () {
+        return phina.geom.Vector2(0, 0);
+      });
     },
 
     /**
@@ -8798,6 +9152,34 @@ phina.namespace(function() {
     },
 
     /**
+     * スティックを傾けたかどうかをチェック
+     * @param  {Number} stickId
+     * @param  {Number} threshold 傾いてたと見なす傾きベクトルサイズ、最大1.0
+     * @return {Boolean} 結果
+     */
+    getStickTilt: function (stickId, threshold) {
+      stickId = stickId || 0;
+      threshold = threshold || phina.input.Gamepad.STICK_TILT_THRESHOLD;
+      var prev = this._prevSticks ? this._prevSticks[stickId] : phina.geom.Vector2(0, 0);
+      var current = this.sticks ? this.sticks[stickId] : phina.geom.Vector2(0, 0);
+      return (prev.length() < threshold) && (current.length() > threshold);
+    },
+
+    /**
+     * 傾いたスティックを元に戻したかをチェック
+     * @param  {Number} stickId
+     * @param  {Number} threshold 傾いてたと見なす傾きベクトルサイズ、最大1.0
+     * @return {Boolean} 結果
+     */
+    getStickStraight: function (stickId, threshold) {
+      stickId = stickId || 0;
+      threshold = threshold || phina.input.Gamepad.STICK_TILT_THRESHOLD;
+      var prev = this._prevSticks ? this._prevSticks[stickId] : phina.geom.Vector2(0, 0);
+      var current = this.sticks ? this.sticks[stickId] : phina.geom.Vector2(0, 0);
+      return (prev.length() > threshold) && (current.length() < threshold);
+    },
+
+    /**
      * @private
      */
     _updateState: function(gamepad) {
@@ -8839,7 +9221,7 @@ phina.namespace(function() {
           up: false,
         };
       }
-      
+
       var button = this.buttons[buttonId];
 
       button.last = button.pressed;
@@ -8862,7 +9244,9 @@ phina.namespace(function() {
     _updateStick: function(value, stickId, axisName) {
       if (this.sticks[stickId] === undefined) {
         this.sticks[stickId] = phina.geom.Vector2(0, 0);
+        this._prevSticks[stickId] = phina.geom.Vector2(0, 0);
       }
+      this._prevSticks[stickId][axisName] = this.sticks[stickId][axisName];
       this.sticks[stickId][axisName] = value;
     },
 
@@ -8877,6 +9261,9 @@ phina.namespace(function() {
 
       /** アナログ入力対応のボタンの場合、どの程度まで押し込むとonになるかを表すしきい値. */
       ANALOGUE_BUTTON_THRESHOLD: 0.5,
+
+      /** アナログスティックの傾きベクトルがこの長さになったら傾いたとするしきい値 */
+      STICK_TILT_THRESHOLD: 0.5,
 
       /** ボタン名とボタンIDのマップ. */
       BUTTON_CODE: {
@@ -9828,6 +10215,57 @@ phina.namespace(function() {
       this.height = options.height;
       this.radius = options.radius;
       this.boundingType = options.boundingType;
+      this._collider = null;
+    },
+
+    /**
+     * 当たり判定用のRectもしくはCircleをセットアップする。
+     * radiusもしくはwidthどちらかは必ず指定する。
+     * @param {Object} params
+     * @param {Number} [params.x=0] - 相対位置x
+     * @param {Number} [params.y=0] - 相対位置y
+     * @param {Number} [params.radius] - 円形にする場合に指定：0は無効
+     * @param {Number} [params.width] - 矩形にする場合に指定：0は無効、radius優先
+     * @param {Number} [params.height] - 矩形にする場合に指定：0は無効、指定なければwidthの値が適用される
+     * @returns {this}
+     */
+    setCollider: function(params) {
+      params = ({}).$safe(params, {
+        x: 0,
+        y: 0,
+      });
+      if (params.radius) {
+        this._collider = phina.geom.Circle(params.x, params.y, params.radius);
+      } else if (params.width) {
+        params.height = params.height || params.width;
+        this._collider = phina.geom.Rect(params.x, params.y, params.width, params.height);
+      }
+      return this;
+    },
+
+    /**
+     * colliderのグローバル領域を取得する
+     * TODO: Rect/Circleは毎回作りなおさず、キャッシュする？
+     *
+     * @return {phina.geom.Rect|phina.geom.Circle|null}
+     */
+    getGlobalCollider: function() {
+      if (!this._collider) return null;
+
+      if (this.colliderType === "rect") {
+        return phina.geom.Rect(
+          this.colliderGlobalX,
+          this.colliderGlobalY,
+          this._collider.width,
+          this._collider.height
+        );
+      } else {
+        return phina.geom.Circle(
+          this.colliderGlobalX,
+          this.colliderGlobalY,
+          this._collider.radius
+        );
+      }
     },
 
     /**
@@ -9845,6 +10283,19 @@ phina.namespace(function() {
       else {
         // none の場合
         return true;
+      }
+    },
+
+    /**
+     * 対象の位置が判定範囲内にあるかどうかを判定
+     * @param {Object} elm
+     */
+    hitTestElementPosition: function(elm) {
+      var col = this.getGlobalCollider();
+      if (col) {
+        return col.contains(elm.globalX, elm.globalY);
+      } else {
+        return this.hitTest(elm.globalX, elm.globalY);
       }
     },
 
@@ -9869,16 +10320,40 @@ phina.namespace(function() {
     },
 
     /**
-     * 要素と衝突しているかを判定
+     * @method
+     * 要素と衝突しているかを判定。
+     * 自身と対象がcolliderを持ってたらCollisionメソッドを使って判定を行う。
      * @param {Object} elm
      */
     hitTestElement: function(elm) {
-      var rect0 = this;
-      var rect1 = elm;
-      return (rect0.left < rect1.right) && (rect0.right > rect1.left) &&
-             (rect0.top < rect1.bottom) && (rect0.bottom > rect1.top);
+      if (this._collider && elm._collider) {
+        var thisCol = this.getGlobalCollider();
+        var targetCol = elm.getGlobalCollider();
+        if (this.colliderType === 'rect') {
+          if (elm.colliderType === 'rect') {
+            // 矩形 vs 矩形
+            return phina.geom.Collision.testRectRect(thisCol, targetCol);
+          } else {
+            // 矩形 vs 円形
+            return phina.geom.Collision.testCircleRect(targetCol, thisCol);
+          }
+        } else {
+          if (elm.colliderType === 'rect') {
+            // 円形 vs 矩形
+            return phina.geom.Collision.testCircleRect(thisCol, targetCol);
+          } else {
+            // 円形 vs 円形
+            return phina.geom.Collision.testCircleCircle(thisCol, targetCol);
+          }
+        }
+      } else {
+        // 従来の処理
+        var rect0 = this;
+        var rect1 = elm;
+        return (rect0.left < rect1.right) && (rect0.right > rect1.left) &&
+               (rect0.top < rect1.bottom) && (rect0.bottom > rect1.top);
+      }
     },
-
 
     globalToLocal: function(p) {
       var matrix = this._worldMatrix.clone();
@@ -9907,7 +10382,7 @@ phina.namespace(function() {
       this.position.x = x;
       return this;
     },
-    
+
     /**
      * Y 座標値をセット
      * @param {Number} y
@@ -9916,7 +10391,7 @@ phina.namespace(function() {
       this.position.y = y;
       return this;
     },
-    
+
     /**
      * XY 座標をセット
      * @param {Number} x
@@ -9951,7 +10426,7 @@ phina.namespace(function() {
       }
       return this;
     },
-    
+
     /**
      * 基準点をセット
      * @param {Number} x
@@ -9962,7 +10437,7 @@ phina.namespace(function() {
       this.origin.y = y;
       return this;
     },
-    
+
     /**
      * 幅をセット
      * @param {Number} width
@@ -9971,7 +10446,7 @@ phina.namespace(function() {
       this.width = width;
       return this;
     },
-    
+
     /**
      * 高さをセット
      * @param {Number} height
@@ -9980,7 +10455,7 @@ phina.namespace(function() {
       this.height = height;
       return this;
     },
-    
+
     /**
      * サイズ(幅, 高さ)をセット
      * @param {Number} width
@@ -10077,7 +10552,7 @@ phina.namespace(function() {
         "get": function()   { return this.origin.x; },
         "set": function(v)  { this.origin.x = v; }
       },
-      
+
       /**
        * @property    originY
        * y座標値
@@ -10086,7 +10561,7 @@ phina.namespace(function() {
         "get": function()   { return this.origin.y; },
         "set": function(v)  { this.origin.y = v; }
       },
-      
+
       /**
        * @property    scaleX
        * スケールX値
@@ -10095,7 +10570,7 @@ phina.namespace(function() {
         "get": function()   { return this.scale.x; },
         "set": function(v)  { this.scale.x = v; }
       },
-      
+
       /**
        * @property    scaleY
        * スケールY値
@@ -10104,7 +10579,7 @@ phina.namespace(function() {
         "get": function()   { return this.scale.y; },
         "set": function(v)  { this.scale.y = v; }
       },
-      
+
       /**
        * @property    width
        * width
@@ -10142,7 +10617,7 @@ phina.namespace(function() {
           this._diameter = v*2;
         },
       },
-      
+
       /**
        * @property    top
        * 左
@@ -10151,7 +10626,7 @@ phina.namespace(function() {
         "get": function()   { return this.y - this.height*this.originY; },
         "set": function(v)  { this.y = v + this.height*this.originY; },
       },
-   
+
       /**
        * @property    right
        * 左
@@ -10160,7 +10635,7 @@ phina.namespace(function() {
         "get": function()   { return this.x + this.width*(1-this.originX); },
         "set": function(v)  { this.x = v - this.width*(1-this.originX); },
       },
-   
+
       /**
        * @property    bottom
        * 左
@@ -10169,7 +10644,7 @@ phina.namespace(function() {
         "get": function()   { return this.y + this.height*(1-this.originY); },
         "set": function(v)  { this.y = v - this.height*(1-this.originY); },
       },
-   
+
       /**
        * @property    left
        * 左
@@ -10189,7 +10664,7 @@ phina.namespace(function() {
           // TODO: どうしようかな??
         }
       },
-   
+
       /**
        * @property    centerY
        * centerY
@@ -10199,6 +10674,82 @@ phina.namespace(function() {
         "set": function(v)  {
           // TODO: どうしようかな??
         }
+      },
+
+      /**
+       * @property    globalX
+       * @readonly
+       * global position x
+       */
+      globalX: {
+        "get": function()   { return this._worldMatrix.m02; },
+      },
+
+      /**
+       * @property    globalY
+       * @readonly
+       * global position y
+       */
+      globalY: {
+        "get": function()   { return this._worldMatrix.m12; },
+      },
+
+      /**
+       * @property    collider
+       * the collider
+       */
+      collider: {
+        "get": function()   { return this._collider.clone(); },
+        "set": function(v)   {
+          this.setCollider(v);
+        },
+      },
+
+      /**
+       * @property    colliderGlobalX
+       * @readonly
+       * global position x of the collider
+       */
+      colliderGlobalX: {
+        "get": function()   {
+          if (this.colliderType === 'rect') {
+            return this.globalX + this._collider.x - this._collider.width * this.originX;
+          } else {
+            return this.globalX + this._collider.x;
+          }
+        },
+      },
+
+      /**
+       * @property    colliderGlobalY
+       * @readonly
+       * global position y of the collider
+       */
+      colliderGlobalY: {
+        "get": function()   {
+          if (this.colliderType === 'rect') {
+            return this.globalY + this._collider.y - this._collider.height * this.originY;
+          } else {
+            return this.globalY + this._collider.y;
+          }
+        },
+      },
+
+      /**
+       * @property    colliderType
+       * @readonly
+       * the type of the collider
+       * @returns {string} - 'rect', 'circle', or null
+       */
+      colliderType: {
+        "get": function()   {
+          if (!this._collider) return null;
+          if (this._collider instanceof phina.geom.Rect) {
+            return 'rect';
+          } else {
+            return 'circle';
+          }
+        },
       },
     },
     _static: {
@@ -10210,7 +10761,7 @@ phina.namespace(function() {
         rotation: 0,
         originX: 0.5,
         originY: 0.5,
-        
+
         width: 64,
         height: 64,
         radius: 32,
@@ -10220,7 +10771,7 @@ phina.namespace(function() {
 
   });
 
-  
+
 });
 
 phina.namespace(function() {
@@ -12179,15 +12730,22 @@ phina.namespace(function() {
     renderChildBySelf: false,
 
     init: function(options) {
-      options = (options || {});
-      
+      options = ({}).$safe(options || {}, DisplayElement.defaults);
+            
       this.superInit(options);
-
-      this.visible = true;
-      this.alpha = 1.0;
+      this.alpha = options.alpha;
+      this.visible = options.visible;
       this._worldAlpha = 1.0;
     },
 
+    /**
+     * アルファ値をセット
+     */
+    setAlpha: function(alpha) {
+      this.alpha = alpha;
+      return this;
+    },
+    
     /**
      * 表示/非表示をセット
      */
@@ -12230,8 +12788,14 @@ phina.namespace(function() {
         this._worldAlpha = worldAlpha * this.alpha;
       }
     },
+    
+    _static: {
+      defaults: {
+        alpha: 1.0,
+        visible: true,
+      },
+    }
   });
-
 });
 
 
@@ -13221,6 +13785,7 @@ phina.namespace(function() {
       this.canvas = phina.graphics.Canvas();
       this.canvas.setSize(params.width, params.height);
       this.renderer = phina.display.CanvasRenderer(this.canvas);
+      if (params.showCollider) this.renderer.showCollider = true;
       this.backgroundColor = (params.backgroundColor) ? params.backgroundColor : null;
 
       this.width = params.width;
@@ -13262,8 +13827,8 @@ phina.namespace(function() {
       defaults: {
         width: 640,
         height: 960,
-        antialias: true,
         imageSmoothing: true,
+        showCollider: false,
       },
     }
 
@@ -13394,10 +13959,38 @@ phina.namespace(function() {
    */
   phina.define('phina.display.CanvasRenderer', {
 
+    showCollider: false,
+
+    colliderFillStyle: 'rgba(255, 0, 0, 0.4)',
+
+    /**
+     * @constructor
+     */
     init: function(canvas) {
       this.canvas = canvas;
       this._context = this.canvas.context;
     },
+
+    /**
+     * デバッグ用にcollider（当たり判定）を描画する
+     * @param {Object} obj - phina.add.Object2D subclass
+     */
+    _drawCollider: function(obj) {
+      var context = this.canvas.context;
+      var col = obj.getGlobalCollider();
+      if (!col) return;
+
+      context.save();
+      context.setTransform(1, 0, 0, 1, 0, 0); // reset Transform
+      context.fillStyle = this.colliderFillStyle;
+      if (col instanceof phina.geom.Rect) {
+        this.canvas.fillRect(col.x, col.y, col.width, col.height);
+      } else if (col instanceof phina.geom.Circle) {
+        this.canvas.fillCircle(col.x, col.y, col.radius);
+      }
+      context.restore();
+    },
+
     render: function(scene) {
       this.canvas.clear();
       if (scene.backgroundColor) {
@@ -13470,6 +14063,8 @@ phina.namespace(function() {
         }
 
       }
+
+      if (this.showCollider) this._drawCollider(obj);
     },
 
   });
