@@ -16,6 +16,7 @@ phina.namespace(function() {
       this.canvas = phina.graphics.Canvas();
       this.canvas.setSize(params.width, params.height);
       this.renderer = phina.display.CanvasRenderer(this.canvas);
+      if (params.showCollider) this.renderer.showCollider = true;
       this.backgroundColor = (params.backgroundColor) ? params.backgroundColor : null;
 
       this.width = params.width;
@@ -58,6 +59,7 @@ phina.namespace(function() {
         width: 640,
         height: 960,
         imageSmoothing: true,
+        showCollider: false,
       },
     }
 
