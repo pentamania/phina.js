@@ -6,10 +6,38 @@ phina.namespace(function() {
    */
   phina.define('phina.display.CanvasRenderer', {
 
+    showCollider: false,
+
+    colliderFillStyle: 'rgba(255, 0, 0, 0.4)',
+
+    /**
+     * @constructor
+     */
     init: function(canvas) {
       this.canvas = canvas;
       this._context = this.canvas.context;
     },
+
+    /**
+     * デバッグ用にcollider（当たり判定）を描画する
+     * @param {Object} obj - phina.add.Object2D subclass
+     */
+    _drawCollider: function(obj) {
+      var context = this.canvas.context;
+      var col = obj.getGlobalCollider();
+      if (!col) return;
+
+      context.save();
+      context.setTransform(1, 0, 0, 1, 0, 0); // reset Transform
+      context.fillStyle = this.colliderFillStyle;
+      if (col instanceof phina.geom.Rect) {
+        this.canvas.fillRect(col.x, col.y, col.width, col.height);
+      } else if (col instanceof phina.geom.Circle) {
+        this.canvas.fillCircle(col.x, col.y, col.radius);
+      }
+      context.restore();
+    },
+
     render: function(scene) {
       this.canvas.clear();
       if (scene.backgroundColor) {
@@ -82,6 +110,8 @@ phina.namespace(function() {
         }
 
       }
+
+      if (this.showCollider) this._drawCollider(obj);
     },
 
   });
