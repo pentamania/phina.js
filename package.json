@@ -4,6 +4,7 @@
   "description": "phina.js is a game library in javascript",
   "main": "build/phina.js",
   "scripts": {
+    "prepare": "npm run build",
     "start": "gulp",
     "build": "gulp build && gulp uglify",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -20,6 +21,9 @@
   "bugs": {
     "url": "https://github.com/phi-jp/phina.js/issues"
   },
+  "files": [
+    "build"
+  ],
   "homepage": "http://phinajs.com",
   "devDependencies": {
     "grunt": "~0.4.1",
