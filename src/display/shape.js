@@ -117,6 +117,32 @@ phina.namespace(function() {
       return this;
     },
 
+    /**
+     * 自身のrender済みcanvasを返します
+     *
+     * @example
+     * var trishapeTex = phina.display.TriangleShape({
+     *   stroke: "black",
+     * }).getTexture();
+     * // alternative style
+     * // var trishapeTex = phina.display.TriangleShape.prototype.getTexture({
+     * //   stroke: "black",
+     * // });
+     * phina.display.Sprite(trishapeTex)
+     *.addChildTo(this)
+     *
+     * @param  {Object} [options] - 指定するとconstructorから新たにインスタンスを生成し、そのrender済みcanvasを返します
+     * @param  {String} [registerKey] - AssetManagerに登録する場合のkey名
+     * @return {phina.graphics.Canvas|null}
+     */
+    getTexture: function(options, registerKey) {
+      var shape = this;
+      if (options) {
+        shape = this.constructor(options);
+      }
+      return phina.display.Shape.getTexture(shape, options, registerKey);
+    },
+
     _static: {
       watchRenderProperty: function(key) {
         this.prototype.$watch(key, function(newVal, oldVal) {
@@ -130,6 +156,39 @@ phina.namespace(function() {
         keys.each(function(key) {
           watchRenderProperty.call(this, key);
         }, this);
+      },
+
+      /**
+       * 指定したShapeサブクラスインスタンスのrender済みcanvasを取得します
+       *
+       * @example
+       * var rectShapeTex = phina.display.Shape.getTexture("phina.display.RectangleShape", {
+       *   fill: "yellow",
+       * });
+       * Sprite(rectTex)
+       * .addChildTo(this)
+       *
+       * @param  {phina.display.Shape|String} shape - Shapeサブクラスのインスタンスもしくはそのパス文字列
+       * @param  {Object} [options] - インスタンス化の際にわたすオプション
+       * @param  {String} [registerKey] - AssetManagerに登録する場合のkey名
+       * @return {phina.graphics.Canvas}
+       */
+      getTexture: function(shape, options, registerKey) {
+        if (typeof shape === "string") {
+          var ClassFunc = phina.using(shape); // TODO: 存在しなかったときの動作？
+          shape = ClassFunc(options);
+        }
+        if (!shape instanceof phina.display.Shape) {
+          console.warn("[phina warn]: 指定クラスがphina.display.Shapeのサブクラスではありません");
+        }
+
+        // 一旦描画
+        shape.render(shape.canvas);
+
+        // AssetManagerに登録
+        if (registerKey != null) phina.asset.AssetManager.set('image', registerKey, shape.canvas);
+
+        return shape.canvas;
       },
       defaults: {
         width: 64,
