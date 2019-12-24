@@ -52,6 +52,9 @@ phina.namespace(function() {
       this.flare('replace');
       this.flare('changescene');
 
+      // 行列を計算
+      if (scene._render) scene._render();
+
       var e = null;
       if (this.currentScene) {
         this.currentScene.app = null;
@@ -68,6 +71,9 @@ phina.namespace(function() {
     pushScene: function(scene) {
       this.flare('push');
       this.flare('changescene');
+
+      // 行列を計算
+      if (scene._render) scene._render();
 
       this.currentScene.flare('pause', {
         app: this,
