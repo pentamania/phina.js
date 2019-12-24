@@ -161,6 +161,31 @@ phina.namespace(function() {
       return this;
     },
     /**
+     * @method childForEach
+     * Element.children.forEachのショートハンド的メソッド
+     * 途中でchild.remove()してもスキップすることなく、全ての子をイテレートします。
+     *
+     * @return {this}
+     */
+    childForEach: function(cb) {
+      this.children.slice(0).forEach(function(child, i, arr) {
+        cb(child, i, arr);
+      });
+      return this;
+    },
+    /**
+     * @method deepChildForEach
+     * 全ての子孫要素に再帰的にコールバック処理を行う。
+     * @TODO: indexも取得できるようにする？
+     *
+     * @param  {Function} cb 各childを引数とするコールバック関数。trueを返すと伝播が止まります。
+     * @return {this}
+     */
+    deepChildForEach: function(cb) {
+      phina.app.Element.recurseChildren(this, cb, false)
+      return this;
+    },
+    /**
      * @method isAwake
      * 自身が有効かどうかを返します。
      *
@@ -276,6 +301,29 @@ phina.namespace(function() {
 
       return json;
     },
+
+    _static: {
+      /**
+       * @static
+       * @method recurseChildren
+       * 対象のchildrenに再帰的にコールバック処理を行います。
+       *
+       * @param  {phina.app.Element} $element childrenプロパティをもつオブジェクト
+       * @param  {Function} cb 各childを引数とするコールバック関数。trueを返すと伝播が止まります。
+       * @param  {Boolean} [includeSelf] 自分自身を処理対象に含めるかどうか
+       * @return {Void}
+       */
+      recurseChildren: function($element, cb, includeSelf) {
+        var stopPropagation = (includeSelf) ? cb($element) : false;
+        if (stopPropagation) return;
+        if ($element.children && $element.children.length > 0) {
+          $element.children.slice(0).forEach(function(child) {
+            phina.app.Element.recurseChildren(child, cb, true);
+          });
+        }
+      }
+    },
+
   });
 
 });
