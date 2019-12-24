@@ -9705,6 +9705,9 @@ phina.namespace(function() {
       this.flare('replace');
       this.flare('changescene');
 
+      // 行列を計算
+      if (scene._render) scene._render();
+
       var e = null;
       if (this.currentScene) {
         this.currentScene.app = null;
@@ -9721,6 +9724,9 @@ phina.namespace(function() {
     pushScene: function(scene) {
       this.flare('push');
       this.flare('changescene');
+
+      // 行列を計算
+      if (scene._render) scene._render();
 
       this.currentScene.flare('pause', {
         app: this,
@@ -10053,6 +10059,31 @@ phina.namespace(function() {
       return this;
     },
     /**
+     * @method childForEach
+     * Element.children.forEachのショートハンド的メソッド
+     * 途中でchild.remove()してもスキップすることなく、全ての子をイテレートします。
+     *
+     * @return {this}
+     */
+    childForEach: function(cb) {
+      this.children.slice(0).forEach(function(child, i, arr) {
+        cb(child, i, arr);
+      });
+      return this;
+    },
+    /**
+     * @method deepChildForEach
+     * 全ての子孫要素に再帰的にコールバック処理を行う。
+     * @TODO: indexも取得できるようにする？
+     *
+     * @param  {Function} cb 各childを引数とするコールバック関数。trueを返すと伝播が止まります。
+     * @return {this}
+     */
+    deepChildForEach: function(cb) {
+      phina.app.Element.recurseChildren(this, cb, false)
+      return this;
+    },
+    /**
      * @method isAwake
      * 自身が有効かどうかを返します。
      *
@@ -10168,6 +10199,29 @@ phina.namespace(function() {
 
       return json;
     },
+
+    _static: {
+      /**
+       * @static
+       * @method recurseChildren
+       * 対象のchildrenに再帰的にコールバック処理を行います。
+       *
+       * @param  {phina.app.Element} $element childrenプロパティをもつオブジェクト
+       * @param  {Function} cb 各childを引数とするコールバック関数。trueを返すと伝播が止まります。
+       * @param  {Boolean} [includeSelf] 自分自身を処理対象に含めるかどうか
+       * @return {Void}
+       */
+      recurseChildren: function($element, cb, includeSelf) {
+        var stopPropagation = (includeSelf) ? cb($element) : false;
+        if (stopPropagation) return;
+        if ($element.children && $element.children.length > 0) {
+          $element.children.slice(0).forEach(function(child) {
+            phina.app.Element.recurseChildren(child, cb, true);
+          });
+        }
+      }
+    },
+
   });
 
 });
@@ -12730,8 +12784,8 @@ phina.namespace(function() {
     renderChildBySelf: false,
 
     init: function(options) {
-      options = ({}).$safe(options || {}, DisplayElement.defaults);
-            
+      options = ({}).$safe(options || {}, phina.display.DisplayElement.defaults);
+
       this.superInit(options);
       this.alpha = options.alpha;
       this.visible = options.visible;
@@ -12745,7 +12799,7 @@ phina.namespace(function() {
       this.alpha = alpha;
       return this;
     },
-    
+
     /**
      * 表示/非表示をセット
      */
@@ -12783,12 +12837,12 @@ phina.namespace(function() {
         return ;
       }
       else {
-        var worldAlpha = (this.parent._worldAlpha !== undefined) ? this.parent._worldAlpha : 1.0; 
+        var worldAlpha = (this.parent._worldAlpha !== undefined) ? this.parent._worldAlpha : 1.0;
         // alpha
         this._worldAlpha = worldAlpha * this.alpha;
       }
     },
-    
+
     _static: {
       defaults: {
         alpha: 1.0,
@@ -12951,6 +13005,32 @@ phina.namespace(function() {
       return this;
     },
 
+    /**
+     * 自身のrender済みcanvasを返します
+     *
+     * @example
+     * var trishapeTex = phina.display.TriangleShape({
+     *   stroke: "black",
+     * }).getTexture();
+     * // alternative style
+     * // var trishapeTex = phina.display.TriangleShape.prototype.getTexture({
+     * //   stroke: "black",
+     * // });
+     * phina.display.Sprite(trishapeTex)
+     *.addChildTo(this)
+     *
+     * @param  {Object} [options] - 指定するとconstructorから新たにインスタンスを生成し、そのrender済みcanvasを返します
+     * @param  {String} [registerKey] - AssetManagerに登録する場合のkey名
+     * @return {phina.graphics.Canvas|null}
+     */
+    getTexture: function(options, registerKey) {
+      var shape = this;
+      if (options) {
+        shape = this.constructor(options);
+      }
+      return phina.display.Shape.getTexture(shape, options, registerKey);
+    },
+
     _static: {
       watchRenderProperty: function(key) {
         this.prototype.$watch(key, function(newVal, oldVal) {
@@ -12964,6 +13044,39 @@ phina.namespace(function() {
         keys.each(function(key) {
           watchRenderProperty.call(this, key);
         }, this);
+      },
+
+      /**
+       * 指定したShapeサブクラスインスタンスのrender済みcanvasを取得します
+       *
+       * @example
+       * var rectShapeTex = phina.display.Shape.getTexture("phina.display.RectangleShape", {
+       *   fill: "yellow",
+       * });
+       * Sprite(rectTex)
+       * .addChildTo(this)
+       *
+       * @param  {phina.display.Shape|String} shape - Shapeサブクラスのインスタンスもしくはそのパス文字列
+       * @param  {Object} [options] - インスタンス化の際にわたすオプション
+       * @param  {String} [registerKey] - AssetManagerに登録する場合のkey名
+       * @return {phina.graphics.Canvas}
+       */
+      getTexture: function(shape, options, registerKey) {
+        if (typeof shape === "string") {
+          var ClassFunc = phina.using(shape); // TODO: 存在しなかったときの動作？
+          shape = ClassFunc(options);
+        }
+        if (!shape instanceof phina.display.Shape) {
+          console.warn("[phina warn]: 指定クラスがphina.display.Shapeのサブクラスではありません");
+        }
+
+        // 一旦描画
+        shape.render(shape.canvas);
+
+        // AssetManagerに登録
+        if (registerKey != null) phina.asset.AssetManager.set('image', registerKey, shape.canvas);
+
+        return shape.canvas;
       },
       defaults: {
         width: 64,
@@ -14209,7 +14322,7 @@ phina.namespace(function() {
      */
     init: function(options) {
       options = (options || {}).$safe(phina.display.CanvasApp.defaults);
-      
+
       if (!options.query && !options.domElement) {
         options.domElement = document.createElement('canvas');
         if (options.append) {
@@ -14242,9 +14355,12 @@ phina.namespace(function() {
       }
 
       if (options.pixelated) {
-        // チラつき防止
-        // https://drafts.csswg.org/css-images/#the-image-rendering
-        this.domElement.style.imageRendering = 'pixelated';
+        // ぼやけ・チラつき防止
+        if (navigator.userAgent.match(/Firefox\/\d+/)) {
+          this.domElement.style.imageRendering = 'crisp-edges';
+        } else {
+          this.domElement.style.imageRendering = 'pixelated';
+        }
       }
 
       // pushScene, popScene 対策
