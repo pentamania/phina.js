@@ -13,7 +13,7 @@ phina.namespace(function() {
      */
     init: function(options) {
       options = (options || {}).$safe(phina.display.CanvasApp.defaults);
-      
+
       if (!options.query && !options.domElement) {
         options.domElement = document.createElement('canvas');
         if (options.append) {
@@ -46,9 +46,12 @@ phina.namespace(function() {
       }
 
       if (options.pixelated) {
-        // チラつき防止
-        // https://drafts.csswg.org/css-images/#the-image-rendering
-        this.domElement.style.imageRendering = 'pixelated';
+        // ぼやけ・チラつき防止
+        if (navigator.userAgent.match(/Firefox\/\d+/)) {
+          this.domElement.style.imageRendering = 'crisp-edges';
+        } else {
+          this.domElement.style.imageRendering = 'pixelated';
+        }
       }
 
       // pushScene, popScene 対策
