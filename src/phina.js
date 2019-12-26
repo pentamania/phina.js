@@ -520,6 +520,14 @@ phina.namespace(function() {
   phina._mainLoaded = false;
 
   /**
+   * @member phina
+   * @property autoUnlockAudio
+   * phina.main実行時、webaudioの制限を自動で解除するかどうか
+   * @type {Boolean}
+   */
+  phina.autoUnlockAudio = true;
+
+  /**
    * @method main
    * phina.js でプログラミングする際、メインの処理を記述するための関数です。基本的に phina.js でのプログラミングではこの中にプログラムを書いていくことになります。
    * 
@@ -533,6 +541,9 @@ phina.namespace(function() {
    * @static
    */
   phina.$method('main', function(func) {
+    if (phina.autoUnlockAudio && phina.asset.Sound) {
+      phina.asset.Sound.unlockAudio();
+    }
     if (phina._mainLoaded) {
       func();
     }

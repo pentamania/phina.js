@@ -306,6 +306,55 @@ phina.namespace(function() {
 
         return context;
       },
+
+      /**
+       * @member phina.asset.Sound
+       * @property _audioContextUnlocked
+       * @private
+       * webaudio制限を解除したかどうか
+       * @type {Boolean}
+       */
+      _audioContextUnlocked: false,
+
+      /**
+       * @member phina.asset.Sound
+       * @method unlockAudio
+       * iOS/Chromeのwebaudio制限解除用のユーザーイベントをdocumentに仕込みます。
+       * 解除後、イベントは自動でremoveされます。
+       * @return {Void}
+       */
+      unlockAudio: function() {
+        var context = phina.asset.Sound.getAudioContext();
+
+        if (phina.asset.Sound._audioContextUnlocked || !context) {
+          return;
+        }
+
+        var doc = phina.global.document;
+        var unlockFunc =  function() {
+          var buf = context.createBuffer(1, 1, 22050);
+          var src = context.createBufferSource();
+          src.buffer = buf;
+          src.connect(context.destination);
+          src.start(0);
+
+          // After unlock
+          src.onended = function() {
+            src.disconnect(0);
+            phina.asset.Sound._audioContextUnlocked = true;
+
+            // Remove eventListeners
+            doc.removeEventListener('touchstart', unlockFunc, true);
+            doc.removeEventListener('touchend', unlockFunc, true);
+            doc.removeEventListener('click', unlockFunc, true);
+          }
+        }
+
+        // Setup eventListeners
+        doc.addEventListener('touchstart', unlockFunc, true);
+        doc.addEventListener('touchend', unlockFunc, true);
+        doc.addEventListener('click', unlockFunc, true);
+      }
     },
 
   });
