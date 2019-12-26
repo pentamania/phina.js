@@ -9,6 +9,14 @@ phina.namespace(function() {
     superClass: "phina.util.EventDispatcher",
 
     /**
+     * @member phina.asset.AssetLoader
+     * @property
+     * ロード中かどうか
+     * @type {Boolean}
+     */
+    loading: false,
+
+    /**
      * @constructor
      */
     init: function(params) {
@@ -25,6 +33,8 @@ phina.namespace(function() {
     load: function(params) {
       var self = this;
       var flows = [];
+
+      self.loading = true;
 
       var counter = 0;
       var length = 0;
@@ -78,6 +88,7 @@ phina.namespace(function() {
       }
       return phina.util.Flow.all(flows).then(function(args) {
         self.flare('load');
+        self.loading = false;
       });
     },
 
