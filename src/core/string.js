@@ -63,23 +63,6 @@
     return this.replace( /\{(\w+)\}/g, rep_fn );
   });
 
-
-  /**
-   * @method trim
-   * 文字列先頭と末尾の空白文字を全て取り除いた文字列を返します。
-   *
-   * ###Reference
-   * - [String Functions for Javascript – trim, to camel case, to dashed, and to underscore](http://jamesroberts.name/blog/2010/02/22/string-functions-for-javascript-trim-to-camel-case-to-dashed-and-to-underscore/)
-   *
-   * ### Example
-   *     "  Hello, world!  ".trim(); // => "Hello, world!"
-   *
-   * @return {String} トリムした結果の文字列
-   */
-  String.prototype.$method("trim", function() {
-    return this.replace(/^\s+|\s+$/g, "");
-  });
-  
   /**
    * @method capitalize
    * キャピタライズした文字列、すなわち、すべての単語の先頭を大文字にした文字列を返します。
@@ -215,23 +198,6 @@
    */
   String.prototype.$method("quotemeta", function(n) {
     return this.replace(/([^0-9A-Za-z_])/g, '\\$1');
-  });
-  
-  /**
-   * @method repeat
-   * 自分自身を指定した回数だけ繰り返した文字列を返します。
-   *
-   * ### Example
-   *     "Abc".repeat(4); // => "AbcAbcAbcAbc"
-   *
-   * @param {Number} n 繰り返し回数
-   * @return {String} 文字列
-   */
-  String.prototype.$method("repeat", function(n) {
-    // TODO: 確認する
-    var arr = Array(n);
-    for (var i=0; i<n; ++i) arr[i] = this;
-    return arr.join('');
   });
   
   /**
