@@ -912,23 +912,6 @@
     return this.replace( /\{(\w+)\}/g, rep_fn );
   });
 
-
-  /**
-   * @method trim
-   * 文字列先頭と末尾の空白文字を全て取り除いた文字列を返します。
-   *
-   * ###Reference
-   * - [String Functions for Javascript – trim, to camel case, to dashed, and to underscore](http://jamesroberts.name/blog/2010/02/22/string-functions-for-javascript-trim-to-camel-case-to-dashed-and-to-underscore/)
-   *
-   * ### Example
-   *     "  Hello, world!  ".trim(); // => "Hello, world!"
-   *
-   * @return {String} トリムした結果の文字列
-   */
-  String.prototype.$method("trim", function() {
-    return this.replace(/^\s+|\s+$/g, "");
-  });
-  
   /**
    * @method capitalize
    * キャピタライズした文字列、すなわち、すべての単語の先頭を大文字にした文字列を返します。
@@ -1064,23 +1047,6 @@
    */
   String.prototype.$method("quotemeta", function(n) {
     return this.replace(/([^0-9A-Za-z_])/g, '\\$1');
-  });
-  
-  /**
-   * @method repeat
-   * 自分自身を指定した回数だけ繰り返した文字列を返します。
-   *
-   * ### Example
-   *     "Abc".repeat(4); // => "AbcAbcAbcAbc"
-   *
-   * @param {Number} n 繰り返し回数
-   * @return {String} 文字列
-   */
-  String.prototype.$method("repeat", function(n) {
-    // TODO: 確認する
-    var arr = Array(n);
-    for (var i=0; i<n; ++i) arr[i] = this;
-    return arr.join('');
   });
   
   /**
@@ -1370,67 +1336,6 @@
     i%=this.length;
     return this[i];
   });
-
-
-  /**
-   * @method find
-   * 各要素を引数にして関数を実行し、その値が真となる（＝条件にマッチする）最初の要素を返します。
-   *
-   * どの要素もマッチしなければ undefined を返します。
-   *
-   * ### Example
-   *     arr = ['foo', 'bar', 'hoge', 'fuga'];
-   *     arr.find( function(elm) {
-   *       return elm.indexOf('a') >= 0;
-   *     });
-   *     // => 'bar'
-   *
-   * @param {Function} callback 各要素に対して実行するコールバック関数
-   * @param {Object} [self=this] callback 内で this として参照される値。デフォルトは呼び出し時の this。
-   * @return {Object} 条件にマッチした最初の要素、または undefined
-   */
-  Array.prototype.$method("find", function(fn, self) {
-    var target = null;
-
-    this.some(function(elm, i) {
-      if (fn.call(self, elm, i, this)) {
-        target = elm;
-        return true;
-      }
-    });
-
-    return target;
-  });
-
-  /**
-   * @method findIndex
-   * 各要素を引数にして関数を実行し、その値が真となる（＝条件にマッチする）最初のインデックスを返します。
-   *
-   * どの要素もマッチしなければ -1 を返します。
-   *
-   * ### Example
-   *     arr = ['foo', 'bar', 'hoge', 'fuga'];
-   *     arr.findIndex( function(elm) {
-   *       return elm.indexOf('a') >= 0;
-   *     });
-   *     // => 1
-   *
-   * @param {Function} callback 各要素に対して実行するコールバック関数
-   * @param {Object} [self=this] callback 内で this として参照される値。デフォルトは呼び出し時の this。
-   * @return {Object} 条件にマッチした最初のインデックス、または -1
-   */
-  Array.prototype.$method("findIndex", function(fn, self) {
-    var target = -1;
-
-    this.some(function(elm, i) {
-      if (fn.call(self, elm, i, this)) {
-        target = i;
-        return true;
-      }
-    });
-
-    return target;
-  });
   
   /**
    * @method swap
@@ -1693,32 +1598,6 @@
     this.length = 0;
     return this;
   });
-  
-  /**
-   * @method fill
-   * @chainable
-   * 自身の一部の要素を特定の値で埋めます。
-   *
-   * ### Example
-   *     arr = [1, 2, 3, 4, 5];
-   *     arr.fill("x");       // => ["x", "x", "x", "x", "x"]
-   *     arr.fill("x", 2, 4); // => [1, 2, "x", "x", 5]
-   *
-   * @param {Object} value 埋める値
-   * @param {Number} [start=0] 値を埋める最初のインデックス
-   * @param {Number} [end=自身の配列の長さ] 値を埋める最後のインデックス+1
-   */
-  Array.prototype.$method("fill", function(value, start, end) {
-    start = start || 0;
-    end   = end   || (this.length);
-    
-    for (var i=start; i<end; ++i) {
-      this[i] = value;
-    }
-    
-    return this;
-  });
-  
 
   /**
    * @method range
@@ -1885,68 +1764,6 @@
     return Array.prototype.range.apply([], arguments);
   });
 
-
-  /**
-   * @method of
-   * @static
-   * ES6 準拠の of 関数です。可変長引数をとって Array オブジェクトにして返します。
-   *
-   * ### Example
-   *     Array.of();        // => []
-   *     Array.of(1, 2, 3); // => [1, 2, 3]
-   *
-   * @param {Object} elementN 生成する配列の要素
-   * @return {Array} 生成した配列
-   */
-  Array.$method("of", function() {
-    return Array.prototype.slice.call(arguments);
-  });
-
-  /**
-   * @method from
-   * @static
-   * ES6 準拠の from 関数です。array-like オブジェクトかiterable オブジェクトから新しい配列を生成します。
-   *
-   * array-like オブジェクトとは、length プロパティを持ち、数字の添字でアクセス可能なオブジェクトのことです。
-   * 通常の配列のほか、String、arguments、NodeList なども array-like オブジェクトです。
-   *
-   * iterable オブジェクトとは、Symbol.iterator プロパティを持つオブジェクトのことです。
-   * 通常の配列のほか、String、arguments、NodeList なども iterable オブジェクトです。
-   *
-   * ### Example
-   *     Array.from([1, 2, 3], function(elm){ return elm * elm} ); // => [1, 4, 9]
-   *     Array.from("foo");                                        // => ["f", "o", "o"]
-   *     Array.from( document.querySelectorAll("span"))            // => [Element, Element, Element,...]
-   *
-   * @param {Object} arrayLike 配列に変換する array-like オブジェクト
-   * @param {Function} [callback] arrayLike のすべての要素に対して実行するマップ関数
-   * @param {Object} [context] callback 内で this として参照される値
-   * @return {Array} 生成した配列
-   */
-  Array.$method("from", function(arrayLike, callback, context) {
-    if (!Object(arrayLike).length) return [];
-
-    var result = [];
-    if (Symbol && Symbol.iterator && arrayLike[Symbol.iterator]) {
-        var iterator = arrayLike[Symbol.iterator]();
-        while (true) {
-            var iteratorResult = iterator.next();
-            if (iteratorResult.done) break;
-
-            var value = typeof callback === 'function' ? callback.bind(context || this)(iteratorResult.value) : iteratorResult.value;
-            result.push(value);
-        }
-        return result;
-    }
-
-    for (var i = 0, len = arrayLike.length; i < len; i++) {
-        result.push(arrayLike[i]);
-    }
-    return result.map(typeof callback == 'function' ? callback : function(item) {
-      return item;
-    }, context);
-  });
-  
   /**
    * @method most
    * 指定した関数の返り値が最小となる要素と最大となる要素をまとめて返します。
@@ -2844,6 +2661,14 @@ phina.namespace(function() {
   phina._mainLoaded = false;
 
   /**
+   * @member phina
+   * @property autoUnlockAudio
+   * phina.main実行時、webaudioの制限を自動で解除するかどうか
+   * @type {Boolean}
+   */
+  phina.autoUnlockAudio = true;
+
+  /**
    * @method main
    * phina.js でプログラミングする際、メインの処理を記述するための関数です。基本的に phina.js でのプログラミングではこの中にプログラムを書いていくことになります。
    * 
@@ -2857,6 +2682,9 @@ phina.namespace(function() {
    * @static
    */
   phina.$method('main', function(func) {
+    if (phina.autoUnlockAudio && phina.asset.Sound) {
+      phina.asset.Sound.unlockAudio();
+    }
     if (phina._mainLoaded) {
       func();
     }
@@ -6778,6 +6606,14 @@ phina.namespace(function() {
     superClass: "phina.util.EventDispatcher",
 
     /**
+     * @member phina.asset.AssetLoader
+     * @property
+     * ロード中かどうか
+     * @type {Boolean}
+     */
+    loading: false,
+
+    /**
      * @constructor
      */
     init: function(params) {
@@ -6794,6 +6630,8 @@ phina.namespace(function() {
     load: function(params) {
       var self = this;
       var flows = [];
+
+      self.loading = true;
 
       var counter = 0;
       var length = 0;
@@ -6847,6 +6685,7 @@ phina.namespace(function() {
       }
       return phina.util.Flow.all(flows).then(function(args) {
         self.flare('load');
+        self.loading = false;
       });
     },
 
@@ -7437,6 +7276,55 @@ phina.namespace(function() {
 
         return context;
       },
+
+      /**
+       * @member phina.asset.Sound
+       * @property _audioContextUnlocked
+       * @private
+       * webaudio制限を解除したかどうか
+       * @type {Boolean}
+       */
+      _audioContextUnlocked: false,
+
+      /**
+       * @member phina.asset.Sound
+       * @method unlockAudio
+       * iOS/Chromeのwebaudio制限解除用のユーザーイベントをdocumentに仕込みます。
+       * 解除後、イベントは自動でremoveされます。
+       * @return {Void}
+       */
+      unlockAudio: function() {
+        var context = phina.asset.Sound.getAudioContext();
+
+        if (phina.asset.Sound._audioContextUnlocked || !context) {
+          return;
+        }
+
+        var doc = phina.global.document;
+        var unlockFunc =  function() {
+          var buf = context.createBuffer(1, 1, 22050);
+          var src = context.createBufferSource();
+          src.buffer = buf;
+          src.connect(context.destination);
+          src.start(0);
+
+          // After unlock
+          src.onended = function() {
+            src.disconnect(0);
+            phina.asset.Sound._audioContextUnlocked = true;
+
+            // Remove eventListeners
+            doc.removeEventListener('touchstart', unlockFunc, true);
+            doc.removeEventListener('touchend', unlockFunc, true);
+            doc.removeEventListener('click', unlockFunc, true);
+          }
+        }
+
+        // Setup eventListeners
+        doc.addEventListener('touchstart', unlockFunc, true);
+        doc.addEventListener('touchend', unlockFunc, true);
+        doc.addEventListener('click', unlockFunc, true);
+      }
     },
 
   });
