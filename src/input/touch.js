@@ -40,14 +40,14 @@
     getTouch: function() {
       return this.now != 0;
     },
-
+    
     /**
      * タッチ開始時に true
      */
     getTouchStart: function() {
       return this.start != 0;
     },
-
+    
     /**
      * タッチ終了時に true
      */
@@ -138,7 +138,7 @@
 
     getEmpty: function() {
       var touch = phina.input.Touch(this.domElement, true);
-
+    
       touch.id = this.id;
       this.touches.push(touch);
 
@@ -157,8 +157,8 @@
 
     update: function() {
       if (this.touches.length > 0) {
-        for (var i = this.touches.length - 1; i >= 0; i--) {
-          var touch = this.touches[i];
+        var clone = this.touches.slice(0);
+        clone.forEach(function(touch) {
           if (!touch.released) {
             touch.update();
 
@@ -170,7 +170,8 @@
             touch.released = false;
             this.removeTouch(touch);
           }
-        }
+
+        }, this);
       }
     },
 
