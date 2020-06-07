@@ -1,4 +1,5 @@
-import {Random} from "../util/random";
+import { Random } from "../util/random";
+import { toRadian } from "../core/number";
 
 /**
  * @class phina.geom.Vector2
@@ -423,7 +424,8 @@ export class Vector2 {
    * @return {phina.geom.Vector2} ベクトル
    */
   fromDegree(deg, len) {
-    return this.fromAngle(deg.toRadian(), len);
+    // return this.fromAngle(deg.toRadian(), len);
+    return this.fromAngle(toRadian.call(deg), len);
   }
 
   /**
