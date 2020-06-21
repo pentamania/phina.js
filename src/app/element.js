@@ -1,3 +1,4 @@
+import phina from "../phina";
 import { at, erase } from "../core/array"
 import { forIn } from "../core/object"
 import { EventDispatcher } from "../util/eventdispatcher"
@@ -222,13 +223,20 @@ export class Element extends EventDispatcher {
   fromJSON(json) {
 
     var createChildren = function(name, data) {
-      //
       var args = data.arguments;
       args = (args instanceof Array) ? args : [args];
-      //
-      var _class = phina.using(data.className);
-      //
-      var element = _class.apply(null, args);
+
+      var _class;
+      var element;
+      if (typeof data.className === 'string') {
+        // is phina class
+        _class = phina.using(data.className);
+        element = _class.apply(null, args);
+      } else if (typeof data.className === 'function') {
+        // is ES class
+        // インスタンス化にスプレッド構文が必要なため、es5サポートの場合babelが必要
+        element = new data.className(...args);
+      }
 
       element.name = name;
       this[name] = element;
