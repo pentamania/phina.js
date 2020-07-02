@@ -1,57 +1,52 @@
-/*
- * PauseScene
+import { DisplayScene } from "../display/displayscene";
+import { Label } from "../display/label";
+import { $safe } from "../core/object";
+
+/**
+ * @class phina.game.PauseScene
+ * @extends phina.display.DisplayScene
  */
-
-
-phina.namespace(function() {
+export class PauseScene extends DisplayScene {
 
   /**
-   * @class phina.game.PauseScene
-   * @extends phina.display.DisplayScene
+   * @constructor
    */
-  phina.define('phina.game.PauseScene', {
-    superClass: 'phina.display.DisplayScene',
-    /**
-     * @constructor
-     */
-    init: function(params) {
-      params = ({}).$safe(params, phina.game.PauseScene.defaults);
-      this.superInit(params);
+  constructor(params) {
+    params = $safe.call({}, params, PauseScene.defaults);
+    // params = ({}).$safe(params, phina.game.PauseScene.defaults);
+    super(params);
 
-      this.backgroundColor = params.backgroundColor;
+    this.backgroundColor = params.backgroundColor;
 
-      this.fromJSON({
-        children: {
-          text: {
-            className: 'phina.display.Label',
-            arguments: {
-              text: 'Pause',
-              fill: params.fontColor,
-              stroke: null,
-              fontSize: 48,
-            },
-            x: this.gridX.center(),
-            y: this.gridY.center(),
+    this.fromJSON({
+      children: {
+        text: {
+          className: Label,
+          // className: 'phina.display.Label',
+          arguments: {
+            text: 'Pause',
+            fill: params.fontColor,
+            stroke: null,
+            fontSize: 48,
           },
-        }
-      });
-
-      if (params.exitType === 'touch') {
-        this.on('pointend', function() {
-          this.exit();
-        });
+          x: this.gridX.center(),
+          y: this.gridY.center(),
+        },
       }
-    },
+    });
 
-    _static: {
-      defaults: {
-        fontColor: 'white',
-        backgroundColor: 'hsla(0, 0%, 0%, 0.85)',
+    if (params.exitType === 'touch') {
+      this.on('pointend', function() {
+        this.exit();
+      });
+    }
+  }
 
-        exitType: 'touch',
-      },
-    },
+}
 
-  });
+PauseScene.defaults =  {
+  fontColor: 'white',
+  backgroundColor: 'hsla(0, 0%, 0%, 0.85)',
 
-});
+  exitType: 'touch',
+}
