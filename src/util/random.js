@@ -1,3 +1,6 @@
+import { map } from "../core/number";
+import phina from "../phina";
+
 /**
  * @class phina.util.Random
  * # 乱数を扱うためのクラス
@@ -35,7 +38,7 @@ export class Random {
 
     this.seed = seed;
 
-    return (seed >>> 0) / phina.util.Random.MAX;
+    return (seed >>> 0) / Random.MAX;
   }
 
   /**
@@ -66,7 +69,7 @@ export class Random {
    * @method randbool
    * ランダムな真偽値を返します。引数で百分率を指定できます。実行すると {@link #seed} は変わってしまいます。
    * 
-   * @param {Number} [perecent = 50] 真になる百分率
+   * @param {Number} [percent = 50] 真になる百分率
    * @return {Boolean} ランダムな真偽値
    */
   randbool(percent) {
@@ -87,7 +90,8 @@ export class Random {
     min = min || 0;
     max = max || 100;
 
-    return (len).map(function() {
+    return map.call(len, function() {
+    // return (len).map(function() {
       return this.randint(min, max);
     }, this);
   }
@@ -165,12 +169,12 @@ export class Random {
    * ランダムな真偽値を返します。引数で百分率を指定できます。実行すると {@link #seed} は変わってしまいます。
    * インスタンスメソッドの {@link #randbool} と同じです。
    * 
-   * @param {Number} [perecent = 50] 真になる百分率
-   * @return {Number} ランダムな真偽値
+   * @param {Number} [percent = 50] 真になる百分率
+   * @return {Boolean} ランダムな真偽値
    * @static
    */
-  static randbool(perecent) {
-    return this.randint(0, 99) < (perecent || 50);
+  static randbool(percent) {
+    return this.randint(0, 99) < (percent || 50);
   }
 
   /**
@@ -189,7 +193,8 @@ export class Random {
     min = min || 0;
     max = max || 100;
 
-    return (len).map(function() {
+    return map.call(len, function() {
+    // return (len).map(function() {
       return this.randint(min, max);
     }, this);
   }
