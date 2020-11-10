@@ -1,4 +1,5 @@
 import { $safe, $watch } from "../core/object";
+import { Vector2 } from "../geom/vector2";
 import { PlainElement } from "./plainelement";
 
 /**
@@ -428,7 +429,7 @@ export class PathShape extends Shape {
   }
 
   addPath (x, y) {
-    this.paths.push(phina.geom.Vector2(x, y));
+    this.paths.push(new Vector2(x, y));
     this._dirtyDraw = true;
     return this;
   }
