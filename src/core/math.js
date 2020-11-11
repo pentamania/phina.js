@@ -61,7 +61,7 @@ export var PHI = (1 + Math.sqrt(5)) / 2;
  */
 export function degToRad(deg) {
 // Math.degToRad = function(deg) {
-  return deg * Math.DEG_TO_RAD;
+  return deg * DEG_TO_RAD;
 }
 
 /**
@@ -77,7 +77,7 @@ export function degToRad(deg) {
  */
 export function radToDeg(rad) {
 // Math.radToDeg = function(rad) {
-  return rad * Math.RAD_TO_DEG;
+  return rad * RAD_TO_DEG;
 }
 
 /**
