@@ -573,12 +573,12 @@ export class Canvas {
   }
 
   fillText() {
-    this._context.fillText.apply(this._context, arguments);
+    this.context.fillText.apply(this.context, arguments);
     return this;
   }
 
   strokeText() {
-    this._context.strokeText.apply(this._context, arguments);
+    this.context.strokeText.apply(this.context, arguments);
     return this;
   }
 
