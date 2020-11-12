@@ -1,3 +1,4 @@
+import { degToRad } from "../core/math";
 import phina from "../phina";
 import { Support } from "../util/support";
 
@@ -501,7 +502,8 @@ export class Canvas {
    */
   heart(x, y, radius, angle) {
     var half_radius = radius*0.5;
-    var rad = (angle === undefined) ? Math.PI/4 : Math.degToRad(angle);
+    // var rad = (angle === undefined) ? Math.PI/4 : Math.degToRad(angle);
+    var rad = (angle === undefined) ? Math.PI/4 : degToRad(angle);
 
     // 半径 half_radius の角度 angle 上の点との接線を求める
     var p = Math.cos(rad)*half_radius;
