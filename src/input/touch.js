@@ -1,6 +1,11 @@
 import { Input } from "./input"
 import { pointX, pointY } from "../dom/event"
-import { touchPointX, touchPointY } from "../dom/event"
+import { 
+  touchPointX, 
+  touchPointY, 
+  // window.stopとかぶるので一応回避
+  stop as eventStop
+} from "../dom/event"
 
 /**
  * @class phina.input.Touch
@@ -81,6 +86,7 @@ Touch.prototype.getPointingEnd     = Touch.prototype.getTouchEnd;
 export class TouchList {
 
   constructor(domElement) {
+    /** @type HTMLCanvasElement */
     this.domElement = domElement;
 
     this.touches = [];
@@ -114,7 +120,7 @@ export class TouchList {
         touch._move(pointX.get.call(t), pointY.get.call(t));
         // touch._move(t.pointX, t.pointY);
       });
-      e.stop();
+      eventStop.call(e)
     });
 
     // iPhone では 6本指以上タッチすると強制的にすべてのタッチが解除される
@@ -126,7 +132,7 @@ export class TouchList {
         touch._end();
         delete touchMap[id];
       });
-      e.stop();
+      eventStop.call(e)
     });
   }
 

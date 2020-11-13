@@ -4,6 +4,10 @@ import {Keyboard} from "../input/keyboard";
 import {Touch, TouchList} from "../input/touch";
 // import {Acclerometer} from "../input/accelerometer"; // TODO later
 import {BaseApp} from "../app/baseapp";
+import { 
+  // window.stopとかぶるので一応回避
+  stop as eventStop
+} from "../dom/event";
 
 /**
  * @class phina.display.DomApp
@@ -81,8 +85,8 @@ export class DomApp extends BaseApp {
     this.domElement.addEventListener(eventName, this._checkClick.bind(this));
 
     // 決定時の処理をオフにする(iPhone 時のちらつき対策)
-    this.domElement.addEventListener("touchstart", function(e) { e.stop(); });
-    this.domElement.addEventListener("touchmove", function(e) { e.stop(); });
+    this.domElement.addEventListener("touchstart", function(e) { eventStop.call(e); });
+    this.domElement.addEventListener("touchmove", function(e) { eventStop.call(e); });
 
     // ウィンドウフォーカス時イベントリスナを登録
     phina.global.addEventListener('focus', function() {
