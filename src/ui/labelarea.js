@@ -317,11 +317,10 @@ LabelArea.verticalAlignToOffsetMap = {
     'fontWeight',
     'fontFamily'
   ].forEach(function(key) {
-    $watch.call(LabelArea, key, func);
+    $watch.call(this, key, func);
     // this.$watch(key, func);
   }, LabelArea.prototype);
-
-});
+})();
 
 Shape.watchRenderProperties.call(LabelArea ,[
   'verticalAlign',
