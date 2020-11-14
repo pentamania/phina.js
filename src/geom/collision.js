@@ -1,3 +1,6 @@
+import { Circle } from "./circle";
+import { Rect } from "./rect";
+import { Vector2 } from "./vector2";
 
 /**
 * @class phina.geom.Collision
@@ -22,7 +25,7 @@ export class Collision {
    * @return {Boolean} 領域が重なっているかどうか
    */
   static testCircleCircle(circle0, circle1) {
-    var distanceSquared = phina.geom.Vector2.distanceSquared(circle0, circle1);
+    var distanceSquared = Vector2.distanceSquared(circle0, circle1);
     return distanceSquared <= Math.pow(circle0.radius + circle1.radius, 2);
   }
   /**
@@ -59,13 +62,13 @@ export class Collision {
    */
   static testCircleRect(circle, rect) {
     // まずは大きな矩形で判定(高速化)
-    var bigRect = phina.geom.Rect(rect.left-circle.radius, rect.top-circle.radius, rect.width+circle.radius*2, rect.height+circle.radius*2);
+    var bigRect = new Rect(rect.left-circle.radius, rect.top-circle.radius, rect.width+circle.radius*2, rect.height+circle.radius*2);
     if (bigRect.contains(circle.x, circle.y) === false) {
       return false;
     }
     
     // 2種類の矩形と衝突判定
-    var r = phina.geom.Rect(rect.left-circle.radius, rect.top, rect.width+circle.radius*2, rect.height);
+    var r = new Rect(rect.left-circle.radius, rect.top, rect.width+circle.radius*2, rect.height);
     if (r.contains(circle.x, circle.y)) {
       return true;
     }
@@ -75,7 +78,7 @@ export class Collision {
     }
     
     // 円と矩形の４点の判定
-    var c = phina.geom.Circle(circle.x, circle.y, circle.radius);
+    var c = new Circle(circle.x, circle.y, circle.radius);
     // left top
     if (c.contains(rect.left, rect.top)) {
       return true;
@@ -117,13 +120,13 @@ export class Collision {
     // 半径の2乗
     var r2 = circle.radius * circle.radius;
     // 円の中心座標
-    var p3 = phina.geom.Vector2(circle.x, circle.y);
+    var p3 = new Vector2(circle.x, circle.y);
     // 各ベクトル
-    var p1p2 = phina.geom.Vector2.sub(p1, p2);
-    var p1p3 = phina.geom.Vector2.sub(p1, p3);
-    var p2p3 = phina.geom.Vector2.sub(p2, p3);
+    var p1p2 = Vector2.sub(p1, p2);
+    var p1p3 = Vector2.sub(p1, p3);
+    var p2p3 = Vector2.sub(p2, p3);
     // 外積
-    var cross = phina.geom.Vector2.cross(p1p2, p1p3);
+    var cross = Vector2.cross(p1p2, p1p3);
     // 外積の絶対値の2乗
     var cross2 = cross * cross;
     // p1p2の長さの2乗
@@ -132,8 +135,8 @@ export class Collision {
     var d2 = cross2 / length2;
     // 円の半径の2乗より小さいなら重複
     if (d2 <= r2) {
-      var dot1 = phina.geom.Vector2.dot(p1p3, p1p2);
-      var dot2 = phina.geom.Vector2.dot(p2p3, p1p2);
+      var dot1 = Vector2.dot(p1p3, p1p2);
+      var dot2 = Vector2.dot(p2p3, p1p2);
       // 通常は内積の乗算
       if (dot1 * dot2 <= 0) return true;
     }
@@ -200,16 +203,16 @@ export class Collision {
       if (rect.left <= p1.x && p1.x <= rect.right && rect.top <= p1.y && p1.y <= rect.bottom ) return true;
 
       //矩形の４点
-      var r1 = phina.geom.Vector2(rect.left, rect.top);     //左上
-      var r2 = phina.geom.Vector2(rect.right, rect.top);    //右上
-      var r3 = phina.geom.Vector2(rect.right, rect.bottom); //右下
-      var r4 = phina.geom.Vector2(rect.left, rect.bottom);  //左下
+      var r1 = new Vector2(rect.left, rect.top);     //左上
+      var r2 = new Vector2(rect.right, rect.top);    //右上
+      var r3 = new Vector2(rect.right, rect.bottom); //右下
+      var r4 = new Vector2(rect.left, rect.bottom);  //左下
 
       //矩形の４辺をなす線分との接触判定
-      if (phina.geom.Collision.testLineLine(p1, p2, r1, r2)) return true;
-      if (phina.geom.Collision.testLineLine(p1, p2, r2, r3)) return true;
-      if (phina.geom.Collision.testLineLine(p1, p2, r3, r4)) return true;
-      if (phina.geom.Collision.testLineLine(p1, p2, r1, r4)) return true;
+      if (Collision.testLineLine(p1, p2, r1, r2)) return true;
+      if (Collision.testLineLine(p1, p2, r2, r3)) return true;
+      if (Collision.testLineLine(p1, p2, r3, r4)) return true;
+      if (Collision.testLineLine(p1, p2, r1, r4)) return true;
       return false;
   }
 
