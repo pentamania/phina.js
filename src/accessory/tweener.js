@@ -1,3 +1,5 @@
+import { clone, each } from "../core/array";
+import { $extend } from "../core/object";
 import { Accessory } from "./accessory"
 import { Tween } from "../util/tween"
 
@@ -309,7 +311,8 @@ export class Tweener extends Accessory {
     // TODO: 最初の値が分からないので反転できない...
     this._update = this._updateTask;
     this._index = 0;
-    this._tasks.each(function(task) {
+    each.call(this._tasks, function(task) {
+    // this._tasks.each(function(task) {
       if (task.type === 'tween') {
 
       }
@@ -359,8 +362,10 @@ export class Tweener extends Accessory {
       this.setLoop(json.loop);
     }
 
-    json.tweens.each(function(t) {
-      t = t.clone();
+    each.call(json.tweens, function(t) {
+    // json.tweens.each(function(t) {
+      t = clone.call(t);
+      // t = t.clone();
       var method = t.shift();
       this[method].apply(this, t);
     }, this);
@@ -422,7 +427,8 @@ export class Tweener extends Accessory {
       this._update(app);
     }
     else if (task.type === 'set') {
-      this.target.$extend(task.data.values);
+      $extend.call(this.target, task.data.values);
+      // this.target.$extend(task.data.values);
       // 1フレーム消費しないよう再帰
       this._update(app);
     }
