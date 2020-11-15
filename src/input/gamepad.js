@@ -121,7 +121,7 @@ export class GamepadManager extends EventDispatcher {
     if (contains.call(this._created, index)) {
     // if (this._created.contains(index)) {
       var gamepad = this.get(index);
-      delete this.gamepad[gamepad];
+      delete this.gamepads[index];
       erase.call(this._created, index);
       // this._created.erase(index);
 
