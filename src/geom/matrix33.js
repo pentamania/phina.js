@@ -1,3 +1,4 @@
+import { format } from "../core/string";
 import { Vector2 } from "./vector2"
 
 /**
@@ -314,10 +315,9 @@ export class Matrix33 {
    * @return {String} JSON 文字列
    */
   toString() {
-    return "|{m00}, {m01}, {m02}|\n|{m10}, {m11}, {m12}|\n|{m20}, {m21}, {m22}|".format(this);
+    return format.call("|{m00}, {m01}, {m02}|\n|{m10}, {m11}, {m12}|\n|{m20}, {m21}, {m22}|", this);
+    // return "|{m00}, {m01}, {m02}|\n|{m10}, {m11}, {m12}|\n|{m20}, {m21}, {m22}|".format(this);
   }
-
-}
 
 /**
  * @property {phina.geom.Matrix33} IDENTITY 単位行列
