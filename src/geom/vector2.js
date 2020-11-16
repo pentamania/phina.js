@@ -1,5 +1,7 @@
 import { Random } from "../util/random";
-import { toRadian } from "../core/number";
+import { toDegree, toRadian } from "../core/number";
+import { DEG_TO_RAD } from "../core/math";
+import { format } from "../core/string";
 
 /**
  * @class phina.geom.Vector2
@@ -294,11 +296,10 @@ export class Vector2 {
    * @param {Number} [min=0] 角度（度単位）の下限値
    * @param {Number} [max=360] 角度（度単位）の上限値
    * @param {Number} [len=1] 大きさ
-   * @return {phina.geom.Vector2} ランダム化したベクトル
    */
   random(min, max, len) {
     var degree = Random.randfloat(min || 0, max || 360);
-    var rad = degree*Math.DEG_TO_RAD;
+    var rad = degree*DEG_TO_RAD;
     var len = len || 1;
 
     this.x = Math.cos(rad)*len;
@@ -334,7 +335,8 @@ export class Vector2 {
    * @return {String} JSON 文字列
    */
   toString() {
-    return "{x:{x}, y:{y}}".format(this);
+    return format.call("{x:{x}, y:{y}}", this);
+    // return "{x:{x}, y:{y}}".format(this);
   }
 
   /**
@@ -408,7 +410,8 @@ export class Vector2 {
    * @return {Number} ベクトルの角度（度単位）
    */
   toDegree() {
-    return this.toAngle().toDegree();
+    return toDegree.call(this.toAngle());
+    // return this.toAngle().toDegree();
   }
   
   /**
