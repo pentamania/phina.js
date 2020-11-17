@@ -109,7 +109,7 @@ export class Texture extends Asset {
         // h.times( function (y) {
         times.call(h, function (y) {
           // w.times( function (x) {
-          times(w, function (x) {
+          times.call(w, function (x) {
             var i = (y * w + x) * 4;
             var pixel = imageData.data.slice(i, i + 4);
             fn(pixel, i, x, y, imageData);
