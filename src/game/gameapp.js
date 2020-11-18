@@ -138,7 +138,7 @@ export class GameApp extends CanvasApp {
     this.enableDatGUI(function(gui) {
       var f = gui.addFolder('scenes');
       var funcs = {};
-      this.rootScene.scenes.forEach(function(scene) {
+      each.call(this.rootScene.scenes, function(scene) {
       // this.rootScene.scenes.each(function(scene) {
         funcs[scene.label] = function() {
           this.rootScene.replaceScene(scene.label);
