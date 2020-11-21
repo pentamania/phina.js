@@ -379,7 +379,7 @@ export function random(min, max) {
 // Array.prototype.$method("random", function(min, max) {
   min = min || 0;
   max = max || this.length-1;
-  return this[ Math.randint(min, max) ];
+  return this[randint(min, max) ];
 }
 
 /**
@@ -393,7 +393,7 @@ export function pickup(min, max) {
 // Array.prototype.$method("pickup", function(min, max) {
   min = min || 0;
   max = max || this.length-1;
-  return this[ Math.randint(min, max) ];
+  return this[randint(min, max) ];
 }
 
 /**
@@ -407,7 +407,7 @@ export function lot(min, max) {
 // Array.prototype.$method("lot", function(min, max) {
   min = min || 0;
   max = max || this.length-1;
-  return this[ Math.randint(min, max) ];
+  return this[randint(min, max) ];
 }
 
 /**
@@ -459,7 +459,8 @@ export function flatten(level) {
     // 完全フラット
     arr = this.reduce(function (previousValue, curentValue) {
       return Array.isArray(curentValue) ?
-        previousValue.concat(curentValue.flatten()) : previousValue.concat(curentValue);
+        // previousValue.concat(curentValue.flatten()) : previousValue.concat(curentValue);
+        previousValue.concat(flatten.call(curentValue)) : previousValue.concat(curentValue);
     }, []);
   }
 
@@ -505,10 +506,11 @@ export function fill(value, start, end) {
 export function shuffle() {
 // Array.prototype.$method("shuffle", function() {
   for (var i=0,len=this.length; i<len; ++i) {
-    var j = Math.randint(0, len-1);
+    var j = randint(0, len-1);
     
     if (i != j) {
-      this.swap(i, j);
+      // this.swap(i, j);
+      swap.call(this, i, j);
     }
   }
   
