@@ -180,10 +180,10 @@ export function $watch(key, callback) {
 /**
  * @method property
  * 変数を追加
- * @param   {String} key name
- * @param   {Object} param
+ * @param   {String} name name
+ * @param   {Object} val
  */
-export function property(name, fn) {
+export function property(name, val) {
   Object.defineProperty(this, name, {
     value: val,
     enumerable: true,
