@@ -581,14 +581,18 @@ export function average() {
  *     //    4
  *     //    9
  *
+ * @this Array
  * @param {Function} callback 各要素に対して実行するコールバック関数
- * @param {Object} [self=this] callback 内で this として参照される値
+ * @param {Object} [self] callback 内で this として参照される値
  */
-export function each() {
-// Array.prototype.$method("each", function() {
-  this.forEach.apply(this, arguments);
+export function each(callback, self) {
+  this.forEach.call(this, callback, self || this);
   return this;
 }
+// Array.prototype.$method("each", function() {
+//   this.forEach.apply(this, arguments);
+//   return this;
+// }
 
 // /**
 //  * @method toULElement
