@@ -3,6 +3,8 @@
  * Objectの拡張
  */
 
+import { format } from "./string";
+
 /**
  * 関数を追加
  * @param   {String} key name
@@ -237,7 +239,8 @@ export function $strict(source) {
 // Object.prototype.$method("$strict", function(source) {
   Array.prototype.forEach.call(arguments, function(source) {
     for (var property in source) {
-      console.assert(!this[property], "tm error: {0} is Already".format(property));
+      console.assert(!this[property], format.call("tm error: {0} is Already", property));
+      // console.assert(!this[property], "tm error: {0} is Already".format(property));
       this[property] = source[property];
     }
   }, this);
