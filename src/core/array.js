@@ -2,6 +2,8 @@
  * array.js
  */
 
+import { randint } from "./math";
+
 /**
  * @property {Object} first
  * 最初の要素
