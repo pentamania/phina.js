@@ -22,7 +22,7 @@ export class Font extends Asset {
     this.src = path;
 
     var reg = /(.*)(?:\.([^.]+$))/;
-    var key = this.fontName || last.call(path.match(reg)[1].split('/'));    //フォント名指定が無い場合はpathの拡張子前を使用
+    var key = this.fontName || last.get.call(path.match(reg)[1].split('/'));    //フォント名指定が無い場合はpathの拡張子前を使用
     // var key = this.fontName || path.match(reg)[1].split('/').last;    //フォント名指定が無い場合はpathの拡張子前を使用
     var type = path.match(reg)[2];
     var format = "unknown";
