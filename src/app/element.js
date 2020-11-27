@@ -263,48 +263,48 @@ export class Element extends EventDispatcher {
     return this;
   }
 
-  /**
-   * @method toJSON
-   * 自身の子要素を JSON 形式で返します。
-   *
-   * @return {JSON} JSON形式
-   */
-  toJSON() {
-    var keys = Object.keys(phina.using(this.className).defaults || {});
+  // /**
+  //  * @method toJSON
+  //  * 自身の子要素を JSON 形式で返します。
+  //  *
+  //  * @return {JSON} JSON形式
+  //  */
+  // toJSON() {
+  //   var keys = Object.keys(phina.using(this.className).defaults || {});
 
-    this._hierarchies.forEach(function(e) {
-      var d = e.defaults;
-      if (d) {
-        Object.keys(d).forEach(function(k) {
-          if (keys.indexOf(k) === -1) {
-            keys.push(k);
-          }
-        });
-      }
-    });
+  //   this._hierarchies.forEach(function(e) {
+  //     var d = e.defaults;
+  //     if (d) {
+  //       Object.keys(d).forEach(function(k) {
+  //         if (keys.indexOf(k) === -1) {
+  //           keys.push(k);
+  //         }
+  //       });
+  //     }
+  //   });
 
-    keys.push('name', 'className');
+  //   keys.push('name', 'className');
 
-    var json = {};
-    // keys.each(function(key) {
-    keys.forEach(function(key) {
-      json[key] = this[key];
-    }, this);
+  //   var json = {};
+  //   // keys.each(function(key) {
+  //   keys.forEach(function(key) {
+  //     json[key] = this[key];
+  //   }, this);
 
-    var children = this.children.map(function(child) {
-      return child.toJSON();
-    });
+  //   var children = this.children.map(function(child) {
+  //     return child.toJSON();
+  //   });
 
-    if (children.length) {
-      json.children = {};
-      // children.each(function(child, i) {
-      children.forEach(function(child, i) {
-        json.children[child.name || (child.className + '_' + i)] = child;
-      });
-    }
+  //   if (children.length) {
+  //     json.children = {};
+  //     // children.each(function(child, i) {
+  //     children.forEach(function(child, i) {
+  //       json.children[child.name || (child.className + '_' + i)] = child;
+  //     });
+  //   }
 
-    return json;
-  }
+  //   return json;
+  // }
 
   /**
    * accessoryを付与する
