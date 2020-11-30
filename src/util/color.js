@@ -76,7 +76,7 @@ export class Color {
   setSmart() {
     var arg = arguments[0];
     if (arguments.length >= 3) {
-      this.set(arguments.r, arguments.g, arguments.b, arguments.a);
+      this.set(arguments[0], arguments[1], arguments[2], arguments[3]);
     } else if (arg instanceof Array) {
       this.setFromArray(arg);
     } else if (arg instanceof Object) {
