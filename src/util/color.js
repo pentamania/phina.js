@@ -1,4 +1,4 @@
-import { format } from "../core/string";
+import { format, padding } from "../core/string";
 
 /**
  * @class phina.util.Color
@@ -93,9 +93,12 @@ export class Color {
   toStyleAsHex() {
     return format.call("#{0}{1}{2}",
     // return "#{0}{1}{2}".format(
-      this.r.toString(16).padding(2, '0'),
-      this.g.toString(16).padding(2, '0'),
-      this.b.toString(16).padding(2, '0')
+      padding.call(this.r.toString(16), 2, '0'),
+      padding.call(this.g.toString(16), 2, '0'),
+      padding.call(this.b.toString(16), 2, '0')
+      // this.r.toString(16).padding(2, '0'),
+      // this.g.toString(16).padding(2, '0'),
+      // this.b.toString(16).padding(2, '0')
     );
   }
 
