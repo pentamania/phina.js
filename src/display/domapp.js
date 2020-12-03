@@ -45,7 +45,7 @@ export class DomApp extends BaseApp {
 
     this.mouse = new Mouse(this.domElement);
     this.touch = new Touch(this.domElement);
-    this.touchList = new TouchList(this.domElement, 5);
+    this.touchList = new TouchList(this.domElement);
     this.keyboard = new Keyboard(document);
     // // 加速度センサーを生成
     // this.accelerometer = phina.input.Accelerometer();
