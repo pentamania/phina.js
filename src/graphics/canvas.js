@@ -1,4 +1,5 @@
 import { degToRad } from "../core/math";
+import { padding } from "../core/string";
 import phina from "../phina";
 import { Support } from "../util/support";
 
@@ -213,7 +214,8 @@ export class Canvas {
       pattern = pattern || 0xf0f0;
       patternTable = pattern.toString(2);
     }
-    patternTable = patternTable.padding(16, '1');
+    // patternTable = patternTable.padding(16, '1');
+    patternTable = padding.call(patternTable, 16, '1');
     
     var vx = x1-x0;
     var vy = y1-y0;
