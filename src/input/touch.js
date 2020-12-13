@@ -27,7 +27,7 @@ export class Touch extends Input {
 
     var self = this;
     this.domElement.addEventListener('touchstart', function(e) {
-      self._start(touchPointX.get.call(e), touchPointY.get.call(e), true);
+      self._start(touchPointX.get.call(e), touchPointY.get.call(e));
       // self._start(e.pointX, e.pointY, true);
     });
 
