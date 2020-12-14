@@ -390,7 +390,7 @@ export function toCRC32() {
   crc = crc ^ (-1);
   for (var i=0, iTop=this.length; i<iTop; ++i) {
     y = (crc ^ this.charCodeAt(i)) & 0xff;
-    x = "0x" + table[y];
+    x = Number("0x" + table[y]);
     crc = (crc >>> 8) ^ x;
   }
   
