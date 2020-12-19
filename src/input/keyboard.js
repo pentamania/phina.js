@@ -112,10 +112,14 @@ export class Keyboard extends Input {
   getKeyAngle() {
     var angle = null;
     var arrowBit =
-      (this.getKey("left")   << 3) | // 1000
-      (this.getKey("up")     << 2) | // 0100
-      (this.getKey("right")  << 1) | // 0010
-      (this.getKey("down"));         // 0001
+      // (this.getKey("left")   << 3) | // 1000
+      // (this.getKey("up")     << 2) | // 0100
+      // (this.getKey("right")  << 1) | // 0010
+      // (this.getKey("down"));         // 0001
+      (this.getKey("left") ? 1 : 0   << 3) | // 1000
+      (this.getKey("up") ? 1 : 0     << 2) | // 0100
+      (this.getKey("right") ? 1 : 0  << 1) | // 0010
+      (this.getKey("down") ? 1 : 0);         // 0001
     
     if (arrowBit !== 0 && Keyboard.ARROW_BIT_TO_ANGLE_TABLE.hasOwnProperty(arrowBit)) {
       angle = Keyboard.ARROW_BIT_TO_ANGLE_TABLE[arrowBit];
