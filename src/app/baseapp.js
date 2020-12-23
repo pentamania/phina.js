@@ -135,8 +135,8 @@ export class BaseApp extends EventDispatcher {
   }
 
   enableStats() {
-    if (phina.global.Stats) {
-      this.stats = new Stats();
+    if (phina.global['Stats']) {
+      this.stats = new phina.global['Stats']();
       document.body.appendChild(this.stats.domElement);
     }
     else {
@@ -153,8 +153,8 @@ export class BaseApp extends EventDispatcher {
   }
 
   enableDatGUI(callback) {
-    if (phina.global.dat) {
-      var gui = new phina.global.dat.GUI();
+    if (phina.global['dat']) {
+      var gui = new phina.global['dat'].GUI();
       callback(gui);
     }
     else {
@@ -164,7 +164,7 @@ export class BaseApp extends EventDispatcher {
       script.src = URL;
       document.body.appendChild(script);
       script.onload = function() {
-        var gui = new phina.global.dat.GUI();
+        var gui = new phina.global['dat'].GUI();
         callback(gui);
       }.bind(this);
     }

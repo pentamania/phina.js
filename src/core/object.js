@@ -296,7 +296,7 @@ export function $toArray() {
  */
 export function observe(obj, callback) {
 // Object.$method('observe', function(obj, callback) {
-  if (Object.observe) return Object.observe.call(obj, callback); // add
+  if (Object['observe']) return Object['observe'].call(obj, callback); // add
   var keys = Object.keys(obj);
   keys.forEach(function(key) {
     var tempKey = '__' + key;
@@ -324,6 +324,6 @@ export function observe(obj, callback) {
  */
 export function unobserve(obj, callback) {
 // Object.$method('unobserve', function(obj, callback) {
-  if (Object.unobserve) return Object.unobserve.call(obj, callback); // add
+  if (Object['unobserve']) return Object['unobserve'].call(obj, callback); // add
   console.assert(false);
 }

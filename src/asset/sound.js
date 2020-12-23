@@ -279,11 +279,11 @@ export class Sound extends Asset {
     if (g.AudioContext) {
       context = new AudioContext();
     }
-    else if (g.webkitAudioContext) {
-      context = new webkitAudioContext();
+    else if (g['webkitAudioContext']) {
+      context = new g['webkitAudioContext']();
     }
-    else if (g.mozAudioContext) {
-      context = new mozAudioContext();
+    else if (g['mozAudioContext']) {
+      context = new g['mozAudioContext']();
     }
 
     this.context = context;

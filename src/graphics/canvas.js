@@ -727,8 +727,8 @@ export class Canvas {
   get imageSmoothingEnabled()   { return this.context.imageSmoothingEnabled; }
   set imageSmoothingEnabled(v)  {
     this.context.imageSmoothingEnabled = v;
-    this.context.webkitImageSmoothingEnabled = v;
-    this.context.mozImageSmoothingEnabled = v;
+    this.context['webkitImageSmoothingEnabled'] = v;
+    this.context['mozImageSmoothingEnabled'] = v;
   }
 
   static measureText(font, text) {

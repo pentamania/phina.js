@@ -49,8 +49,8 @@ export class GamepadManager extends EventDispatcher {
     var navigator = phina.global.navigator;
     if (navigator && navigator.getGamepads) {
       this._getGamepads = navigator.getGamepads.bind(navigator);
-    } else if (navigator && navigator.webkitGetGamepads) {
-      this._getGamepads = navigator.webkitGetGamepads.bind(navigator);
+    } else if (navigator && navigator['webkitGetGamepads']) {
+      this._getGamepads = navigator['webkitGetGamepads'].bind(navigator);
     } else {
       this._getGamepads = function() {};
     }
@@ -175,7 +175,7 @@ GamepadManager.isAvailable = (function() {
   var nav = phina.global.navigator;
   if (!nav) return false;
 
-  return (!!nav.getGamepads) || (!!nav.webkitGetGamepads);
+  return (!!nav.getGamepads) || (!!nav['webkitGetGamepads']);
 })();
 
 
@@ -399,7 +399,7 @@ Gamepad.isAvailable = (function() {
   var nav = phina.global.navigator;
   if (!nav) return false;
 
-  return (!!nav.getGamepads) || (!!nav.webkitGetGamepads);
+  return (!!nav.getGamepads) || (!!nav['webkitGetGamepads']);
 })();
 
 /** アナログ入力対応のボタンの場合、どの程度まで押し込むとonになるかを表すしきい値. */

@@ -37,8 +37,8 @@ export class DisplayScene extends Scene {
     var ctx = this.canvas.context;
     if (params.imageSmoothing === false) {
       ctx.imageSmoothingEnabled = false;
-      ctx.webkitImageSmoothingEnabled = false;
-      ctx.msImageSmoothingEnabled = false;
+      ctx['webkitImageSmoothingEnabled'] = false;
+      ctx['msImageSmoothingEnabled'] = false;
     }
   }
 
