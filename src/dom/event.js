@@ -1,6 +1,3 @@
-import phina from "../phina";
-import { getter } from "../core/object";
-
 /**
  * MouseEvent/Touch拡張
  * @method    pointX
