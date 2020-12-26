@@ -291,15 +291,14 @@ export class Sound extends Asset {
     return context;
   }
 
-}
-
-// defined
-accessor.call(Sound, 'volume', {
-// this.accessor('volume', {
-  get: function() {
+  static get volume () {
     return this.getMasterGain().gain.value;
-  },
-  set: function(v) {
+  }
+
+  /**
+   * @param {number} v
+   */
+  static set volume(v) {
     this.getMasterGain().gain.value = v;
-  },
-});
+  }
+}
