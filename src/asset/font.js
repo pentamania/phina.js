@@ -76,7 +76,7 @@ export class Font extends Asset {
 
     var checkText = "1234567890-^\\qwertyuiop@[asdfghjkl;:]zxcvbnm,./\!\"#$%&'()=~|QWERTYUIOP`{ASDFGHJKL+*}ZXCVBNM<>?_１２３４５６７８９０－＾￥ｑｗｅｒｔｙｕｉｏｐａｓｄｆｇｈｊｋｌｚｘｃｖｂｎｍ，．あいうかさたなをん時は金なり";
     // 特殊文字対応
-    checkText += String.fromCharCode("0xf04b");
+    checkText += String.fromCharCode(0xf04b);
 
     var before = canvas.context.measureText(checkText).width;
     canvas.context.font = '40px ' + font + ', ' + DEFAULT_FONT;
