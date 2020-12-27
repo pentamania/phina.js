@@ -236,19 +236,16 @@ export class Sound extends Asset {
   get loop()  { return this._loop; }
   set loop(v) {
     this._loop = v;
-    if (this.source) this.source._loop = v;
   }
 
   get loopStart()  { return this._loopStart; }
   set loopStart(v) {
     this._loopStart = v;
-    if (this.source) this.source._loopStart = v;
   }
 
   get loopEnd()  { return this._loopEnd; }
   set loopEnd(v) {
     this._loopEnd = v;
-    if (this.source) this.source._loopEnd = v;
   }
 
   get playbackRate() { return this._playbackRate; }
