@@ -20,6 +20,21 @@ export class Vector3 {
     this.x = x || 0;
     this.y = y || 0;
     this.z = z || 0;
+
+    /**
+     * z軸回転角度
+     */
+    this.alpha = 0;
+
+    /**
+     * x軸回転角度
+     */
+    this.beta = 0;
+
+    /**
+     * y軸回転角度
+     */
+    this.gamma = 0;
   }
 
 }
