@@ -28,9 +28,9 @@ export class DisplayScene extends Scene {
 
     // TODO: 一旦むりやり対応
     this.interactive = true;
-    this.setInteractive = function(flag) {
-      this.interactive = flag;
-    };
+    // this.setInteractive = function(flag) {
+    //   this.interactive = flag;
+    // };
     this._overFlags = {};
     this._touchFlags = {};
 
@@ -40,6 +40,13 @@ export class DisplayScene extends Scene {
       ctx['webkitImageSmoothingEnabled'] = false;
       ctx['msImageSmoothingEnabled'] = false;
     }
+  }
+
+  /**
+   * @param {boolean} flag
+   */
+  setInteractive(flag) {
+    this.interactive = flag;
   }
 
   hitTest() {
