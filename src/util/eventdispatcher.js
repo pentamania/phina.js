@@ -174,13 +174,22 @@ export class EventDispatcher {
    *
    * @param {String} type イベントの種類
    */
-  clear(type) {
+  clearEventListener(type) {
     var oldEventName = 'on' + type;
     if (this[oldEventName]) delete this[oldEventName];
     this._listeners[type] = [];
     return this;
   }
 }
+
+/**
+ * 従来のclearメソッドも追加定義
+ * サブクラス（Tweenerクラス等）でclearがオーバーライドされる場合、clearListenersを使用する
+ */
+$method.call(EventDispatcher.prototype, "clear", function(type) {
+  // deprecatedメッセージ表示？
+  return this.clearEventListener(type);
+});
 
 /**
  * @method addEventListener
@@ -209,7 +218,6 @@ export class EventDispatcher {
 const methodMap = {
   addEventListener: 'on',
   removeEventListener: 'off',
-  clearEventListener: 'clear',
   hasEventListener: 'has',
   dispatchEvent: 'fire',
   dispatchEventByType: 'flare',
