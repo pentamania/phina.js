@@ -319,8 +319,13 @@ export class Matrix33 {
     // return "|{m00}, {m01}, {m02}|\n|{m10}, {m11}, {m12}|\n|{m20}, {m21}, {m22}|".format(this);
   }
 
-/**
- * @property {phina.geom.Matrix33} IDENTITY 単位行列
- * @readonly
- */
-Matrix33.IDENTITY = new Matrix33().identity();
+  /**
+   * デフォルト単位行列を返す
+   * @readonly
+   */
+  static get IDENTITY() {
+    return IDENTITY
+  }
+}
+
+var IDENTITY = new Matrix33().identity();
