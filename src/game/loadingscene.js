@@ -60,24 +60,24 @@ export class LoadingScene extends DisplayScene {
       this.gauge.animationTime = 10*1000;
       this.gauge.value = 90;
 
-      loader.onload = function() {
+      loader.on('load', function() {
         this.gauge.animationTime = 0;
         this.gauge.value = 100;
-      }.bind(this);
+      }.bind(this));
     }
     else {
       this.gauge.animationTime = 100;
-      loader.onprogress = function(e) {
+      loader.on('progress', function(e) {
         this.gauge.value = e.progress * 100;
-      }.bind(this);
+      }.bind(this)) ;
     }
 
-    this.gauge.onfull = function() {
+    this.gauge.on('full', function() {
       if (options.exitType === 'auto') {
         this.app.popScene();
       }
       this.flare('loaded');
-    }.bind(this);
+    }.bind(this));
 
     loader.load(options.assets);
   }
