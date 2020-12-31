@@ -229,9 +229,9 @@ export class Color {
     }
 
     return [
-      parseInt(r * 255),
-      parseInt(g * 255),
-      parseInt(b * 255)
+      Math.floor(r * 255),
+      Math.floor(g * 255),
+      Math.floor(b * 255)
     ];
   }
 
