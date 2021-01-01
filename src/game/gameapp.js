@@ -21,17 +21,16 @@ class DefaultMainScene extends DisplayScene {
 };
 
 /**
- * クラスがphina.defineによって定義されているかどうかを返します
- * 
+ * クラスがphina.defineによって定義（グローバルに定義）されているかどうかをチェック
  * @param {string} className クラス名。phina.game[className]で定義されているかも調べる
- * @return {string|boolean} 定義されてればそのままクラス名文字列を返す
+ * @returns {boolean}
  */
 function isGameClassDefined(className) {
   if (
     typeof phina.using(className) === 'function'
     || typeof phina.using('phina.game.' + className) === 'function'
   ) {
-    return className
+    return true
   }
   return false;
 }
@@ -49,26 +48,27 @@ export class GameApp extends CanvasApp {
     });
     super(options);
 
+
     var startLabel = options.startLabel || 'title';
 
     var scenes = options.scenes || [
       {
-        className: isGameClassDefined("SplashScene") || SplashScene,
+        className: isGameClassDefined("SplashScene") ? "SplashScene" : SplashScene,
         label: 'splash',
         nextLabel: 'title',
       },
       {
-        className: isGameClassDefined("TitleScene") || TitleScene,
+        className: isGameClassDefined("TitleScene") ? "TitleScene" : TitleScene,
         label: 'title',
         nextLabel: 'main',
       },
       {
-        className: isGameClassDefined("MainScene") || DefaultMainScene,
+        className: isGameClassDefined("MainScene") ? "MainScene" : DefaultMainScene,
         label: 'main',
         nextLabel: 'result',
       },
       {
-        className: isGameClassDefined("ResultScene") || ResultScene,
+        className: isGameClassDefined("ResultScene") ? "ResultScene" : ResultScene,
         label: 'result',
         nextLabel: 'title',
       },
