@@ -1,277 +1,183 @@
-import { $method, accessor, $extend, forIn } from "./core/object";
+import { accessor, $extend, forIn } from "./core/object";
 import { clone, clear, last } from "./core/array";
 
-/*
- * phina.js namespace
- */
-var phina = phina || {};
-
-// 一旦拡張
-// $method.call(phina, "hoge", ...)としても良いが、書き換えが大変なため
-phina.$method = function(...args) {
-// phina.prototype.$method = function(...args) { // ng
-  return $method.call(this, ...args)
-}
-
-// ;(function() {
-
 /**
- * @class phina
- * # phina.js namespace
- * phina.js のネームスペースです。phina.js の提供する機能は（コア拡張以外）全てこのオブジェクトに入っています。
- *
- * ## phina.js のクラス定義について
- *
- * phina.js では独自のクラスシステムを実装しています。
- * phina.js のクラスの特徴としては new 構文を使用しないため、メソッドチェーンがしやすいことや、文字列でクラスを定義したり親クラスを指定したりできる点が挙げられます。
- * 文字列を使用できることで、クラスを定義する段階で親クラスが指定されていなくても、クラスを呼び出す段階で親クラスが定義されていればいいというメリットがあります。
- *
- * クラスの定義には {@link #createClass}, {@link #define} を使用します。詳しい使い方はそれぞれの関数の項を参照してください。
- *
- * ## クラスについての補足
- *
- * phina.js のクラスでは superClass を指定すると以下のメソッドが自動で追加されます。
- *
- * - superInit(): 親クラスのコンストラクタを呼び出す（初期化）
- * - superMethod(): 親クラスのメソッドを呼び出す
- *
- * superInit は引数を変えることで親クラスのコンストラクタを呼ぶときの引数を変えられます。
- * superMethod は一つ目の引数に呼び出したい親クラスのメソッド名を文字列で、二つ目以降に呼び出したいメソッドの引数を渡します。
- *
- * また phina.js のクラスでは以下の特別な役割をもったプロパティ、メソッドが存在します。
- *
- * - _accessor: アクセッサー（ゲッターとセッター）を定義するためのプロパティ
- * - _static: static メンバを定義するためのプロパティ
- * - _defined(): クラスが定義されたときに呼ばれるメソッド
- *
- * ### _accessor の使用例
- *     var Class = phina.createClass({
- *       init: function() {
- *         ...
- *       },
- *
- *       _accessor: function() {
- *         value: {
- *           get: function() {
- *             return this._value;
- *           },
- *
- *           set: function(v) {
- *             this._value = v;
- *             console.log('valueがセットされました！');
- *           }
- *         }
- *       }
- *     });
- *
- * ### _static の使用例
- *     var Class = phina.createClass({
- *       init: function() {
- *         ...
- *       },
- *
- *       _static: {
- *
- *         staticProperty1: 1,
- *         staticProperty2: 2,
- *
- *         staticMethod1: function(){},
- *         staticMethod2: function(){}
- *
- *       }
- *     });
- *
- *     console.log(Class.staticProperty1); // => 1
- *
- * ### _defined の使用例
- *     var Class = phina.createClass({
- *       init: function() {
- *       },
- *
- *       _defined: function() {
- *         console.log('defined!');
- *       }
- *     }); // => defined!
+ * @typedef {{
+ *   _creator: any
+ *   _hierarchies: PhinaClass[]
+ *   init: function
+ *   superClass?: any
+ *   superInit?: function
+ *   superMethod?: (methodName: string, ...args:any) => any // スーパーメソッドの結果
+ *   constructor?: any
+ *   [k: string]: any // その他のプロパティ
+ * }} PhinaClassPrototype
  */
 
 /**
- * @property {String} [VERSION = <%= version %>]
- * phina.js のバージョンです。
- *
- * @member phina
- * @static
+ * @typedef {{
+ *   prototype: PhinaClassPrototype
+ *   [k: string]: any // その他のstaticプロパティ
+ * }} PhinaClass
  */
-phina.VERSION = '<%= version %>';
 
 /**
- * @method isNode
- * Node.js の module かどうかをチェックします。
- *
- * @member phina
- * @static
+ * @typedef {Object} CreateClassParam
+ * @property {Function & {owner: any}} params.init クラス初期化関数
+ * @property {PhinaClass} [params.superClass] スーパークラス
+ * @property {{[k: string]: AccessorExtendObject}} [params._accessor] アクセサを付与
+ * @property {{[k: string]: any}} [params._static] staticプロパティを付与
+ * @property {Function} [params._defined] 定義時に実行したい関数
  */
-phina.$method('isNode', function() {
-  return (typeof module !== 'undefined');
-});
 
-/**
- * @method namespace
- * 引数は関数で、その関数内での this は phina になります。
- *
- * @param {Function} fn 関数
- * @member phina
- * @static
- */
-phina.$method('namespace', function(fn) {
-  fn.call(this);
-});
+var _classDefinedCallback = {};
 
-var ns = phina.isNode() ? global : window;
+var phina = {
+  /**
+   * @property {String} VERSION
+   * @memberof phina
+   * @static
+   * phina.js のバージョンです。
+   */
+  VERSION: "<%= version %>",
 
-/**
- * @property {Object} global
- * Node.js なら global ブラウザなら window を返します。
- * ゲッターのみ定義されています。
- *
- * @member phina
- * @readonly
- * @static
- */
-// phina.accessor('global', {
-accessor.call(phina, 'global', {
-  get: function() {
-    return ns;
+  /**
+   * @method isNode
+   * Node.js の module かどうかをチェックします。
+   * @memberof phina
+   * @static
+   */
+  isNode: function () {
+    return typeof module !== "undefined";
   },
-});
 
+  /**
+   * @method namespace
+   * 引数は関数で、その関数内での this は phina になります。
+   * @memberof phina
+   * @static
+   *
+   * @param {Function} fn 関数
+   */
+  namespace: function (fn) {
+    fn.call(this);
+  },
 
-/**
- * @method testUA
- * 引数の RegExp オブジェクトとユーザーエージェントを比較して返します。
- *
- * @param {RegExp}
- * @return {Boolean}
- * @member phina
- * @static
- */
-phina.$method('testUA', function(regExp) {
-  if (!phina.global.navigator) return false;
-  var ua = phina.global.navigator.userAgent;
-  return regExp.test(ua);
-});
+  /**
+   * @method testUA
+   * 引数の RegExp オブジェクトとユーザーエージェントを比較して返します。
+   * @memberof phina
+   * @static
+   *
+   * @param {RegExp} regExp
+   * @return {Boolean}
+   */
+  testUA: function (regExp) {
+    if (!this.global.navigator) return false;
+    var ua = this.global.navigator.userAgent;
+    return regExp.test(ua);
+  },
 
-/**
- * @method isAndroid
- * Android かどうかを返します。
- *
- * @return {Boolean} Android かどうか
- * @member phina
- * @static
- */
-phina.$method('isAndroid', function() {
-  return phina.testUA(/Android/);
-});
+  /**
+   * @method isAndroid
+   * Android かどうかを返します。
+   * @memberof phina
+   * @static
+   *
+   * @return {Boolean} Android かどうか
+   */
+  isAndroid: function () {
+    return this.testUA(/Android/);
+  },
 
-/**
- * @method isIPhone
- * iPhone かどうかを返します。
- *
- * @return {Boolean} iPhone かどうか
- * @member phina
- * @static
- */
-phina.$method('isIPhone', function() {
-  return phina.testUA(/iPhone/);
-});
+  /**
+   * @method isIPhone
+   * iPhone かどうかを返します。
+   * @memberof phina
+   * @static
+   *
+   * @return {Boolean} iPhone かどうか
+   */
+  isIPhone: function () {
+    return this.testUA(/iPhone/);
+  },
 
-/**
- * @method isIPad
- * iPad かどうかを返します。
- *
- * @return {Boolean} iPad かどうか
- * @member phina
- * @static
- */
-phina.$method('isIPad', function() {
-  return phina.testUA(/iPad/);
-});
+  /**
+   * @method isIPad
+   * iPad かどうかを返します。
+   * @memberof phina
+   * @static
+   *
+   * @return {Boolean} iPad かどうか
+   */
+  isIPad: function () {
+    return this.testUA(/iPad/);
+  },
 
-/**
- * @method isIOS
- * iOS かどうかを返します。
- *
- * @return {Boolean} iOS かどうか
- * @member phina
- * @static
- */
-phina.$method('isIOS', function() {
-  return phina.testUA(/iPhone|iPad/);
-});
+  /**
+   * @method isIOS
+   * iOS かどうかを返します。
+   * @memberof phina
+   * @static
+   *
+   * @return {Boolean} iOS かどうか
+   */
+  isIOS: function () {
+    return this.testUA(/iPhone|iPad/);
+  },
 
-/**
- * @method isMobile
- * モバイルかどうかを返します。具体的には Android, iPhone, iPad のいずれかだと true になります。
- *
- * @return {Boolean} モバイルかどうか
- * @member phina
- * @static
- */
-phina.$method('isMobile', function() {
-  return phina.testUA(/iPhone|iPad|Android/);
-});
-
-// // support node.js
-// if (phina.isNode()) {
-//   module.exports = phina;
-// }
-
-// ns.phina = phina;
-
-// })(this);
-
-
-phina.namespace(function() {
+  /**
+   * @method isMobile
+   * モバイルかどうかを返します。具体的には Android, iPhone, iPad のいずれかだと true になります。
+   * @memberof phina
+   * @static
+   *
+   * @return {Boolean} モバイルかどうか
+   */
+  isMobile: function () {
+    return this.testUA(/iPhone|iPad|Android/);
+  },
 
   /**
    * @method createClass
    * クラスを作成する関数です。
    * 親クラスの指定は文字列でも可能です。
    * 何も継承しない場合 superClass の指定は不要です。また、親クラスを継承している場合、コンストラクタ内で this.superInit() を実行して親クラスを初期化することが必須です。
-   *
-   * ### Example
-   *     var Class = phina.createClass({
-   * 　　  superClass: 'namespace.Super',//親クラス継承
-   *
-   * 　　  //メンバ変数
-   * 　　  member1: 100,
-   * 　　  member2: 'test',
-   * 　　  member3: null,
-   *
-   *
-   * 　　  //コンストラクタ
-   * 　　  //Class()を呼び出したとき実行される
-   * 　　  init: function(a, b){
-   * 　　    //スーパークラス(継承したクラス)のinit
-   * 　　    this.superInit(a, b);
-   * 　　    this.a = a;
-   * 　　    this.b = b;
-   * 　　  },
-   * 　　
-   * 　　  //メソッド
-   * 　　  method1: function(){},
-   * 　　  method2: function(){},
-   * 　　
-   * 　　});
-   *
-   * @param {Object}
-   * @return {Function} クラス
-   * @member phina
+   * @memberof phina
    * @static
+   *
+   * @example
+   * var Class = phina.createClass({
+   *   superClass: namespace.Super,//親クラス継承
+   *
+   *   //メンバ変数
+   *   member1: 100,
+   *   member2: 'test',
+   *   member3: null,
+   *
+   *   // コンストラクタ
+   *   // Class()を呼び出したとき実行される
+   *   init: function(a, b){
+   *     //スーパークラス(継承したクラス)のinit
+   *     this.superInit(a, b);
+   *     this.a = a;
+   *     this.b = b;
+   *   },
+   *
+   *   //メソッド
+   *   method1: function(){},
+   *   method2: function(){},
+   *
+   * });
+   *
+   * @param {CreateClassParam} params
+   * @return {PhinaClass} phinaクラス
    */
-  phina.$method('createClass', function(params) {
+  createClass: function (params) {
     var props = {};
 
-    var _class = function() {
+    /** @type {PhinaClass} */
+    var _class = function () {
       var instance = new _class.prototype._creator();
       _class.prototype.init.apply(instance, arguments);
       return instance;
@@ -280,7 +186,7 @@ phina.namespace(function() {
     if (params.superClass) {
       _class.prototype = Object.create(params.superClass.prototype);
       params.init.owner = _class;
-      _class.prototype.superInit = function() {
+      _class.prototype.superInit = function () {
         this.__counter = this.__counter || 0;
 
         var superClass = this._hierarchies[this.__counter++];
@@ -289,13 +195,13 @@ phina.namespace(function() {
 
         this.__counter = 0;
       };
-      _class.prototype.superMethod = function() {
+      _class.prototype.superMethod = function () {
         var args = Array.prototype.slice.call(arguments, 0);
         var name = args.shift();
         this.__counters = this.__counters || {};
         this.__counters[name] = this.__counters[name] || 0;
 
-        var superClass = this._hierarchies[ this.__counters[name]++ ];
+        var superClass = this._hierarchies[this.__counters[name]++];
         var superMethod = superClass.prototype[name];
         var rst = superMethod.apply(this, args);
 
@@ -305,7 +211,6 @@ phina.namespace(function() {
       };
       _class.prototype.constructor = _class;
     }
-
 
     // //
     // params.forIn(function(key, value) {
@@ -323,22 +228,31 @@ phina.namespace(function() {
     // 継承用
     _class.prototype._hierarchies = [];
     var _super = _class.prototype.superClass;
-    while(_super) {
+    while (_super) {
       _class.prototype._hierarchies.push(_super);
       _super = _super.prototype.superClass;
     }
 
     // accessor
     if (params._accessor) {
-      forIn.call(params._accessor, function(key, value) {
-      // params._accessor.forIn(function(key, value) {
-        accessor.call(_class.prototype, key, value);
-        // _class.prototype.accessor(key, value);
-      });
+      // params._accessor.forIn(
+      forIn.call(
+        params._accessor,
+        /**
+         * @param {string} key
+         * @param {AccessorExtendObject} value
+         */
+        function (key, value) {
+          accessor.call(_class.prototype, key, value);
+          // _class.prototype.accessor(key, value);
+        }
+      );
       // _class.prototype = Object.create(_class.prototype, params._accessor);
     }
 
-    _class.prototype._creator = function() { return this; };
+    _class.prototype._creator = function () {
+      return this;
+    };
     _class.prototype._creator.prototype = _class.prototype;
 
     // static property/method
@@ -352,177 +266,177 @@ phina.namespace(function() {
     }
 
     return _class;
-  });
-
-  var chachedClasses = {};
+  },
 
   /**
    * @method using
    * 文字列で定義したパスを使ってオブジェクトを取り出します。パスは , . / \ :: で区切ることができます。
    * {@link #phina.register} で登録したオブジェクトを取り出すときなどに使うと便利な関数です。
+   * @memberof phina
+   * @static
    *
-   * ### Example
-   *     hoge = {
-   *       foo: {
-   *         bar: {
-   *           num: 100
-   *         }
-   *       }
-   *     };
-   *     var bar = phina.using('hoge.foo.bar');
-   *     console.log(bar.num); // => 100
+   * @example
+   * hoge = {
+   *   foo: {
+   *     bar: {
+   *       num: 100
+   *     }
+   *   }
+   * };
+   * var bar = phina.using('hoge.foo.bar');
+   * console.log(bar.num); // => 100
    *
    * @param {String} path オブジェクトへのパス
    * @return {Object} 取り出したオブジェクト
-   * @member phina
-   * @static
    */
-  phina.$method('using', function(path) {
+  using: function (path) {
     if (!path) {
-      return phina.global;
+      return this.global;
     }
 
     var pathes = path.split(/[,.\/ ]|::/);
-    var current = phina.global;
+    var current = this.global;
 
-    pathes.forEach(function(p) {
-      current = current[p] || (current[p]={});
+    pathes.forEach(function (p) {
+      current = current[p] || (current[p] = {});
     });
 
     return current;
-  });
+  },
 
   /**
    * @method register
    * パス指定でオブジェクトを登録する関数です。パスは , . / \ :: で区切ることができます。
+   * @memberof phina
+   * @static
    *
-   * ### Example
-   *     phina.register('hoge.foo.bar', {
-   *       num: 100,
-   *     });
-   *     console.log(hoge.foo.bar.num); // => 100
+   * @example
+   * phina.register('hoge.foo.bar', {
+   *   num: 100,
+   * });
+   * console.log(hoge.foo.bar.num); // => 100
    *
    * @param {String} path 登録するオブジェクトのパス
    * @param {Object} _class 登録するオブジェクト
    * @return {Object} 登録したオブジェクト
-   * @member phina
-   * @static
    */
-  phina.$method('register', function(path, _class) {
+  register: function (path, _class) {
     var pathes = path.split(/[,.\/ ]|::/);
     // var className = pathes.last;
     var className = last.get.call(pathes);
-    var parentPath = path.substring(0, path.lastIndexOf('.')); // ここを直さないとピリオド区切り以外は無効？
-    var parent = phina.using(parentPath);
+    // FIXME: ここを直さないとピリオド区切り以外は無効？
+    var parentPath = path.substring(0, path.lastIndexOf("."));
+    var parent = this.using(parentPath);
 
     parent[className] = _class;
 
     return _class;
-  });
-
-  var _classDefinedCallback = {};
+  },
 
   /**
    * @method define
    * クラスを定義する関数です。使い方は {@link #createClass} とほとんど同じです。
    * ただし、引数は2つあり、第一引数は定義するクラスのパスを文字列で渡します。第二引数のオブジェクトは {@link #createClass} の引数と同じようにします。
-   * {@link #createClass} と違い、変数に代入する必用がなく、パス指定でクラスを定義できます。
+   * {@link #createClass} と違い、変数に代入する必要がなく、パス指定でクラスを定義できます。
    * 内部的には {@link #register}, {@link #using} を使用しているため、パスは , . / \ :: で区切ることができます。
+   * @memberof phina
+   * @static
    *
-   * ### Example
-   *     phina.define('namespace.Class', {
-   *       superClass: 'namespace.Super',//親クラス継承
+   * @example
+   * phina.define('namespace.Class', {
+   *   superClass: 'namespace.Super',//親クラス継承
    *
-   *       //メンバ変数
-   *       member1: 100,
-   *       member2: 'test',
-   *       member3: null,
+   *   //メンバ変数
+   *   member1: 100,
+   *   member2: 'test',
+   *   member3: null,
    *
+   *   //コンストラクタ
+   *   //Class()を呼び出したとき実行される
+   *   init: function(a, b){
+   *     //スーパークラス(継承したクラス)のinit
+   *     this.superInit(a, b);
+   *     this.a = a;
+   *     this.b = b;
+   *   },
    *
-   *       //コンストラクタ
-   *       //Class()を呼び出したとき実行される
-   *       init: function(a, b){
-   *         //スーパークラス(継承したクラス)のinit
-   *         this.superInit(a, b);
-   *         this.a = a;
-   *         this.b = b;
-   *       },
-   *
-   *       //メソッド
-   *       method1: function(){},
-   *       method2: function(){},
-   *
-   *     });
+   *   //メソッド
+   *   method1: function(){},
+   *   method2: function(){},
+   * });
    *
    * @param {String} path パス
-   * @param {Object} params オブジェクト
-   * @return {Function} 定義したクラス
-   * @member phina
-   * @static
+   * @param {Object} params
+   * @param {Function & {owner: any}} params.init クラス初期化関数
+   * @param {string | PhinaClass} [params.superClass] スーパークラス
+   * @param {{[k: string]: AccessorExtendObject}} [params._accessor] アクセサを付与
+   * @param {{[k: string]: any}} [params._static] staticプロパティを付与
+   * @param {Function} [params._defined] 定義時に実行したい関数
+   * @return {PhinaClass} 定義したクラス
    */
-  phina.$method('define', function(path, params) {
+  define: function (path, params) {
     if (params.superClass) {
-      if (typeof params.superClass === 'string') {
-        var _superClass = phina.using(params.superClass);
-        if (typeof _superClass != 'function') {
+      if (typeof params.superClass === "string") {
+        var _superClass = this.using(params.superClass);
+        if (typeof _superClass != "function") {
           if (!_classDefinedCallback[params.superClass]) {
             _classDefinedCallback[params.superClass] = [];
           }
-          _classDefinedCallback[params.superClass].push(function() {
-            phina.define(path, params);
+          _classDefinedCallback[params.superClass].push(function () {
+            this.define(path, params);
           });
 
-          return ;
-        }
-        else {
+          return;
+        } else {
           params.superClass = _superClass;
         }
-      }
-      else {
+      } else {
         params.superClass = params.superClass;
       }
     }
 
-    var _class = phina.createClass(params);
-    accessor.call(_class.prototype, 'className', {
+    var _class = this.createClass(/** @type CreateClassParam */ (params));
     // _class.prototype.accessor('className', {
-      get: function() {
+    accessor.call(_class.prototype, "className", {
+      get: function () {
         return path;
       },
     });
 
-    phina.register(path, _class);
+    this.register(path, _class);
 
     if (_classDefinedCallback[path]) {
-      _classDefinedCallback[path].forEach(function(callback) {
+      _classDefinedCallback[path].forEach(function (callback) {
         callback();
       });
       _classDefinedCallback[path] = null;
     }
 
     return _class;
-  });
+  },
 
   /**
    * @method globalize
    * phina.js が用意している全てのクラスをグローバルに展開します。（具体的には phina が持つオブジェクトが一通りグローバルに展開されます。）
    * この関数を実行することで、いちいち global からたどっていかなくても phina.js の用意しているクラスをクラス名だけで呼び出すことができます。
-   *
-   * ### Example
-   *     phina.globalize();
-   *
-   * @member phina
+   * @memberof phina
    * @static
+   *
+   * @example
+   * var sprite1 = phina.display.Sprite("piyo"); 
+   * phina.globalize();
+   * var sprite2 = Sprite("piyo"); // sprite1と等価
+   *
    */
-  phina.$method('globalize', function() {
-    forIn.call(phina, function(key, value) {
-    // phina.forIn(function(key, value) {
+  globalize: function () {
+    // phina.forIn(
+    forIn.call(this, function (key, value) {
       var ns = key;
 
-      if (typeof value !== 'object') return ;
+      if (typeof value !== "object") return;
 
-      forIn.call(value, function(key, value) {
       // value.forIn(function(key, value) {
+      forIn.call(value, function (key, value) {
         // if (phina.global[key]) {
         //   console.log(ns, key);
         //   phina.global['_' + key] = value;
@@ -530,64 +444,76 @@ phina.namespace(function() {
         // else {
         //   phina.global[key] = value;
         // }
-        phina.global[key] = value;
+        this.global[key] = value;
       });
     });
-  });
+  },
 
-  phina._mainListeners = [];
-  phina._mainLoaded = false;
+  /** @private */
+  _mainListeners: [],
+  /** @private */
+  _mainLoaded: false,
 
   /**
    * @method main
-   * phina.js でプログラミングする際、メインの処理を記述するための関数です。基本的に phina.js でのプログラミングではこの中にプログラムを書いていくことになります。
+   * phina.js でプログラミングする際、メインの処理を記述するための関数です。
+   * 基本的に phina.js でのプログラミングではこの中にプログラムを書いていくことになります。
+   * @memberof phina
+   * @static
    *
-   * ### Example
-   *     phina.main(function() {
-   *       //ここにメインの処理を書く
-   *     });
+   * @example
+   * phina.main(function() {
+   *   //ここにメインの処理を書く
+   * });
    *
    * @param {Function} func メインの処理
-   * @member phina
-   * @static
    */
-  phina.$method('main', function(func) {
-    if (phina._mainLoaded) {
+  main: function (func) {
+    if (this._mainLoaded) {
       func();
+    } else {
+      this._mainListeners.push(func);
     }
-    else {
-      phina._mainListeners.push(func);
-    }
-  });
+  },
 
-  var doc = phina.global.document;
-  if (phina.global.addEventListener && doc && doc.readyState !== 'complete') {
-    phina.global.addEventListener('load', function() {
-      var run = function() {
-        var listeners = clone.call(phina._mainListeners);
-        // var listeners = phina._mainListeners.clone();
-        clear.call(phina._mainListeners);
-        // phina._mainListeners.clear();
-        listeners.forEach(function(func) {
+  /**
+   * @memberof phina
+   * Node.js なら global、 ブラウザなら window を返します。
+   * ゲッターのみ定義されています。
+   */
+  get global() {
+    return GLOBAL;
+  },
+};
+
+var GLOBAL = phina.isNode() ? global : window;
+
+var doc = phina.global.document;
+if (phina.global.addEventListener && doc && doc.readyState !== "complete") {
+  phina.global.addEventListener("load", function () {
+    var run = function () {
+      var listeners = clone.call(phina._mainListeners);
+      // var listeners = phina._mainListeners.clone();
+      clear.call(phina._mainListeners);
+      // phina._mainListeners.clear();
+      listeners.forEach(function (func) {
         // listeners.each(function(func) {
-          func();
-        });
+        func();
+      });
 
-        // main 内で main を追加している場合があるのでそのチェック
-        if (phina._mainListeners.length > 0) {
-          run(0);
-        }
-        else {
-          phina._mainLoaded = true;
-        }
-      };
-      // ちょっと遅延させる(画面サイズ問題)
-      setTimeout(run);
-    });
-  }
-  else {
-    phina._mainLoaded = true;
-  }
-});
+      // main 内で main を追加している場合があるのでそのチェック
+      if (phina._mainListeners.length > 0) {
+        run();
+        // run(0);
+      } else {
+        phina._mainLoaded = true;
+      }
+    };
+    // ちょっと遅延させる(画面サイズ問題)
+    setTimeout(run);
+  });
+} else {
+  phina._mainLoaded = true;
+}
 
 export default phina;
