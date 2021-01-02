@@ -1,4 +1,5 @@
 export {default as phina} from "./phina";
+export * from "./extendBuiltIn";
 
 export * from "./util/eventdispatcher";
 export * from "./util/flow";
