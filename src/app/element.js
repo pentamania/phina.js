@@ -3,6 +3,7 @@ import { at, erase } from "../core/array"
 import { forIn } from "../core/object"
 import { EventDispatcher } from "../util/eventdispatcher"
 import { Tweener } from "../accessory/tweener"
+import { Draggable } from "../accessory/draggable";
 
 /**
  * @class phina.app.Element
@@ -349,5 +350,12 @@ export class Element extends EventDispatcher {
       this._tweener = new Tweener().attachTo(this);
     }
     return this._tweener;
+  }
+
+  get draggable() {
+    if (!this._draggable) {
+      this._draggable = new Draggable().attachTo(this);
+    }
+    return this._draggable;
   }
 }
