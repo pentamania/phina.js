@@ -21,19 +21,19 @@ export class Draggable extends Accessory {
     this.on('attached', function() {
       this.target.setInteractive(true);
 
-      this._dragging = false;
+      self._dragging = false;
 
       this.target.on('pointstart', function(e) {
         if (Draggable._lock) return ;
 
-        this._dragging = true;
+        self._dragging = true;
         self.initialPosition.x = this.x;
         self.initialPosition.y = this.y;
         self.flare('dragstart');
         this.flare('dragstart');
       });
       this.target.on('pointmove', function(e) {
-        if (!this._dragging) return ;
+        if (!self._dragging) return ;
 
         this.x += e.pointer.dx;
         this.y += e.pointer.dy;
@@ -42,9 +42,9 @@ export class Draggable extends Accessory {
       });
 
       this.target.on('pointend', function(e) {
-        if (!this._dragging) return ;
+        if (!self._dragging) return ;
 
-        this._dragging = false;
+        self._dragging = false;
         self.flare('dragend');
         this.flare('dragend');
       });
