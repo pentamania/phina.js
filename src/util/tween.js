@@ -3,8 +3,12 @@ import { forIn } from "../core/object";
 import { EventDispatcher } from "../util/eventdispatcher"
 
 /**
+ * @typedef {keyof Tween.EASING} TweenEasingType イージングの種類を表す文字列
+ */
+
+/**
  * @class phina.util.Tween
- * @extends phina.util.EventDispatcher
+ * _extends phina.util.EventDispatcher
  * 
  */
 export class Tween extends EventDispatcher {
@@ -12,12 +16,34 @@ export class Tween extends EventDispatcher {
   /**
    * @constructor
    */
-  constructor(target) {
+  constructor() {
     super();
 
+    /**
+     * @type {number}
+     * tween経過時間
+     */
     this.time = 0;
+
+    /**
+     * @private
+     * @type {function|string}
+     * 内部イージング関数
+     * easingアクセサを介して使用  
+     * setterがstring型を受け付けるのに対し、
+     * getterはfunction型を返すため、とりあえず共用体とする
+     */
+    this._easing;
   }
 
+  /**
+   * @param {any} target
+   * @param {{ [k: string]: any; }} beginProps
+   * @param {{ [k: string]: any; }} finishProps
+   * @param {number} duration
+   * @param {TweenEasingType} easing
+   * @returns {this}
+   */
   fromTo(target, beginProps, finishProps, duration, easing) {
     this.target = target;
     this.beginProps = beginProps;
@@ -34,6 +60,13 @@ export class Tween extends EventDispatcher {
     return this;
   }
 
+  /**
+   * @param {any} target
+   * @param {{ [k: string]: any; }} finishProps
+   * @param {number} duration
+   * @param {TweenEasingType} easing
+   * @returns {this}
+   */
   to(target, finishProps, duration, easing) {
     var beginProps = {};
 
@@ -46,6 +79,13 @@ export class Tween extends EventDispatcher {
     return this;
   }
 
+  /**
+   * @param {any} target
+   * @param {{ [k: string]: any; }} beginProps
+   * @param {number} duration
+   * @param {TweenEasingType} easing
+   * @returns {this}
+   */
   from(target, beginProps, duration, easing) {
       var finishProps = {};
 
@@ -59,6 +99,13 @@ export class Tween extends EventDispatcher {
       return this;
   }
 
+  /**
+   * @param {any} target
+   * @param {{ [k: string]: any; }} props
+   * @param {number} duration
+   * @param {TweenEasingType} easing
+   * @returns {this}
+   */
   by(target, props, duration, easing) {
     var beginProps = {};
     var finishProps = {};
@@ -73,12 +120,15 @@ export class Tween extends EventDispatcher {
     return this;
   }
 
+  /**
+   * TODO
+   */
   yoyo() {
     var temp = this.beginProps;
     this.beginProps = this.finishProps;
     this.finishProps = temp;
     // this.changeProps.forIn(function(key, value, index) {
-    forIn.call(this.changeProps, function(key, value, index) {
+    forIn.call(this.changeProps, function(key, value, _index) {
       this.changeProps[key] = -value;
       this.target[key] = this.beginProps[key];
     }, this);
@@ -87,25 +137,46 @@ export class Tween extends EventDispatcher {
     return this;
   }
 
+  /**
+   * 指定値分、時間を進める
+   * @alias forward
+   * @param {number} time
+   */
   gain(time) {
     this.seek(this.time + time);
   }
 
+  /**
+   * 指定値分、時間を進める
+   * @alias gain
+   * @param {number} time
+   */
   forward(time) {
     this.seek(this.time + time);
   }
 
+  /**
+   * 指定値分、時間を戻す
+   * @param {number} time
+   */
   backward(time) {
     this.seek(this.time - time);
   }
 
+  /**
+   * 時間に応じてパラメータを更新
+   * @param {number} time
+   * @returns {this}
+   */
   seek(time) {
     // this.time = Math.clamp(time, 0, this.duration);
     this.time = clamp(time, 0, this.duration);
 
-    // this.beginProps.forIn(function(key, value) {
-    forIn.call(this.beginProps, function(key, value) {
-      var v = this.easing(this.time, value, this.changeProps[key], this.duration);
+    // this.beginProps.forIn(
+    forIn.call(this.beginProps, 
+    /** @this Tween */
+    function(key, value) {
+      var v = /** @type function */(this.easing)(this.time, value, this.changeProps[key], this.duration);
       this.target[key] = v;
     }, this);
 
@@ -114,7 +185,7 @@ export class Tween extends EventDispatcher {
 
   get easing() { return this._easing; }
   set easing(v) {
-    this._easing = Tween.EASING[v] || Tween.EASING.default;
+    this._easing = Tween.EASING[/**@type {string}*/(v)] || Tween.EASING.default;
   }
 
 }

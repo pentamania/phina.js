@@ -2,7 +2,7 @@ import { Asset } from "./asset";
 
 /**
  * @class phina.asset.Script
- * @extends phina.asset.Asset
+ * _extends phina.asset.Asset
  */
 export class Script extends Asset {
 
@@ -11,6 +11,9 @@ export class Script extends Asset {
    */
   constructor() {
     super();
+    
+    /** @type {string} */
+    this.src
   }
 
   _load(resolve) {

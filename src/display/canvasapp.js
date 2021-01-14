@@ -5,13 +5,28 @@ import { Grid } from "../util/grid"
 import { DisplayScene } from "../display/displayscene"
 
 /**
+ * CanvasApp初期化オプション  
+ * DisplaySceneの初期化に使われることも考え、そのオプションパラメータも継承
+ * @typedef {{ 
+ *  append?: boolean
+ *  columns?: number
+ *  backgroundColor?: import("../graphics/canvas").CanvasStyle
+ *  fit?: boolean
+ *  pixelated?: boolean
+ * } 
+ * & import("./domapp").DomAppOptions
+ * & import("./displayscene").DisplaySceneOptions } CanvasAppOptions
+ */
+
+/**
  * @class phina.display.CanvasApp
- * @extends phina.display.DomApp
+ * _extends phina.display.DomApp
  */
 export class CanvasApp extends DomApp {
 
   /**
    * @constructor
+   * @param {CanvasAppOptions} options
    */
   constructor(options) {
     options = $safe.call((options || {}), CanvasApp.defaults)
@@ -69,6 +84,10 @@ export class CanvasApp extends DomApp {
     });
   }
 
+  /**
+   * @override
+   * 描画処理
+   */
   _draw() {
     if (this.backgroundColor) {
       this.canvas.clearColor(this.backgroundColor);
@@ -76,11 +95,14 @@ export class CanvasApp extends DomApp {
       this.canvas.clear();
     }
 
-    if (this.currentScene.canvas) {
-      this.currentScene._render();
+    var currentScene = /** @type {DisplayScene} */(this.currentScene);
+    if (currentScene.canvas) {
+      currentScene._render();
 
-      // this._scenes.each(function(scene) {
-      this._scenes.forEach(function(scene) {
+      // this._scenes.each(
+      this._scenes.forEach(
+      /** @param {DisplayScene} scene */
+      function(scene) {
         var c = scene.canvas;
         if (c) {
           this.canvas.context.drawImage(c.domElement, 0, 0, c.width, c.height);
@@ -89,13 +111,20 @@ export class CanvasApp extends DomApp {
     }
   }
 
+  /**
+   * CanvasクラスのfitScreenを実行
+   * @returns {void}
+   */
   fitScreen() {
     this.canvas.fitScreen();
   }
 
 }
 
-// static
+/**
+ * @static
+ * @type {CanvasAppOptions}
+ */
 CanvasApp.defaults = {
   width: 640,
   height: 960,

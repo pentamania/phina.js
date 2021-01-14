@@ -2,11 +2,23 @@ import { $safe } from "../core/object";
 import { Flow } from "./flow";
 
 /**
+ * @typedef {Object} AjaxRequestOptions Ajaxクラス初期化オプション
+ * @property {'GET'|'POST'|'PUT'|'DELETE'} type 
+ * @property {string} url 
+ * @property {string} [contentType] 
+ * @property {string} [responseType] 
+ * @property {any} [data] 未使用？
+ */
+
+ /**
  * @class phina.util.Ajax
  * 
  */
 export class Ajax {
 
+  /**
+   * @param {AjaxRequestOptions} options
+   */
   static request(options) {
     var data = $safe.call({}, options, Ajax.defaults);
     // var data = ({}).$safe(options, this.defaults);
@@ -57,8 +69,7 @@ export class Ajax {
 
 /** 
  * @static
- * @memberof Ajax
- * @type {Object}
+ * @type {AjaxRequestOptions}
  */
 Ajax.defaults = {
   type: 'GET',

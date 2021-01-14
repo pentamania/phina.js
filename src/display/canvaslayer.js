@@ -3,16 +3,17 @@ import { Canvas } from "../graphics/canvas"
 import { DisplayElement } from "./displayelement";
 import { CanvasRenderer } from "./canvasrenderer";
 import { Grid } from "../util/grid";
+import phina from "../phina";
 
 /**
  * @class phina.display.Layer
- * @extends phina.display.DisplayElement
+ * _extends phina.display.DisplayElement
  */
 export class Layer extends DisplayElement {
 
-  /** 子供を 自分の CanvasRenderer で描画するか */
-  // renderChildBySelf: true,
-
+  /**
+   * @param {DisplayElement.defaults} [options] 
+   */
   constructor(options) {
     options = $safe.call({}, options||{}, {
     // options = ({}).$safe(options, {
@@ -25,8 +26,17 @@ export class Layer extends DisplayElement {
     this.gridX = new Grid(options.width, 16);
     this.gridY = new Grid(options.height, 16);
     this.renderChildBySelf = true;
+
+    /**
+     * @type HTMLCanvasElement 
+     */
+    this.domElement;
   }
 
+  /**
+   * @param {Canvas} canvas
+   * @returns {void}
+   */
   draw(canvas) {
     if (!this.domElement) return ;
 
@@ -41,10 +51,13 @@ export class Layer extends DisplayElement {
 
 /**
  * @class phina.display.CanvasLayer
- * @extends phina.display.Layer
+ * _extends phina.display.Layer
  */
 export class CanvasLayer extends Layer {
 
+  /**
+   * @param {DisplayElement.defaults} options 
+   */
   constructor(options) {
     super(options);
     this.canvas = new Canvas();
@@ -54,7 +67,9 @@ export class CanvasLayer extends Layer {
     this.renderer = new CanvasRenderer(this.canvas);
     this.domElement = this.canvas.domElement;
 
-    this.on('enterframe', function() {
+    this.on('enterframe',
+    /** @this CanvasLayer */
+    function() {
       var temp = this._worldMatrix;
       this._worldMatrix = null;
       this.renderer.render(this);
@@ -62,6 +77,10 @@ export class CanvasLayer extends Layer {
     });
   }
 
+  /**
+   * @param {Canvas} canvas
+   * @returns {void}
+   */
   draw(canvas) {
     var image = this.domElement;
     canvas.context.drawImage(image,
@@ -71,10 +90,11 @@ export class CanvasLayer extends Layer {
   }
 }
 
+var THREE = phina.global['THREE']
 
 /**
  * @class phina.display.ThreeLayer
- * @extends phina.display.Layer
+ * _extends phina.display.Layer
  */
 export class ThreeLayer extends Layer {
 
@@ -99,7 +119,9 @@ export class ThreeLayer extends Layer {
     this.renderer.setClearColor( 0xf0f0f0 );
     this.renderer.setSize( options.width, options.height );
 
-    this.on('enterframe', function() {
+    this.on('enterframe',
+    /** @this ThreeLayer */
+    function() {
       this.renderer.render( this.scene, this.camera );
     });
 

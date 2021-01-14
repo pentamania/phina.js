@@ -42,6 +42,7 @@ var WEEK = [
  * ### Example
  *     (new Date()).format("yyyy-MM-dd(EEE)"); // => "2016-04-05(Tue)" など
  *
+ * @this Date
  * @param {String} pattern フォーマット文字列
  * @return {String} フォーマット文字列に従って生成された文字列
  */

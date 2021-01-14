@@ -4,13 +4,22 @@ import { Gauge } from "../ui/gauge";
 import { AssetLoader } from "../asset/assetloader";
 
 /**
+ * @typedef {{
+ *   lie?: boolean,
+ *   exitType?: 'auto'
+ *   assets?: import("../asset/assetloader").AssetLoaderLoadParam
+ * } & import("../display/displayscene").DisplaySceneOptions } LoadingSceneOptions
+ */
+
+/**
  * @class phina.game.LoadingScene
- * @extends phina.display.DisplayScene
+ * _extends phina.display.DisplayScene
  */
 export class LoadingScene extends DisplayScene {
 
   /**
    * @constructor
+   * @param {LoadingSceneOptions} [options]
    */
   constructor(options) {
     options = $safe.call({}, options, LoadingScene.defaults);
@@ -84,6 +93,7 @@ export class LoadingScene extends DisplayScene {
 
 }
 
+/** @type LoadingSceneOptions */
 LoadingScene.defaults = {
   exitType: 'auto',
   lie: false,

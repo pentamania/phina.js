@@ -3,13 +3,26 @@ import { $safe } from "../core/object";
 import { format } from "../core/string";
 
 /**
+ * @typedef {{
+ *   text?: string
+ *   fontSize?: number
+ *   fontWeight?: string | number
+ *   fontFamily?: string
+ *   align?: CanvasTextAlign
+ *   baseline?: CanvasTextBaseline
+ *   lineHeight?: number
+ * } & import("./shape").ShapeOptions } LabelOptions
+ */
+
+/**
  * @class phina.display.Label
- * @extends phina.display.Shape
+ * _extends phina.display.Shape
  */
 export class Label extends Shape {
 
   /**
    * @constructor
+   * @param {LabelOptions} [options]
    */
   constructor(options) {
     if (typeof arguments[0] !== 'object') {
@@ -24,6 +37,9 @@ export class Label extends Shape {
 
     super(options);
 
+    /** @type {string|number} */
+    this._text
+
     this.text = options.text;
     this.fontSize = options.fontSize;
     this.fontWeight = options.fontWeight;
@@ -33,6 +49,9 @@ export class Label extends Shape {
     this.lineHeight = options.lineHeight;
   }
 
+  /**
+   * @returns {number}
+   */
   calcCanvasWidth() {
     var width = 0;
     var canvas = this.canvas;
@@ -48,12 +67,18 @@ export class Label extends Shape {
     return width + this.padding*2;
   }
 
+  /**
+   * @returns {number}
+   */
   calcCanvasHeight() {
     var height = this.fontSize * this._lines.length;
     if (this.baseline !== 'middle') height*=2;
     return height*this.lineHeight + this.padding*2;
   }
 
+  /**
+   * @param  {import('../graphics/canvas').Canvas} canvas 
+   */
   prerender(canvas) {
     var context = canvas.context;
     context.font = this.font;
@@ -66,6 +91,9 @@ export class Label extends Shape {
     this._offset += ((lines.length+1)%2) * (this.lineSize/2);
   }
 
+  /**
+   * @param  {import('../graphics/canvas').Canvas} canvas 
+   */
   renderFill(canvas) {
     var context = canvas.context;
     this._lines.forEach(function(line, i) {
@@ -73,6 +101,9 @@ export class Label extends Shape {
     }, this);
   }
 
+  /**
+   * @param  {import('../graphics/canvas').Canvas} canvas 
+   */
   renderStroke(canvas) {
     var context = canvas.context;
     this._lines.forEach(function(line, i) {
@@ -82,6 +113,7 @@ export class Label extends Shape {
 
   /**
    * text
+   * @returns {string|number}
    */
   get text() { return this._text; }
   set text(v) {
@@ -89,6 +121,10 @@ export class Label extends Shape {
     this._lines = (this.text + '').split('\n');
   }
 
+  /**
+   * @readonly
+   * @returns {string}
+   */
   get font() {
     return format.call("{fontWeight} {fontSize}px {fontFamily}", this);
     // return "{fontWeight} {fontSize}px {fontFamily}".format(this);
@@ -96,7 +132,10 @@ export class Label extends Shape {
 
 }
 
-// static props
+/**
+ * @type {LabelOptions}
+ * @static
+ */
 Label.defaults = {
   backgroundColor: 'transparent',
 

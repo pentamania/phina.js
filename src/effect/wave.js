@@ -4,13 +4,13 @@ import { Tweener } from "../accessory/tweener"
 
 /**
  * @class phina.effect.Wave
- * Button
- * @extends phina.display.CircleShape
+ * _extends phina.display.CircleShape
  */
 export class Wave extends CircleShape {
 
   /**
    * @constructor
+   * @param {import("../display/shape").CircleShapeOptions} [options]
    */
   constructor(options) {
     options = $safe.call(options || {}, {

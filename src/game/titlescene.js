@@ -3,13 +3,25 @@ import { Label } from "../display/label";
 import { $safe } from "../core/object";
 
 /**
+ * @typedef {Object} TitleSceneOptionExtend
+ * @property {string} title タイトル文字列
+ * @property {string} message 未使用
+ * @property {import("../graphics/canvas").CanvasStyle} fontColor タイトルラベルの色
+ * @property {string} backgroundImage 未使用
+ * @property {"touch"|""} exitType 
+ * 
+ * @typedef {import("../display/displayscene").DisplaySceneOptions & TitleSceneOptionExtend} TitleSceneOptions
+ */
+
+/**
  * @class phina.game.TitleScene
- * @extends phina.display.DisplayScene
+ * _extends phina.display.DisplayScene
  */
 export class TitleScene extends DisplayScene {
 
   /**
    * @constructor
+   * @param {TitleSceneOptions} [params]
    */
   constructor(params) {
     params = $safe.call({}, params, TitleScene.defaults);
@@ -61,7 +73,9 @@ export class TitleScene extends DisplayScene {
 
 }
 
-// static props
+/**
+ * @type {TitleSceneOptions}
+ */
 TitleScene.defaults = {
   title: 'phina.js games',
   message: '',

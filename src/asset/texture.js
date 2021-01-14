@@ -8,7 +8,7 @@ var getLast = function(array) { return last.get.call(array); }
 
 /**
  * @class phina.asset.Texture
- * @extends phina.asset.Asset
+ * _extends phina.asset.Asset
  */
 export class Texture extends Asset {
 
@@ -17,8 +17,19 @@ export class Texture extends Asset {
    */
   constructor() {
     super();
+
+    /** @type {HTMLImageElement|HTMLCanvasElement} */
+    this.domElement = new Image();
+    
+    /** @type {string} */
+    this.src
   }
 
+  /**
+   * @protected
+   * @override
+   * @param {(...args: any) => any} resolve
+   */
   _load(resolve) {
     this.domElement = new Image();
 
@@ -32,6 +43,7 @@ export class Texture extends Asset {
       self.loaded = true;
       resolve(self);
     };
+    /** @param {Event} e */
     this.domElement.onerror = function(e) {
       console.error(format.call("[phina.js] not found `{0}`!", this.src));
       // console.error("[phina.js] not found `{0}`!".format(this.src));
@@ -44,13 +56,20 @@ export class Texture extends Asset {
           ).replace('.png', '').split('?')
         ).split('#')
       );
-      e.target.onerror = null;
-      e.target.src = "http://dummyimage.com/128x128/444444/eeeeee&text=" + key;
+
+      // 型アサーション
+      var target = /** @type {HTMLImageElement} */ (e.target)
+      target.onerror = null;
+      target.src = "http://dummyimage.com/128x128/444444/eeeeee&text=" + key;
     };
 
     this.domElement.src = this.src;
   }
 
+  /**
+   * 新たにTextureをクローン生成して返す
+   * @returns {Texture}
+   */
   clone() {
     var image = this.domElement;
     var canvas = new Canvas().setSize(image.width, image.height);
@@ -60,6 +79,10 @@ export class Texture extends Asset {
     return t;
   }
 
+  /**
+   * @param {{ r: number; g: number; b: number; }} [color]
+   * @returns {void}
+   */
   transmit(color) {
     // imagaオブジェクトをゲット
     var image = this.domElement;
@@ -89,6 +112,11 @@ export class Texture extends Asset {
     this.domElement = canvas.domElement;
   }
 
+  /**
+   * @typedef {(pixel: Uint8ClampedArray, index: number, x: number, y: number, imageData: ImageData )=> void} FilterFunc
+   * @param {FilterFunc | FilterFunc[]} filters
+   * @returns {this}
+   */
   filter(filters) {
     if (!filters) {
       return this;
@@ -100,6 +128,8 @@ export class Texture extends Asset {
     var w = image.width;
     var h = image.height;
     var canvas = new Canvas().setSize(w, h);
+
+    /** @type {ImageData} */
     var imageData = null;
 
     canvas.context.drawImage(image, 0, 0);

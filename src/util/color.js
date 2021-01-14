@@ -6,28 +6,35 @@ import { format, padding } from "../core/string";
  */
 export class Color {
 
-  // /** R値 */
-  // r: 255,
-  // /** G値 */
-  // g: 255,
-  // /** B値 */
-  // b: 255,
-  // /** A値 */
-  // a: 1.0,
-
   /**
-   * 初期化
+   * @param {number} _r
+   * @param {number} _g
+   * @param {number} _b
+   * @param {number} _a
    */
-  constructor(r, g, b, a) {
+  constructor(_r, _g, _b, _a) {
+    /** @type {number} R値 */
     this.r = 255;
+
+    /** @type {number} G値 */
     this.g = 255;
+
+    /** @type {number} B値 */
     this.b = 255;
+
+    /** @type {number} A値 */
     this.a = 1.0;
+
     this.set.apply(this, arguments);
   }
 
   /**
    * セッター.
+   * @param {number} r
+   * @param {number} g
+   * @param {number} b
+   * @param {number} a
+   * @returns {this}
    */
   set(r, g, b, a) {
     this.r = r;
@@ -39,6 +46,11 @@ export class Color {
 
   /**
    * 数値によるセッター.
+   * @param {number} r
+   * @param {number} g
+   * @param {number} b
+   * @param {number} a
+   * @returns {this}
    */
   setFromNumber(r, g, b, a) {
     this.r = r;
@@ -50,6 +62,8 @@ export class Color {
 
   /**
    * 配列によるセッター
+   * @param {number[]} arr
+   * @returns {this}
    */
   setFromArray(arr) {
     return this.set.apply(this, arr);
@@ -57,6 +71,8 @@ export class Color {
 
   /**
    * オブジェクトによるセッター
+   * @param {{ r: number; g: number; b: number; a: number; }} obj
+   * @returns {this}
    */
   setFromObject(obj) {
     return this.set(obj.r, obj.g, obj.b, obj.a);
@@ -64,6 +80,8 @@ export class Color {
 
   /**
    * 文字列によるセッター
+   * @param {string} str
+   * @returns {this}
    */
   setFromString(str) {
     var color = Color.stringToNumber(str);
@@ -72,6 +90,7 @@ export class Color {
 
   /**
    * 賢いセッター
+   * @returns {this}
    */
   setSmart() {
     var arg = arguments[0];
@@ -89,6 +108,7 @@ export class Color {
 
   /**
    * CSS 用 16進数文字列に変換
+   * @returns {string}
    */
   toStyleAsHex() {
     return format.call("#{0}{1}{2}",
@@ -104,6 +124,7 @@ export class Color {
 
   /**
    * CSS 用 RGB文字列に変換
+   * @returns {string}
    */
   toStyleAsRGB() {
     return format.call("rgb({r},{g},{b})", {
@@ -117,6 +138,7 @@ export class Color {
 
   /**
    * CSS 用 RGBA文字列に変換
+   * @returns {string}
    */
   toStyleAsRGBA() {
     return format.call("rgba({r},{g},{b},{a})", {
@@ -130,6 +152,7 @@ export class Color {
 
   /**
    * CSS 用 RGBA 文字列に変換
+   * @returns {string}
    */
   toStyle() {
     return format.call("rgba({r},{g},{b},{a})", {
@@ -145,11 +168,17 @@ export class Color {
    * @static
    * @member phina.util.Color
    * @method strToNum
+   * @param {string} str
+   * @returns {number[]}
    */
   static strToNum(str) {
     return this.stringToNumber(str);
   }
 
+  /**
+   * @param {string} str
+   * @returns {number[]}
+   */
   static stringToNumber(str) {
     var value = null;
     var type = null;
@@ -177,6 +206,11 @@ export class Color {
    * @static
    * @method
    * hsl を rgb に変換
+   * 
+   * @param {number} h
+   * @param {number} s
+   * @param {number} l
+   * @returns {number[]} rgb数値配列
    */
   static HSLtoRGB(h, s, l) {
     var r, g, b;
@@ -188,7 +222,7 @@ export class Color {
     l *= 0.01;
 
     if (s === 0) {
-      var l = Math.round(l * 255);
+      l = Math.round(l * 255);
       return [l, l, l];
     }
     var m2 = (l < 0.5) ? l * (1 + s) : l + s - l * s;
@@ -239,6 +273,12 @@ export class Color {
    * @static
    * @method
    * hsla を rgba に変換
+   * 
+   * @param {number} h
+   * @param {number} s
+   * @param {number} l
+   * @param {number} a
+   * @returns {number[]} rgba数値配列
    */
   static HSLAtoRGBA(h, s, l, a) {
     var temp = Color.HSLtoRGB(h, s, l);
@@ -249,7 +289,12 @@ export class Color {
   /**
    * @static
    * @method
-   * rgb 値を作成
+   * rgb 値からCSS colorデータ型準拠の文字列を生成
+   * 
+   * @param {number} r
+   * @param {number} g
+   * @param {number} b
+   * @returns {string}
    */
   static createStyleRGB(r, g, b) {
     return "rgba(" + r + "," + g + "," + b + ")";
@@ -258,7 +303,13 @@ export class Color {
   /**
    * @static
    * @method
-   * rgba 値を作成
+   * rgba 値からCSS colorデータ型準拠の文字列を生成
+   * 
+   * @param {number} r
+   * @param {number} g
+   * @param {number} b
+   * @param {number} a
+   * @returns {string}
    */
   static createStyleRGBA(r, g, b, a) {
     return "rgba(" + r + "," + g + "," + b + "," + a + ")";
@@ -267,7 +318,12 @@ export class Color {
   /**
    * @static
    * @method
-   * hsl 値を作成
+   * hsl 値からCSS colorデータ型準拠の文字列を生成
+   * 
+   * @param {number} h
+   * @param {number} s
+   * @param {number} l
+   * @returns {string}
    */
   static createStyleHSL(h, s, l) {
     return "hsl(" + h + "," + s + "%," + l + "%)";
@@ -276,7 +332,13 @@ export class Color {
   /**
    * @static
    * @method
-   * hsla 値を作成
+   * hsla 値からCSS colorデータ型準拠の文字列を生成
+   * 
+   * @param {number} h
+   * @param {number} s
+   * @param {number} l
+   * @param {number} a
+   * @returns {string}
    */
   static createStyleHSLA(h, s, l, a) {
     return "hsla(" + h + "," + s + "%," + l + "%," + a + ")";
@@ -284,9 +346,9 @@ export class Color {
 
 }
 
-// static props
 /**
  * @static
+ * @enum {number[]}
  * カラーリスト
  */
 Color.COLOR_LIST = {
@@ -324,7 +386,10 @@ Color.COLOR_LIST = {
   "aqua": [0x00, 0xff, 0xff],
 }
 
-
+/**
+ * 色文字列をnumber型配列に変換するための正規表現と関数のセット
+ * @enum {{reg: RegExp, exec: (m:number[])=> number[]}}
+ */
 var MATCH_SET_LIST = {
   "hex111": {
     reg: /^#(\w{1})(\w{1})(\w{1})$/,

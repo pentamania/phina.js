@@ -1,25 +1,58 @@
-import { AssetManager } from "../asset/assetmanager";
 import { Accessory } from "./accessory";
+import { AssetManager } from "../asset/assetmanager";
+
+/**
+ * @typedef {{
+ *   srcRect: import("../geom/rect").Rect
+ *   width: number
+ *   height: number
+ * } & import("./accessory").AccessoryTarget } FrameAnimationTarget
+ */
 
 /**
  * @class phina.accessory.FrameAnimation
- * FrameAnimation
- * @extends phina.accessory.Accessory
+ * _extends phina.accessory.Accessory
  */
 export class FrameAnimation extends Accessory {
 
   /**
    * @constructor
+   * @param {string} ss ロード済みスプライトシートデータAssetキー
    */
   constructor(ss) {
     super();
 
+    /** @type {FrameAnimationTarget} */
+    this.target
+
+    /** @type {string | number} */
+    this.currentAnimationName
+
+    /** @type {number} */
+    this.currentFrameIndex
+
+    /** @type {number} */
+    this.frame
+
+    /**
+     * スプライトシートオブジェクト
+     * @type {import('../asset/spritesheet').SpriteSheet}
+     */
     this.ss = AssetManager.get('spritesheet', ss);
+
+    /** @type {boolean} */
     this.paused = true;
+
+    /** @type {boolean} */
     this.finished = false;
+
+    /** @type {boolean} */
     this.fit = true;
   }
 
+  /**
+   * 更新関数
+   */
   update() {
     if (this.paused) return ;
     if (!this.currentAnimation) return ;
@@ -37,6 +70,11 @@ export class FrameAnimation extends Accessory {
     }
   }
 
+  /**
+   * @param {string | number} name アニメーション名
+   * @param {boolean} [keep=true] アニメーションがすでに再生中の場合、何もしないかどうか
+   * @returns {this}
+   */
   gotoAndPlay(name, keep) {
     keep = (keep !== undefined) ? keep : true;
     if (keep && name === this.currentAnimationName
@@ -55,6 +93,10 @@ export class FrameAnimation extends Accessory {
     return this;
   }
 
+  /**
+   * @param {string} name アニメーション名
+   * @returns {this}
+   */
   gotoAndStop(name) {
     this.currentAnimationName = name;
     this.frame = 0;
@@ -67,6 +109,12 @@ export class FrameAnimation extends Accessory {
     return this;
   }
 
+  /**
+   * @private
+   * フレーム更新
+   * 
+   * @returns {void}
+   */
   _updateFrame() {
     var anim = this.currentAnimation;
     if (anim) {

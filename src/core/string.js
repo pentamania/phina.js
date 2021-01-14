@@ -19,7 +19,8 @@
  *
  *     "{0} + {1} = {2}".format(5, 8, (5+8)); // => "5 + 8 = 13"
  *
- * @param {Object} obj パラメータとなるオブジェクト
+ * @this String
+ * @param {Object} arg パラメータとなるオブジェクト
  * @return {String} 生成した文字列
  */
 export function format(arg) {
@@ -71,10 +72,11 @@ export function format(arg) {
  *     //    'b'
  *     //    'c'
  *
- * @param {Function} callback 各要素に対して実行するコールバック関数
- * @param {Object} [self=this] callback 内で this として参照される値
+ * @this String
+ * @param {Function} _callback 各要素に対して実行するコールバック関数
+ * @param {Object} [_self=this] callback 内で this として参照される値
  */
-export function each() {
+export function each(_callback, _self) {
 // String.prototype.$method("each", function() {
   Array.prototype.forEach.apply(this, arguments);
   return this;
@@ -93,7 +95,8 @@ export function each() {
  *
  * ### Example
  *     "  Hello, world!  ".trim(); // => "Hello, world!"
- *
+ * 
+ * @this String
  * @return {String} トリムした結果の文字列
  */
 export function trim() {
@@ -114,6 +117,7 @@ export function trim() {
  * ### Example
  *     "i aM a pen.".capitalize(); // => "I Am A Pen."
  *
+ * @this String
  * @return {String} キャピタライズした文字列
  */
 export function capitalize() {
@@ -131,6 +135,7 @@ export function capitalize() {
  * ### Example
  *     "i aM a pen.".capitalizeFirstLetter(); // "I am a pen."
  *
+ * @this String
  * @return {String} 先頭の文字を大文字にして、それ以外を小文字にした文字列
  */
 export function capitalizeFirstLetter() {
@@ -147,7 +152,8 @@ export function capitalizeFirstLetter() {
  * ### Example
  *     "borderTopColor".toDash(); // => "border-top-color"
  *
- *  @return {String} 変換後の文字列
+ * @this String
+ * @return {String} 変換後の文字列
  */
 export function toDash() {
 // String.prototype.$method("toDash", function() {
@@ -162,6 +168,7 @@ export function toDash() {
  * ### Example
  *     "phina.js".toHash(); // => 2676327394
  *
+ * @this String
  * @return {Number} CRC32ハッシュ値
  */
 export function toHash() {
@@ -179,7 +186,8 @@ export function toHash() {
  *     "1234".padding(10);      // => "      1234"
  *     "1234".padding(10, '0'); // => "0000001234"
  *
- * @param {Number} figure 桁数
+ * @this String
+ * @param {Number} n 桁数
  * @param {String} [ch=" "] 埋める文字
  * @return {String} 指定した桁の文字列
  */
@@ -198,6 +206,7 @@ export function padding(n, ch) {
  * @method paddingLeft
  * 左に文字を埋めて指定した桁にします。this の文字列を右寄せされます。
  *
+ * @this String
  * {@link #padding} と同じです。
  * @inheritdoc #padding
  */
@@ -220,7 +229,8 @@ export function paddingLeft(n, ch) {
  *     "1234".paddingRight(10);      // => "1234      "
  *     "1234".paddingRight(10, '0'); // => "1234000000"
  *
- * @param {Number} figure 桁数
+ * @this String
+ * @param {Number} n 桁数
  * @param {String} [ch=" "] 埋める文字
  * @return {String} 指定した桁の文字列
  */
@@ -242,7 +252,8 @@ export function paddingRight(n, ch) {
  * ### Example
  *     "Hello world. (can you hear me?)".quotemeta(); // => "Hello\\ world\\.\\ \\(can\\ you\\ hear\\ me\\?\\)"
  *
- *  @return {String} クォートされた文字列
+ * @this String
+ * @return {String} クォートされた文字列
  */
 export function quotemeta(n) {
 // String.prototype.$method("quotemeta", function(n) {
@@ -256,6 +267,7 @@ export function quotemeta(n) {
  * ### Example
  *     "Abc".repeat(4); // => "AbcAbcAbcAbc"
  *
+ * @this String
  * @param {Number} n 繰り返し回数
  * @return {String} 文字列
  */
@@ -276,6 +288,7 @@ export function repeat(n) {
  * ### Example
  *     "This is a string. Isn't it?".count("is"); // => 2
  *
+ * @this String
  * @param {String} str 調べる文字列
  * @return {Number} this に str が入っている個数
  */
@@ -295,6 +308,7 @@ export function count(str) {
  *     "This is a string.".include("is"); // => true
  *     "This is a string.".include("was"); // => false
  *
+ * @this String
  * @param {String} str 調べる文字列
  * @return {Boolean} 含まれているかどうか
  */
@@ -311,6 +325,7 @@ export function include(str) {
  *     "12345".toArray(); // => ["1", "2", "3", "4", "5"]
  *     "あいうえお".toArray(); // => "あ", "い", "う", "え", "お"]
  *
+ * @this String
  * @return {String[]} 配列
  */
 export function toArray() {
@@ -335,6 +350,7 @@ export function toArray() {
  *     obj2 = "num:-64.5|flag1:false|flag2:true|str:foo";
  *     obj2.toObject('|', ':'); // => {num: -64.5, flag1: false, flag2: true, str: "foo" }
  *
+ * @this String
  * @param {String} [sep="&"] セパレータ文字
  * @param {String} [eq=""] キーと値の組み合わせを表す文字
  * @return {Object} オブジェクト
@@ -351,6 +367,7 @@ export function toObject(sep, eq) {
     var pos = str.indexOf(eq);
     if (pos > 0) {
       var key = str.substring(0, pos);
+      /** @type string|number|boolean */
       var val = str.substring(pos+1);
       var num = Number(val);
 
@@ -381,6 +398,7 @@ var table = "00000000 77073096 EE0E612C 990951BA 076DC419 706AF48F E963A535 9E64
  * ### Example
  *     "phina.js".toCRC32(); // => 2676327394
  *
+ * @this String
  * @return {Number} CRC32 ハッシュ値
  */
 export function toCRC32() {

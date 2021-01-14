@@ -1,14 +1,35 @@
 import { $safe } from "../core/object";
-import { Element } from "./element";
+import { Element as PhinaElement } from "./element";
 import { Vector2 } from "../geom/vector2"
 import { Matrix33 } from "../geom/matrix33";
 
 /**
+ * 判定処理の際、どのような形状として扱うか
+ * @typedef {"rect"|"circle"|"none"} Object2DBoundingType
+ */
+
+/**
+ * @typedef {{
+ *  x?: Number,
+ *  y?: Number,
+ *  scaleX?: Number,
+ *  scaleY?: Number,
+ *  rotation?: Number,
+ *  originX?: Number,
+ *  originY?: Number,
+ *  width?: Number,
+ *  height?: Number,
+ *  radius?: Number,
+ *  boundingType?: Object2DBoundingType,
+ * }} Object2DOptions
+ */
+
+/**
  * @class phina.app.Object2D
  * Object2D
- * @extends phina.app.Element
+ * _extends phina.app.Element
  */
-export class Object2D extends Element {
+export class Object2D extends PhinaElement {
 
   // /** 位置 */
   // position: null,
@@ -20,7 +41,7 @@ export class Object2D extends Element {
   // origin: null,
 
   /**
-   * @constructor
+   * @param {Object2DOptions} [options]
    */
   constructor(options) {
     super()
@@ -28,22 +49,97 @@ export class Object2D extends Element {
     options = $safe.call({}, options, Object2D.defaults)
     // options = ({}).$safe(options, phina.app.Object2D.defaults);
 
+    /** @type {Vector2} 位置 */
     this.position = new Vector2(options.x, options.y);
+
+    /** @type {Vector2} スケール */
     this.scale    = new Vector2(options.scaleX, options.scaleY);
-    this.rotation = options.rotation;
+
+    /** @type {number} 回転（度数単位） */
+    this.rotation = options.rotation || 0;
+
+    /** @type {Vector2} 基準位置、回転軸 */
     this.origin   = new Vector2(options.originX, options.originY);
 
+    /**
+     * @private
+     * @type {Matrix33}
+     * ローカル変換行列
+     */
     this._matrix = new Matrix33().identity();
+    /**
+     * @type {Matrix33 | null}
+     * ワールド変換行列
+     */
     this._worldMatrix = new Matrix33().identity();
 
+    /**
+     * @private
+     * @type {number} 行列計算用キャッシュ値
+     */
+    this._cachedRotation;
+    /**
+     * @private
+     * @type {number} 行列計算用キャッシュ値
+     */
+    this._sr;
+    /**
+     * @private
+     * @type {number} 行列計算用キャッシュ値
+     */
+    this._cr;
+
+    /**
+     * @type {boolean}
+     * インタラクション可能かどうか
+     */
     this.interactive = false;
+    /**
+     * @type {{ [id: number]: boolean }}
+     * Interactiveクラスでのフラグ処理用
+     */
     this._overFlags = {};
+    /**
+     * @type {{ [id: number]: boolean }}
+     * Interactiveクラスでのフラグ処理用
+     */
     this._touchFlags = {};
+
+    /**
+     * @protected
+     * @type {number}
+     */
+    this._width
+    /**
+     * @protected
+     * @type {number}
+     */
+    this._height
+    /**
+     * 半径: boundingTypeがcircleの場合のみ使用
+     * @private
+     * @type {number}
+     */
+    this._radius
+    /**
+     * 直径: boundingTypeがcircleの際にwidth/height値として使用  
+     * radiusアクセサsetの際に更新
+     * @private
+     * @type {number}
+     */
+    this._diameter
 
     this.width = options.width;
     this.height = options.height;
     this.radius = options.radius;
+    /**
+     * 当たり判定範囲の種別
+     * @type {Object2DBoundingType}
+     */
     this.boundingType = options.boundingType;
+
+    /** @type {Object2D|PhinaElement} */
+    this.parent;
   }
 
   /**
@@ -64,6 +160,12 @@ export class Object2D extends Element {
     }
   }
 
+  /**
+   * 自身を矩形として、点と衝突しているかを判定
+   * @param {number} x
+   * @param {number} y
+   * @returns {boolean}
+   */
   hitTestRect(x, y) {
     var p = this.globalToLocal(new Vector2(x, y));
 
@@ -75,6 +177,12 @@ export class Object2D extends Element {
     return ( left < p.x && p.x < right ) && ( top  < p.y && p.y < bottom );
   }
 
+  /**
+   * 自身を円形として、点と衝突しているかを判定
+   * @param {number} x
+   * @param {number} y
+   * @returns {boolean}
+   */
   hitTestCircle(x, y) {
     // 円判定
     var p = this.globalToLocal(new Vector2(x, y));
@@ -86,7 +194,8 @@ export class Object2D extends Element {
 
   /**
    * 要素と衝突しているかを判定
-   * @param {Object} elm
+   * @param {Object2D} elm
+   * @returns {boolean}
    */
   hitTestElement(elm) {
     var rect0 = this;
@@ -95,7 +204,11 @@ export class Object2D extends Element {
            (rect0.top < rect1.bottom) && (rect0.bottom > rect1.top);
   }
 
-
+  /**
+   * 渡された座標をローカル座標に変換して返す
+   * @param {import("../geom/vector2").PrimitiveVector2} p 値は変更しません
+   * @returns {Vector2} 新規作成されたローカル座標オブジェクト
+   */
   globalToLocal(p) {
     var matrix = this._worldMatrix.clone();
     matrix.invert();
@@ -106,6 +219,13 @@ export class Object2D extends Element {
     return temp;
   }
 
+  /**
+   * インタラクション可能かどうかを変更  
+   * 同時にboundingTypeも変更可能
+   * @param {boolean} flag
+   * @param {Object2DBoundingType} [type]
+   * @returns {this}
+   */
   setInteractive(flag, type) {
     this.interactive = flag;
     if (type) {
@@ -118,6 +238,7 @@ export class Object2D extends Element {
   /**
    * X 座標値をセット
    * @param {Number} x
+   * @returns {this}
    */
   setX(x) {
     this.position.x = x;
@@ -127,6 +248,7 @@ export class Object2D extends Element {
   /**
    * Y 座標値をセット
    * @param {Number} y
+   * @returns {this}
    */
   setY(y) {
     this.position.y = y;
@@ -137,6 +259,7 @@ export class Object2D extends Element {
    * XY 座標をセット
    * @param {Number} x
    * @param {Number} y
+   * @returns {this}
    */
   setPosition(x, y) {
     this.position.x = x;
@@ -147,6 +270,7 @@ export class Object2D extends Element {
   /**
    * 回転をセット
    * @param {Number} rotation
+   * @returns {this}
    */
   setRotation(rotation) {
     this.rotation = rotation;
@@ -156,7 +280,8 @@ export class Object2D extends Element {
   /**
    * スケールをセット
    * @param {Number} x
-   * @param {Number} y
+   * @param {Number} [y] 省略した場合、xパラメータ値が適用されます
+   * @returns {this}
    */
   setScale(x, y) {
     this.scale.x = x;
@@ -172,6 +297,7 @@ export class Object2D extends Element {
    * 基準点をセット
    * @param {Number} x
    * @param {Number} y
+   * @returns {this}
    */
   setOrigin(x, y) {
     this.origin.x = x;
@@ -182,6 +308,7 @@ export class Object2D extends Element {
   /**
    * 幅をセット
    * @param {Number} width
+   * @returns {this}
    */
   setWidth(width) {
     this.width = width;
@@ -191,6 +318,7 @@ export class Object2D extends Element {
   /**
    * 高さをセット
    * @param {Number} height
+   * @returns {this}
    */
   setHeight(height) {
     this.height = height;
@@ -201,6 +329,7 @@ export class Object2D extends Element {
    * サイズ(幅, 高さ)をセット
    * @param {Number} width
    * @param {Number} height
+   * @returns {this}
    */
   setSize(width, height) {
     this.width  = width;
@@ -208,23 +337,41 @@ export class Object2D extends Element {
     return this;
   }
 
+  /**
+   * @param {Object2DBoundingType} type
+   * @returns {this}
+   */
   setBoundingType(type) {
     this.boundingType = type;
     return this;
   }
 
+  /**
+   * @param {number} x
+   * @param {number} y
+   * @returns {this}
+   */
   moveTo(x, y) {
     this.position.x = x;
     this.position.y = y;
     return this;
   }
 
+  /**
+   * @param {number} x
+   * @param {number} y
+   * @returns {this}
+   */
   moveBy(x, y) {
     this.position.x += x;
     this.position.y += y;
     return this;
   }
 
+  /**
+   * グローバル行列を計算
+   * @returns {this}
+   */
   _calcWorldMatrix() {
     if (!this.parent) return ;
 
@@ -238,7 +385,7 @@ export class Object2D extends Element {
     }
 
     var local = this._matrix;
-    var parent = this.parent._worldMatrix || Matrix33.IDENTITY;
+    var parent = /** @type {Object2D} */(this.parent)._worldMatrix || Matrix33.IDENTITY;
     var world = this._worldMatrix;
 
     // ローカルの行列を計算
@@ -318,6 +465,7 @@ export class Object2D extends Element {
       this._width : this._diameter;
   }
   set width(v)  { this._width = v; }
+
   /**
    * @property    height
    * height
@@ -374,20 +522,24 @@ export class Object2D extends Element {
    * centerX
    */
   get centerX()   { return this.x + this.width/2 - this.width*this.originX; }
-  set centerX(v)  {
-    // TODO: どうしようかな??
-  }
+  // set centerX(v)  {
+  //   // TODO: どうしようかな??
+  // }
 
   /**
    * @property    centerY
    * centerY
    */
   get centerY()   { return this.y + this.height/2 - this.height*this.originY; }
-  set centerY(v)  {
-    // TODO: どうしようかな??
-  }
+  // set centerY(v)  {
+  //   // TODO: どうしようかな??
+  // }
 }
 
+/**
+ * @type {Object2DOptions}
+ * @static
+ */
 Object2D.defaults = {
   x: 0,
   y: 0,

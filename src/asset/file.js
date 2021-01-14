@@ -2,8 +2,15 @@ import { $extend, $safe } from "../core/object";
 import { Asset } from "./asset";
 
 /**
+ * @typedef {{
+ *   path: string,
+ *   dataType: "xml"| "json",
+ * }} FileAssetLoadParam
+ */
+
+/**
  * @class phina.asset.File
- * @extends phina.asset.Asset
+ * _extends phina.asset.Asset
  */
 export class File extends Asset {
 
@@ -12,6 +19,8 @@ export class File extends Asset {
    */
   constructor() {
     super();
+    this.data = undefined;
+    this.dataType = undefined;
   }
 
   _load(resolve) {
@@ -42,6 +51,7 @@ export class File extends Asset {
     xml.onreadystatechange = function() {
       if (xml.readyState === 4) {
         if ([200, 201, 0].indexOf(xml.status) !== -1) {
+          /** @type {string|Document} */
           var data = xml.responseText;
 
           if (params.dataType === 'json') {

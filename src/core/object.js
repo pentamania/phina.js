@@ -7,8 +7,9 @@ import { format } from "./string";
 
 /**
  * 関数を追加
- * @param   {String} key name
- * @param   {Function} function
+ * 
+ * @param   {String} name name
+ * @param   {Function} fn
  */
 export function $method(name, fn) {
   Object.defineProperty(this, name, {
@@ -21,6 +22,9 @@ export function $method(name, fn) {
 /**
  * @method setter
  * セッターを定義する
+ * 
+ * @param {string | number | symbol} name
+ * @param {any} fn
  */
 // Object.prototype.$method("setter", function(name, fn){
 export function setter(name, fn) {
@@ -34,6 +38,10 @@ export function setter(name, fn) {
 /**
  * @method getter
  * ゲッターを定義する
+ * 
+ * @this {Object}
+ * @param {string | number | symbol} name
+ * @param {any} fn
  */
 // Object.prototype.$method("getter", function(name, fn){
 export function getter(name, fn) {
@@ -47,6 +55,10 @@ export function getter(name, fn) {
 /**
  * @method accessor
  * アクセッサ(セッター/ゲッター)を定義する
+ * 
+ * @this Object
+ * @param {string | number | symbol} name
+ * @param {AccessorExtendObject} param
  */
 // Object.prototype.$method("accessor", function(name, param) {
 export function accessor(name, param) {
@@ -61,6 +73,9 @@ export function accessor(name, param) {
 /**
  * @method forIn
  * オブジェクト用ループ処理
+ * 
+ * @param {Function} fn
+ * @param {any} self
  */
 export function forIn(fn, self) {
   self = self || this;
@@ -105,9 +120,10 @@ export function $safe(source) {
 
 /**
  * @method $watch
+ * 
  * @param  {string} key       [description]
  * @param  {function} callback  [description]
- * @return {[type]}           [description]
+ * @return {void}           [description]
  */
 export function $watch(key, callback) {
 // Object.prototype.$method('$watch', function(key, callback) {
@@ -182,6 +198,7 @@ export function $watch(key, callback) {
 /**
  * @method property
  * 変数を追加
+ * 
  * @param   {String} name name
  * @param   {Object} val
  */
@@ -194,8 +211,10 @@ export function property(name, val) {
 }
 
 /**
- * @method  $get
+ * @method $get
  * パス指定で値を取得
+ * 
+ * @param {string} key
  */
 export function $get(key) {
 // Object.prototype.$method('$get', function(key) {
@@ -205,8 +224,11 @@ export function $get(key) {
 }
 
 /**
- * @method  $set
+ * @method $set
  * パス指定で値を設定
+ * 
+ * @param {string} key
+ * @param {any} value
  */
 export function $set(key, value) {
 // Object.prototype.$method('$set', function(key, value) {
@@ -222,8 +244,10 @@ export function $set(key, value) {
 }
 
 /**
- * @method  $has
+ * @method $has
  * そのプロパティを持っているかを判定する
+ * 
+ * @param {any} key
  */
 export function $has(key) {
 // Object.prototype.$method("$has", function(key) {
@@ -290,9 +314,9 @@ export function $toArray() {
 
 /**
  * [observe description]
- * @param  {[type]}   obj      [description]
+ * @param  {any}   obj      [description]
  * @param  {Function} callback [description]
- * @return {[type]}            [description]
+ * @return {void}            [description]
  */
 export function observe(obj, callback) {
 // Object.$method('observe', function(obj, callback) {
@@ -318,9 +342,9 @@ export function observe(obj, callback) {
 
 /**
  * [unobserve description]
- * @param  {[type]}   obj      [description]
+ * @param  {any}   obj      [description]
  * @param  {Function} callback [description]
- * @return {[type]}            [description]
+ * @return {void}            [description]
  */
 export function unobserve(obj, callback) {
 // Object.$method('unobserve', function(obj, callback) {

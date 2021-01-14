@@ -1,20 +1,23 @@
 import { Input } from "./input"
 import { pointX, pointY } from "../dom/event"
-var BUTTON_MAP;
 
 /**
  * @class phina.input.Mouse
- * @extends phina.input.Input
+ * _extends phina.input.Input
  */
 export class Mouse extends Input {
 
   /**
    * @constructor
+   * @param {HTMLCanvasElement} domElement
    */
   constructor(domElement) {
     super(domElement);
 
     this.id = 0;
+
+    /** @type {HTMLCanvasElement} */
+    this.domElement;
 
     var self = this;
     this.domElement.addEventListener('mousedown', function(e) {
@@ -38,6 +41,8 @@ export class Mouse extends Input {
 
   /**
    * ボタン取得
+   * @param {string | number} button
+   * @returns {boolean}
    */
   getButton(button) {
     if (typeof(button) == "string") {
@@ -49,6 +54,8 @@ export class Mouse extends Input {
 
   /**
    * ボタンダウン取得
+   * @param {string | number} button
+   * @returns {boolean}
    */
   getButtonDown(button) {
     if (typeof(button) === 'string') {
@@ -60,6 +67,8 @@ export class Mouse extends Input {
       
   /**
    * ボタンアップ取得
+   * @param {string | number} button
+   * @returns {boolean}
    */
   getButtonUp(button) {
     if (typeof(button) == "string") {
@@ -78,7 +87,10 @@ Mouse.BUTTON_MIDDLE = 0x2;
 /** @static @property */
 Mouse.BUTTON_RIGHT = 0x4;
 
-BUTTON_MAP = {
+/**
+ * @type {{[k: string]: number}}
+ */
+var BUTTON_MAP = {
   "left"  : Mouse.BUTTON_LEFT,
   "middle": Mouse.BUTTON_MIDDLE,
   "right" : Mouse.BUTTON_RIGHT

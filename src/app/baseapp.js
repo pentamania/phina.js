@@ -6,34 +6,44 @@ import {Interactive} from "./interactive";
 import {Ticker} from "../util/ticker";
 
 /**
+ * @typedef {(
+ *   Scene |
+ *   import("../display/displayscene").DisplayScene |
+ *   import("../game/managerscene.js").ManagerScene
+ * )} SceneTypeUnion
+ */
+
+/**
  * @class phina.app.BaseApp
  * ベースとなるアプリケーションクラス
- * @extends phina.util.EventDispatcher
+ * _extends phina.util.EventDispatcher
  */
 export class BaseApp extends EventDispatcher {
-
-  // /** awake */
-  // awake = null
-  // /** fps */
-  // fps = null
-  // /** frame */
-  // frame = null
 
   /**
    * @constructor
    */
   constructor() {
     super();
+
+    /** @type {SceneTypeUnion[]} */
     this._scenes = [new Scene()];
     this._sceneIndex = 0;
 
     this.updater = new Updater(this);
     this.interactive = new Interactive(this);
-
+    
+    /**
+     * 有効状態かどうか
+     * @type {boolean}
+     */
     this.awake = true;
     this.ticker = new Ticker();
   }
 
+  /**
+   * @returns {this}
+   */
   run() {
     var self = this;
     this._loopCaller = function() {
@@ -46,12 +56,20 @@ export class BaseApp extends EventDispatcher {
     return this;
   }
 
+  /**
+   * アプリケーションを完全停止
+   * @returns {this}
+   */
   kill() {
     this.ticker.stop();
     this.ticker.untick(this._loopCaller);
     return this;
   }
 
+  /**
+   * @param {SceneTypeUnion} scene
+   * @returns {this}
+   */
   replaceScene(scene) {
     this.flare('replace');
     this.flare('changescene');
@@ -69,6 +87,10 @@ export class BaseApp extends EventDispatcher {
     return this;
   }
 
+  /**
+   * @param {Scene} scene
+   * @returns {this}
+   */
   pushScene(scene) {
     this.flare('push');
     this.flare('changescene');
@@ -92,6 +114,7 @@ export class BaseApp extends EventDispatcher {
 
   /**
    * シーンをポップする(ポーズやオブション画面などで使用)
+   * @returns {Scene}
    */
   popScene() {
     this.flare('pop');
@@ -118,6 +141,7 @@ export class BaseApp extends EventDispatcher {
 
   /**
    * シーンのupdateを実行するようにする
+   * @returns {this}
    */
   start() {
     this.awake = true;
@@ -127,6 +151,7 @@ export class BaseApp extends EventDispatcher {
 
   /**
    * シーンのupdateを実行しないようにする
+   * @returns {this}
    */
   stop() {
     this.awake = false;
@@ -134,6 +159,11 @@ export class BaseApp extends EventDispatcher {
     return this;
   }
 
+  /**
+   * stats.js( https://github.com/mrdoob/stats.js/ )を実行し、パフォーマンスモニターを表示する  
+   * stats.jsがまだ読み込まれていない場合、cdnjsからr14版スクリプトを読み込む
+   * @returns {this}
+   */
   enableStats() {
     if (phina.global['Stats']) {
       this.stats = new phina.global['Stats']();
@@ -152,6 +182,12 @@ export class BaseApp extends EventDispatcher {
     return this;
   }
 
+  /**
+   * dat.GUI( https://github.com/dataarts/dat.gui )を初期化し、そのインスタンスをコールバック関数に渡して実行  
+   * dat.GUIがまだ読み込まれていない場合、cdnjsからv0.5.1版スクリプトを読み込む
+   * @param {(datGUIObject?: any) => any} callback
+   * @returns {this}
+   */
   enableDatGUI(callback) {
     if (phina.global['dat']) {
       var gui = new phina.global['dat'].GUI();
@@ -171,6 +207,11 @@ export class BaseApp extends EventDispatcher {
     return this;
   }
 
+  /**
+   * @private
+   * ループ処理関数
+   * @returns {void}
+   */
   _loop() {
     this._update();
     this.interactive.check(this.currentScene);
@@ -180,6 +221,11 @@ export class BaseApp extends EventDispatcher {
     if (this.stats) this.stats.update();
   }
 
+  /**
+   * @private
+   * 更新処理関数
+   * @returns {void}
+   */
   _update() {
     if (this.awake) {
       // エンターフレームイベント
@@ -193,29 +239,66 @@ export class BaseApp extends EventDispatcher {
   }
 
   /**
+   * 更新用仮想関数
+   * @virtual
+   * @returns {any}
+   */
+  update() {}
+
+  /**
    * 描画用仮想関数
-   * @private
+   * @virtual
+   * @returns {any}
    */
   _draw() {}
 
+  /**
+   * 現在描画しているシーン
+   */
   get currentScene()   { return this._scenes[this._sceneIndex]; }
   set currentScene(v)  { this._scenes[this._sceneIndex] = v; }
 
+  /**
+   * 根本シーン。インスタンス化の際に自動的に設定
+   */
   get rootScene()   { return this._scenes[0]; }
   set rootScene(v)  { this._scenes[0] = v; }
 
+  /**
+   * 経過フレームを取得（設定も可能）
+   */
   get frame() { return this.ticker.frame; }
   set frame(v) { this.ticker.frame = v; }
 
+  /**
+   * Frame per second  
+   * 秒間の更新処理数
+   */
   get fps() { return this.ticker.fps; }
   set fps(v) { this.ticker.fps = v; }
 
+  /**
+   * 前フレームでの処理にかかった時間
+   * @readonly
+   */
   get deltaTime() { return this.ticker.deltaTime; }
 
+  /**
+   * 開始処理からの経過時間
+   * @readonly
+   */
   get elapsedTime() { return this.ticker.elapsedTime; }
 
+  /**
+   * 現在の時間（最後の更新処理時のUNIXタイムスタンプ）
+   * @readonly
+   */
   get currentTime() { return this.ticker.currentTime; }
 
+  /**
+   * アプリ開始時間（開始処理時のUNIXタイムスタンプ）
+   * @readonly
+   */
   get startTime() { return this.ticker.startTime; }
 
 }

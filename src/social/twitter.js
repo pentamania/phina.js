@@ -18,6 +18,7 @@ export class Twitter {
 
   /**
    * @method phina.social.Twitter.createURL
+   * @static
    * Twitterの共有リンクを生成します。引数にオブジェクトを渡すことで様々なパラメーターを設定出来ます。引数のオブジェクトは {@link #phina.social.Twitter.defaults} で安全拡張されます。
    * 
    * ### Example
@@ -40,9 +41,8 @@ export class Twitter {
    *       url: 'http://phinajs.com'
    *     }); // => http://twitter.com/intent/tweet?url=http%3A%2F%2Fphinajs.com&text=Hello%2C%20world!&hashtags=javascript%2Cphina
    * 
-   * @param {Object}
+   * @param {Twitter.defaults} options
    * @return {String} Twitter の共有リンク
-   * @static
    */
   static createURL (options) {
     options = $safe.call(options || {}, Twitter.defaults);

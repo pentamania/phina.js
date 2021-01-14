@@ -3,11 +3,29 @@ import { Vector2 } from "../geom/vector2";
 import { PlainElement } from "./plainelement";
 
 /**
+ * Shapeクラスオプション
+ * @typedef {{
+ *   padding?: number,
+ *   backgroundColor?: import('../graphics/canvas').CanvasStyle,
+ *   fill?: import('../graphics/canvas').CanvasStyle | false,
+ *   stroke?: import('../graphics/canvas').CanvasStyle | false,
+ *   strokeWidth?: number,
+ *   lineCap?: CanvasLineCap,
+ *   lineJoin?: CanvasLineJoin,
+ *   shadow?: string | false,
+ *   shadowBlur?: number,
+ * } & import('../display/displayelement').DisplayElementOptions } ShapeOptions
+ */
+
+/**
  * @class phina.display.Shape
- * @extends phina.display.PlainElement
+ * _extends phina.display.PlainElement
  */
 export class Shape extends PlainElement {
 
+  /**
+   * @param {ShapeOptions} [options]
+   */
   constructor(options) {
     // options = ({}).$safe(options || {}, phina.display.Shape.defaults);
     options = $safe.call({}, options||{}, Shape.defaults)
@@ -29,6 +47,7 @@ export class Shape extends PlainElement {
     this.watchDraw = true;
     this._dirtyDraw = true;
 
+    /** @this Shape */
     var checkRender = function() {
       // render
       if (this.watchDraw && this._dirtyDraw === true) {
@@ -62,30 +81,42 @@ export class Shape extends PlainElement {
 
   /**
    * @virtual
-   * @param  {phina.graphics.Canvas} canvas 
-   * @return {any}
+   * @param  {import('../graphics/canvas').Canvas} _canvas 
+   * @returns {any}
    */
-  prerender(canvas) {
+  prerender(_canvas) {
 
   }
 
   /**
    * @virtual
-   * @param  {phina.graphics.Canvas} canvas 
-   * @return {any}
+   * @param  {import('../graphics/canvas').Canvas} _canvas 
+   * @returns {any}
    */
-  postrender(canvas) {
+  postrender(_canvas) {
 
   }
 
+  /**
+   * @param  {import('../graphics/canvas').Canvas} canvas 
+   * @returns {void}
+   */
   renderFill(canvas) {
     canvas.fill();
   }
 
+  /**
+   * @param {import('../graphics/canvas').Canvas} canvas 
+   * @returns {void}
+   */
   renderStroke(canvas) {
     canvas.stroke();
   }
 
+  /**
+   * @param {import('../graphics/canvas').Canvas} canvas 
+   * @returns {this}
+   */
   render(canvas) {
     var context = canvas.context;
     // リサイズ
@@ -101,7 +132,7 @@ export class Shape extends PlainElement {
 
     // ストローク描画
     if (this.isStrokable()) {
-      context.strokeStyle = this.stroke;
+      context.strokeStyle = /** @type {import('../graphics/canvas').CanvasStyle} */(this.stroke);
       context.lineWidth = this.strokeWidth;
       context.lineCap = this.lineCap;
       context.lineJoin = this.lineJoin;
@@ -131,6 +162,11 @@ export class Shape extends PlainElement {
     return this;
   }
 
+  /**
+   * 指定プロパティを監視し、変更があったらダーティフラグを立てて再描画を促す
+   * @param {string} key
+   * @returns {void}
+   */
   static watchRenderProperty(key) {
     // this.prototype.$watch(key, function(newVal, oldVal) {
     $watch.call(this.prototype, key, function(newVal, oldVal) {
@@ -140,6 +176,11 @@ export class Shape extends PlainElement {
     });
   }
 
+  /**
+   * Shape.watchRenderPropertyをまとめて行う
+   * @param {string[]} keys
+   * @returns {void}
+   */
   static watchRenderProperties(keys) {
     var watchRenderProperty = this.watchRenderProperty || Shape.watchRenderProperty;
     keys.forEach(function(key) {
@@ -149,7 +190,10 @@ export class Shape extends PlainElement {
 
 }
 
-// static props
+/**
+ * @type {ShapeOptions}
+ * @static
+ */
 Shape.defaults = {
   width: 64,
   height: 64,
@@ -184,11 +228,21 @@ Shape.watchRenderProperties([
 
 
 /**
+ * @typedef {{
+ *   cornerRadius?: number
+ * } & ShapeOptions } RectangleShapeOptions
+ */
+
+  /**
  * @class phina.display.RectangleShape
- * @extends phina.display.Shape
+ * _extends phina.display.Shape
+ * 矩形描画クラス
  */
 export class RectangleShape extends Shape {
 
+  /**
+   * @param {RectangleShapeOptions} [options]
+   */
   constructor(options) {
     // options = ({}).$safe(options || {}, phina.display.RectangleShape.defaults);
     options = $safe.call({}, options||{}, RectangleShape.defaults)
@@ -198,13 +252,19 @@ export class RectangleShape extends Shape {
     this.cornerRadius = options.cornerRadius;
   }
 
+  /**
+   * @param  {import('../graphics/canvas').Canvas} canvas 
+   */
   prerender(canvas) {
     canvas.roundRect(-this.width/2, -this.height/2, this.width, this.height, this.cornerRadius);
   }
 
 }
 
-// static props
+/**
+ * @type {RectangleShapeOptions}
+ * @static
+ */
 RectangleShape.defaults = {
   backgroundColor: 'transparent',
   fill: 'blue',
@@ -218,11 +278,20 @@ Shape.watchRenderProperty.call(RectangleShape, 'cornerRadius');
 
 
 /**
+ * @typedef {{
+ *   radius?: number
+ * } & ShapeOptions } CircleShapeOptions
+ */
+
+/**
  * @class phina.display.CircleShape
- * @extends phina.display.Shape
+ * _extends phina.display.Shape
  */
 export class CircleShape extends Shape {
 
+  /**
+   * @param {CircleShapeOptions} [options]
+   */
   constructor(options) {
     // options = ({}).$safe(options || {}, phina.display.CircleShape.defaults);
     options = $safe.call({}, options||{}, CircleShape.defaults)
@@ -232,13 +301,19 @@ export class CircleShape extends Shape {
     this.setBoundingType('circle');
   }
 
+  /**
+   * @param  {import('../graphics/canvas').Canvas} canvas 
+   */
   prerender(canvas) {
     canvas.circle(0, 0, this.radius);
   }
 
 }
 
-// static props
+/**
+ * @type {CircleShapeOptions}
+ * @static
+ */
 CircleShape.defaults = {
   backgroundColor: 'transparent',
   fill: 'red',
@@ -250,10 +325,13 @@ CircleShape.defaults = {
 
 /**
  * @class phina.display.TriangleShape
- * @extends phina.display.Shape
+ * _extends phina.display.Shape
  */
 export class TriangleShape extends Shape {
 
+  /**
+   * @param {CircleShapeOptions} [options]
+   */
   constructor(options) {
     // options = ({}).$safe(options || {}, phina.display.TriangleShape.defaults);
     options = $safe.call({}, options||{}, TriangleShape.defaults)
@@ -263,13 +341,19 @@ export class TriangleShape extends Shape {
     this.setBoundingType('circle');
   }
 
+  /**
+   * @param  {import('../graphics/canvas').Canvas} canvas 
+   */
   prerender(canvas) {
     canvas.polygon(0, 0, this.radius, 3);
   }
 
 }
 
-// static props
+/**
+ * @type {CircleShapeOptions}
+ * @static
+ */
 TriangleShape.defaults = {
   backgroundColor: 'transparent',
   fill: 'green',
@@ -281,11 +365,25 @@ TriangleShape.defaults = {
 
 
 /**
+ * @typedef {{
+ *   sides?: number,
+ * } & CircleShapeOptions } PolygonShapeOptions
+ */
+/**
+ * @typedef {{
+ *   sideIndent?: number,
+ * } & PolygonShapeOptions } StarShapeOptions
+ */
+
+/**
  * @class phina.display.StarShape
- * @extends phina.display.Shape
+ * _extends phina.display.Shape
  */
 export class StarShape extends Shape {
 
+  /**
+   * @param {StarShapeOptions} [options] 
+   */
   constructor(options) {
     // options = ({}).$safe(options || {}, phina.display.StarShape.defaults);
     options = $safe.call({}, options||{}, StarShape.defaults)
@@ -297,13 +395,19 @@ export class StarShape extends Shape {
     this.sideIndent = options.sideIndent;
   }
 
+  /**
+   * @param  {import('../graphics/canvas').Canvas} canvas 
+   */
   prerender(canvas) {
     canvas.star(0, 0, this.radius, this.sides, this.sideIndent);
   }
 
 }
 
-// static props
+/**
+ * @type {StarShapeOptions}
+ * @static
+ */
 StarShape.defaults = {
   backgroundColor: 'transparent',
   fill: 'yellow',
@@ -322,10 +426,13 @@ Shape.watchRenderProperty.call(StarShape, 'sideIndent');
 
 /**
  * @class phina.display.PolygonShape
- * @extends phina.display.Shape
+ * _extends phina.display.Shape
  */
 export class PolygonShape extends Shape {
 
+  /**
+   * @param {PolygonShapeOptions} [options] 
+   */
   constructor(options) {
     // options = ({}).$safe(options || {}, phina.display.PolygonShape.defaults);
     options = $safe.call({}, options||{}, PolygonShape.defaults)
@@ -336,13 +443,19 @@ export class PolygonShape extends Shape {
     this.sides = options.sides;
   }
 
+  /**
+   * @param  {import('../graphics/canvas').Canvas} canvas 
+   */
   prerender(canvas) {
     canvas.polygon(0, 0, this.radius, this.sides);
   }
 
 }
 
-// static props
+/**
+ * @type {PolygonShapeOptions}
+ * @static
+ */
 PolygonShape.defaults = {
   backgroundColor: 'transparent',
   fill: 'cyan',
@@ -358,11 +471,20 @@ Shape.watchRenderProperty.call(PolygonShape, 'sides');
 
 
 /**
+ * @typedef {{
+ *   cornerAngle?: number,
+ * } & CircleShapeOptions } HeartShapeOptions
+ */
+
+/**
  * @class phina.display.HeartShape
- * @extends phina.display.Shape
+ * _extends phina.display.Shape
  */
 export class HeartShape extends Shape {
 
+  /**
+   * @param {HeartShapeOptions} [options]
+   */
   constructor(options) {
     // options = ({}).$safe(options || {}, phina.display.HeartShape.defaults);
     options = $safe.call({}, options||{}, HeartShape.defaults)
@@ -373,12 +495,19 @@ export class HeartShape extends Shape {
     this.cornerAngle = options.cornerAngle;
   }
 
+  /**
+   * @param  {import('../graphics/canvas').Canvas} canvas 
+   */
   prerender(canvas) {
     canvas.heart(0, 0, this.radius, this.cornerAngle);
   }
 
 }
-// static props
+
+/**
+ * @type {HeartShapeOptions}
+ * @static
+ */
 HeartShape.defaults = {
   backgroundColor: 'transparent',
   fill: 'pink',
@@ -394,12 +523,21 @@ Shape.watchRenderProperty.call(HeartShape, 'cornerAngle');
 
 
 /**
+ * @typedef {{
+ *   paths?: Vector2[]
+ * } & ShapeOptions } PathShapeOptions
+ */
+
+/**
  * @class phina.display.PathShape
- * @extends phina.display.Shape
+ * _extends phina.display.Shape
  */
 export class PathShape extends Shape {
   // paths: null,
 
+  /**
+   * @param {PathShapeOptions} [options]
+   */
   constructor(options) {
     // options = ({}).$safe(options || {}, phina.display.PathShape.defaults);
     options = $safe.call({}, options||{}, PathShape.defaults)
@@ -410,44 +548,75 @@ export class PathShape extends Shape {
     this.lineCap = options.lineCap;
   }
 
+  /**
+   * @param {Vector2[]} paths
+   * @returns {this}
+   */
   setPaths (paths) {
     this.paths = paths;
     this._dirtyDraw = true;
     return this;
   }
 
+  /**
+   * @returns {this}
+   */
   clear () {
     this.paths.length = 0;
     this._dirtyDraw = true;
     return this;
   }
 
+  /**
+   * @param {Vector2[]} paths 
+   * @returns {this}
+   */
   addPaths (paths) {
     [].push.apply(this.paths, paths);
     this._dirtyDraw = true;
     return this;
   }
 
+  /**
+   * @param {number} x
+   * @param {number} y
+   * @returns {this}
+   */
   addPath (x, y) {
     this.paths.push(new Vector2(x, y));
     this._dirtyDraw = true;
     return this;
   }
 
+  /**
+   * @param {string | number} i
+   * @returns {Vector2}
+   */
   getPath (i) {
     return this.paths[i];
   }
 
+  /**
+   * @returns {Vector2[]} paths 
+   */
   getPaths () {
     return this.paths;
   }
 
+  /**
+   * @param {string | number} i
+   * @param {number} x
+   * @param {number} y
+   */
   changePath (i, x, y) {
     this.paths[i].set(x, y);
     this._dirtyDraw = true;
     return this;
   }
 
+  /**
+   * @returns {{width: number, height: number}}
+   */
   calcCanvasSize () {
     var paths = this.paths;
     if (paths.length === 0) {
@@ -474,14 +643,23 @@ export class PathShape extends Shape {
     };
   }
 
+  /**
+   * @returns {number}
+   */
   calcCanvasWidth () {
     return this.calcCanvasSize().width;
   }
 
+  /**
+   * @returns {number}
+   */
   calcCanvasHeight () {
     return this.calcCanvasSize().height;
   }
 
+  /**
+   * @param  {import('../graphics/canvas').Canvas} canvas 
+   */
   prerender (canvas) {
     var paths = this.paths;
     if (paths.length > 1) {
@@ -498,7 +676,10 @@ export class PathShape extends Shape {
 
 }
 
-// static props
+/**
+ * @type {PathShapeOptions}
+ * @static
+ */
 PathShape.defaults = {
   fill: false,
   backgroundColor: 'transparent',

@@ -4,16 +4,33 @@ import { Label } from "../display/label";
 import { Shape } from "../display/shape";
 import { Vector2 } from "../geom/vector2";
 
+/**
+ * @typedef {{
+ *   verticalAlign?: number | keyof LabelArea.verticalAlignToOffsetMap
+ *   align?: keyof LabelArea.alignToOffsetMap,
+ *   baseline?: CanvasTextBaseline,
+ *   scroll?: Vector2
+ *   scrollX?: number
+ *   scrollY?: number
+ * } & import('../display/label').LabelOptions } LabelAreaOptions
+ */
+
+/**
+ * @type {{[fontName: string]: {[character: string]: number }}}
+ */
 var textWidthCache = {};
 
 /**
  * @class phina.ui.LabelArea
- * @extends phina.display.Label
+ * _extends phina.display.Label
  */
 export class LabelArea extends Label {
 
   // _lineUpdate: true,
 
+  /**
+   * @param {LabelAreaOptions} options 
+   */
   constructor(options) {
     options = $safe.call({}, options, LabelArea.defaults)
     // options = {}.$safe(options, LabelArea.defaults);
@@ -26,13 +43,23 @@ export class LabelArea extends Label {
     this.scrollY = options.scrollY;
   }
 
+  /**
+   * @returns {number}
+   */
   calcCanvasWidth () {
     return this.width + this.padding * 2;
   }
 
+  /**
+   * @returns {number}
+   */
   calcCanvasHeight () {
     return this.height + this.padding * 2;
   }
+
+  /**
+   * @returns {number}
+   */
   getOffsetY () {
     if (typeof this.verticalAlign === 'number') {
       return this.verticalAlign;
@@ -40,15 +67,25 @@ export class LabelArea extends Label {
     return LabelArea.verticalAlignToOffsetMap[this.verticalAlign] || 0;
   }
 
+  /**
+   * @returns {number}
+   */
   getOffsetX () {
     return LabelArea.alignToOffsetMap[this.align] || 0;
   }
 
+  /**
+   * @returns {{ [character: string]: number }}
+   */
   getTextWidthCache () {
     var cache = textWidthCache[this.font];
     return cache || (textWidthCache[this.font] = {});
   }
   
+  /**
+   * @param {string[]} lines 文章
+   * @returns {string[]} 整形済み文字ライン
+   */
   spliceLines (lines) {
     var rowWidth = this.width;
     var context = this.canvas.context;
@@ -111,6 +148,10 @@ export class LabelArea extends Label {
     return this._lines;
   }
 
+  /**
+   * @override
+   * @param {import('../graphics/canvas').Canvas} canvas 
+   */
   prerender (canvas) {
     var context = canvas.context;
     context.font = this.font;
@@ -155,6 +196,10 @@ export class LabelArea extends Label {
     this.start = start;
   }
 
+  /**
+   * @override
+   * @param {import('../graphics/canvas').Canvas} canvas 
+   */
   renderFill (canvas) {
     var context = canvas.context;
     var offsetX = this.offsetX;
@@ -166,6 +211,10 @@ export class LabelArea extends Label {
     }, this);
   }
 
+  /**
+   * @override
+   * @param {import('../graphics/canvas').Canvas} canvas 
+   */
   renderStroke (canvas) {
     var context = canvas.context;
     var offsetX = this.offsetX;
@@ -250,7 +299,10 @@ export class LabelArea extends Label {
   //   ]);
   // },
 
-
+  /**
+   * 未定義
+   * @returns {this}
+   */
   enableScroll() {
     //   this.setInteractive(true);
     //   var physical = phina.accessory.Physical();
@@ -278,7 +330,9 @@ export class LabelArea extends Label {
 
 }
 
-// static props
+/**
+ * @type {LabelAreaOptions}
+ */
 LabelArea.defaults = {
   verticalAlign: 'top',
   align: 'left',

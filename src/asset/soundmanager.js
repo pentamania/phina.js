@@ -12,7 +12,16 @@ export class SoundManager {
   // muteFlag: false,
   // currentMusic: null,
 
+  /**
+   * 音源を再生
+   * @param {string} name
+   * @param {number} [when]
+   * @param {number} [offset]
+   * @param {number} [duration]
+   * @returns {import('../asset/sound').Sound}
+   */
   static play(name, when, offset, duration) {
+    /** @type {import('../asset/sound').Sound} */
     var sound = AssetManager.get('sound', name);
 
     sound.volume = this.getVolume();
@@ -30,15 +39,25 @@ export class SoundManager {
   static fade() {
     // TODO: 
   }
+
+  /**
+   * @param {number} volume
+   * @returns {void}
+   */
   static setVolume(volume) {
     this.volume = volume;
   }
+
+  /**
+   * @returns {number}
+   */
   static getVolume() {
     return this.volume;
   }
 
-  /*
+  /**
    * ミュート
+   * @returns {SoundManager}
    */
   static mute() {
     this.muteFlag = true;
@@ -47,8 +66,10 @@ export class SoundManager {
     }
     return this;
   }
-  /*
+
+  /**
    * ミュート解除
+   * @returns {SoundManager}
    */
   static unmute() {
     this.muteFlag = false;
@@ -57,10 +78,25 @@ export class SoundManager {
     }
     return this;
   }
+
+  /**
+   * ミュート状態かどうか
+   * @returns {boolean}
+   */
   static isMute() {
     return this.muteFlag;
   }
 
+  /**
+   * 音楽系の音源を再生：ループの有無などを細かく調整可能
+   * @param {string} name
+   * @param {number} [fadeTime]
+   * @param {boolean} [loop]
+   * @param {number} [when]
+   * @param {number} [offset]
+   * @param {number} [duration]
+   * @returns {import('../asset/sound').Sound} 再生したSoundクラス
+   */
   static playMusic(name, fadeTime, loop, when, offset, duration) {
     loop = (loop !== undefined) ? loop : true;
 
@@ -68,6 +104,7 @@ export class SoundManager {
       this.stopMusic(fadeTime);
     }
 
+    /** @type {import('../asset/sound').Sound} */
     var music = AssetManager.get('sound', name);
 
     music.setLoop(loop);
@@ -102,6 +139,11 @@ export class SoundManager {
     return this.currentMusic;
   }
 
+  /**
+   * 音楽を停止
+   * @param {number} [fadeTime]
+   * @returns {void}
+   */
   static stopMusic(fadeTime) {
     if (!this.currentMusic) { return ; }
 
@@ -134,22 +176,28 @@ export class SoundManager {
     }
   }
 
-  /*
+  /**
    * 音楽を一時停止
+   * @returns {void}
    */
   static pauseMusic() {
     if (!this.currentMusic) { return ; }
     this.currentMusic.pause();
   }
-  /*
+
+  /**
    * 音楽を再開
+   * @returns {void}
    */
   static resumeMusic() {
     if (!this.currentMusic) { return ; }
     this.currentMusic.resume();
   }
-  /*
+
+  /**
    * 音楽のボリュームを設定
+   * @param {number} volume
+   * @returns {SoundManager}
    */
   static setVolumeMusic(volume) {
     this.musicVolume = volume;
@@ -159,8 +207,10 @@ export class SoundManager {
 
     return this;
   }
-  /*
+
+  /**
    * 音楽のボリュームを取得
+   * @returns {number}
    */
   static getVolumeMusic() {
     return this.musicVolume;

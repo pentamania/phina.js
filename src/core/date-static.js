@@ -14,8 +14,8 @@
  * ### Example
  *     Date.calculateAge("1990-01-17"); // => 26 など
  *
- * @param {String/Date} birthday 誕生日
- * @param {String/Date} [when=本日] 基準の日付
+ * @param {String|Date} birthday 誕生日
+ * @param {String|Date} [when=本日] 基準の日付
  * @return {Number} 年齢
  */
 export function calculateAge(birthday, when) {

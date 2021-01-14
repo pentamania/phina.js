@@ -9,18 +9,22 @@ import phina from "../phina";
 export class Random {
 
   /**
-   * @property {Number} [seed = 1]
-   * 乱数のシードです。
-   */
-  // seed = 1
-
-  /**
    * @constructor
    * コンストラクタです。引数で {@link #seed} を設定できます。
    * 
    * @param {Number} [seed = (Date.now()) || 1] シード
    */
   constructor(seed) {
+    /**
+     * @private
+     * @type {number}
+     */
+    this._seed
+
+    /**
+     * @property {Number} [seed = 1]
+     * 乱数のシードです。
+     */
     this.seed = seed || (Date.now()) || 1;
   }
 

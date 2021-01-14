@@ -3,14 +3,26 @@ import { Shape } from "../display/shape";
 import { format } from "../core/string";
 
 /**
+ * @typedef {{
+ *   text?: string,
+ *   fontColor?: import("../graphics/canvas").CanvasStyle,
+ *   fontSize?: number,
+ *   fontWeight?: string | number,
+ *   fontFamily?: string,
+ *   cornerRadius?: number
+ * } & import('../display/shape').ShapeOptions } ButtonOptions
+ */
+
+/**
  * @class phina.ui.Button
  * Button
- * @extends phina.display.Shape
+ * _extends phina.display.Shape
  */
 export class Button extends Shape {
 
   /**
    * @constructor
+   * @param {ButtonOptions} [options]
    */
   constructor(options) {
     options = $safe.call(options || {}, Button.defaults);
@@ -30,10 +42,16 @@ export class Button extends Shape {
     });
   }
 
+  /**
+   * @param {import('../graphics/canvas').Canvas} canvas 
+   */
   prerender(canvas) {
     canvas.roundRect(-this.width/2, -this.height/2, this.width, this.height, this.cornerRadius);
   }
 
+  /**
+   * @param {import('../graphics/canvas').Canvas} canvas 
+   */
   postrender(canvas) {
     var context = canvas.context;
     // text
@@ -48,7 +66,10 @@ export class Button extends Shape {
 
 }
 
-// static props
+/**
+ * @type {ButtonOptions}
+ * @static
+ */
 Button.defaults = {
   width: 200,
   height: 80,

@@ -1,14 +1,32 @@
+/**
+ * @typedef {import("../app/element").Element & {
+ *   backgroundColor?: import("../graphics/canvas").CanvasStyle
+ * }} RenderableScene
+ */
+
+/**
+ * @typedef {import("./displayelement").DisplayElement & {
+ *   clip?: (canvas: import('../graphics/canvas').Canvas)=> any,
+ *   draw?: (canvas: import('../graphics/canvas').Canvas)=> any
+ * }} RenderableElement
+ */
 
 /**
  * @class phina.display.CanvasRenderer
  */
 export class CanvasRenderer {
 
+  /**
+   * @param {import('../graphics/canvas').Canvas} canvas
+   */
   constructor(canvas) {
     this.canvas = canvas;
     this._context = this.canvas.context;
   }
 
+  /**
+   * @param {RenderableScene} scene
+   */
   render(scene) {
     this.canvas.clear();
     if (scene.backgroundColor) {
@@ -20,16 +38,22 @@ export class CanvasRenderer {
     this._context.restore();
   }
 
+  /**
+   * @param {import("../app/element").ElementBasedObject} obj
+   */
   renderChildren(obj) {
     // 子供たちも実行
     if (obj.children.length > 0) {
-      var tempChildren = obj.children.slice();
+      var tempChildren = /** @type {RenderableElement[]}*/(obj.children.slice());
       for (var i=0,len=tempChildren.length; i<len; ++i) {
         this.renderObject(tempChildren[i]);
       }
     }
   }
 
+  /**
+   * @param {RenderableElement} obj
+   */
   renderObject(obj) {
     if (obj.visible === false && !obj.interactive) return;
 

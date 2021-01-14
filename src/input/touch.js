@@ -3,23 +3,27 @@ import { pointX, pointY } from "../dom/event"
 import { 
   touchPointX, 
   touchPointY, 
-  // window.stopとかぶるので一応回避
-  stop as eventStop
+  stop as eventStop // window.stopとかぶるので念のため回避
 } from "../dom/event"
 
 /**
  * @class phina.input.Touch
- * @extends phina.input.Input
+ * _extends phina.input.Input
  */
 export class Touch extends Input {
 
   /**
    * @constructor
+   * @param {HTMLCanvasElement} domElement
+   * @param {boolean} [isMulti]
    */
   constructor(domElement, isMulti) {
     super(domElement);
 
     this.id = null;
+
+    /** @type {boolean} */
+    this.released = undefined
 
     if (isMulti === true) {
       return ;
@@ -42,6 +46,7 @@ export class Touch extends Input {
 
   /**
    * タッチしているかを判定
+   * @returns {boolean}
    */
   getTouch() {
     return this.now != 0;
@@ -49,6 +54,7 @@ export class Touch extends Input {
   
   /**
    * タッチ開始時に true
+   * @returns {boolean}
    */
   getTouchStart() {
     return this.start != 0;
@@ -56,6 +62,7 @@ export class Touch extends Input {
   
   /**
    * タッチ終了時に true
+   * @returns {boolean}
    */
   getTouchEnd() {
     return this.end != 0;
@@ -85,11 +92,16 @@ Touch.prototype.getPointingEnd     = Touch.prototype.getTouchEnd;
  */
 export class TouchList {
 
+  /**
+   * @param {HTMLCanvasElement} domElement
+   */
   constructor(domElement) {
-    /** @type HTMLCanvasElement */
     this.domElement = domElement;
 
+    /** @type {Touch[]} */
     this.touches = [];
+
+    /** @type {{[id:number]: Touch}} */
     var touchMap = this.touchMap = {};
 
     // 32bit 周期でIDをループさせる
@@ -136,6 +148,10 @@ export class TouchList {
     });
   }
 
+  /**
+   * 空のTouchクラスを生成して追加、返す
+   * @returns {Touch}
+   */
   getEmpty() {
     var touch = new Touch(this.domElement, true);
   
@@ -145,15 +161,26 @@ export class TouchList {
     return touch;
   }
 
+  /**
+   * @param {string | number} id
+   * @returns {Touch}
+   */
   getTouch(id) {
     return this.touchMap[id];
   }
 
+  /**
+   * @param {Touch} touch
+   * @returns {void}
+   */
   removeTouch(touch) {
     var i = this.touches.indexOf(touch);
     this.touches.splice(i, 1);
   }
 
+  /**
+   * @returns {void}
+   */
   update() {
     this.touches.forEach(function(touch) {
       if (!touch.released) {

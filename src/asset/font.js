@@ -4,9 +4,11 @@ import { Asset } from "./asset";
 import { Flow } from "../util/flow"
 import { Canvas } from "../graphics/canvas";
 
+/** @typedef {string|number|null} FontName 基本はstring型 */
+
 /**
  * @class phina.asset.Font
- * @extends phina.asset.Asset
+ * _extends phina.asset.Asset
  */
 export class Font extends Asset {
 
@@ -15,9 +17,15 @@ export class Font extends Asset {
    */
   constructor() {
     super();
+
+    /** @type {FontName} */
     this.fontName = null;
   }
 
+  /**
+   * @param {string} path
+   * @returns {Flow}
+   */
   load(path) {
     this.src = path;
 
@@ -57,9 +65,14 @@ export class Font extends Asset {
     return new Flow(this._load.bind(this));
   }
 
+  /**
+   * @param {(arg0: Font) => void} resolve
+   */
   _load(resolve) {
     if (this.format !== "unknown") {
-      this._checkLoaded(this.fontName, function() {
+      this._checkLoaded(this.fontName, 
+      /** @this {Font} */
+      function() {
         this.loaded = true;
         resolve(this);
       }.bind(this));
@@ -69,6 +82,10 @@ export class Font extends Asset {
     }
   }
 
+  /**
+   * @param {FontName} font
+   * @param {() => any} [callback]
+   */
   _checkLoaded (font, callback) {
     var canvas = new Canvas();
     var DEFAULT_FONT = canvas.context.font.split(' ')[1];
@@ -101,6 +118,10 @@ export class Font extends Asset {
     checkLoadFont();
   }
 
+  /**
+   * @param {FontName} name
+   * @returns {this}
+   */
   setFontName(name) {
     if (this.loaded) {
       console.warn("フォント名はLoad前にのみ設定が出来ます(" + name + ")");
@@ -111,6 +132,9 @@ export class Font extends Asset {
     return this;
   }
 
+  /**
+   * @returns {FontName}
+   */
   getFontName() {
     return this.fontName;
   }

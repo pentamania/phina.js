@@ -3,29 +3,68 @@ import { clamp } from "../core/math"
 import { Shape } from "../display/shape";
 
 /**
+ * @typedef {{
+ *   value?: number
+ *   maxValue?: number
+ *   gaugeColor?: import("../graphics/canvas").CanvasStyle
+ *   animation?: boolean
+ *   cornerRadius?: number
+ * } & import('../display/shape').ShapeOptions } GaugeOptions
+ */
+
+/**
  * @class phina.ui.Gauge
- * @extends phina.display.Shape
+ * _extends phina.display.Shape
  */
 export class Gauge extends Shape {
 
+  /**
+   * @param {GaugeOptions} [options] 
+   */
   constructor(options) {
     options = $safe.call({}, options || {}, Gauge.defaults);
     // options = ({}).$safe(options || {}, phina.ui.Gauge.defaults);
     
     super(options);
 
+    /**
+     * @private
+     * @type {number}
+     */
     this._value = (options.value !== undefined) ? options.value : options.maxValue;
+
+    /**
+     * @type {number} 最大値
+     */
     this.maxValue = options.maxValue;
+
     this.gaugeColor = options.gaugeColor;
+    
+    /**
+     * @type {number} 最大値
+     */
     this.cornerRadius = options.cornerRadius;
 
+    /**
+     * @type {number} 見た目の値
+     */
     this.visualValue = (options.value !== undefined) ? options.value : options.maxValue;
+
+    /**
+     * @type {boolean} アニメーションさせるかどうか
+     */
     this.animation = options.animation;
+
+    /**
+     * @type {number} アニメーション完了時間をミリ秒指定
+     * @default 1000
+     */
     this.animationTime = 1*1000;
   }
 
   /**
    * 満タンかをチェック
+   * @returns {boolean}
    */
   isFull() {
     return this.value === this.maxValue;
@@ -33,11 +72,16 @@ export class Gauge extends Shape {
 
   /**
    * 空っぽかをチェック
+   * @returns {boolean}
    */
   isEmpty() {
     return this.value === 0;
   }
 
+  /**
+   * @param {number} value
+   * @returns {void}
+   */
   setValue(value) {
     value = clamp(value, 0, this.maxValue);
     // value = Math.clamp(value, 0, this.maxValue);
@@ -54,6 +98,7 @@ export class Gauge extends Shape {
       var range = Math.abs(this.visualValue-value);
       var time = (range/this.maxValue)*this.animationTime;
 
+      // @ts-ignore
       this.tweener.ontween = function() {
         this._dirtyDraw = true;
       }.bind(this);
@@ -82,15 +127,27 @@ export class Gauge extends Shape {
     }
   }
 
+  /**
+   * 
+   * @returns {number}
+   */
   getRate() {
     var rate = this.visualValue/this.maxValue;
     return rate;
   }
 
+  /**
+   * @override
+   * @param {import('../graphics/canvas').Canvas} canvas 
+   */
   prerender(canvas) {
     canvas.roundRect(-this.width/2, -this.height/2, this.width, this.height, this.cornerRadius);
   }
 
+  /**
+   * @override
+   * @param {import('../graphics/canvas').Canvas} canvas 
+   */
   postrender(canvas) {
     var rate = this.getRate();
     canvas.context.fillStyle = this.gaugeColor;
@@ -109,7 +166,10 @@ export class Gauge extends Shape {
 
 }
 
-// static props
+/**
+ * @type {GaugeOptions}
+ * @static
+ */
 Gauge.defaults = {
   width: 256,
   height: 32,
@@ -129,13 +189,22 @@ Shape.watchRenderProperty.call(Gauge, 'maxValue');
 Shape.watchRenderProperty.call(Gauge, 'gaugeColor');
 Shape.watchRenderProperty.call(Gauge, 'cornerRadius');
 
+/**
+ * @typedef {{
+ *   anticlockwise?: boolean
+ *   showPercentage?: boolean
+ * } & GaugeOptions } CircleGaugeOptions
+ */
 
 /**
  * @class phina.ui.CircleGauge
- * @extends phina.ui.Gauge
+ * _extends phina.ui.Gauge
  */
 export class CircleGauge extends Gauge {
 
+  /**
+   * @param {CircleGaugeOptions} [options] 
+   */
   constructor(options) {
     options = $safe.call(options || {}, {
     // options = (options || {}).$safe({
@@ -157,7 +226,11 @@ export class CircleGauge extends Gauge {
     this.showPercentage = options.showPercentage;
   }
 
-  prerender(canvas) {
+  /**
+   * @override
+   * @param {import('../graphics/canvas').Canvas} _canvas 
+   */
+  prerender(_canvas) {
     var rate = this.getRate();
     var end = (Math.PI*2)*rate;
     this.startAngle = 0;
@@ -167,10 +240,18 @@ export class CircleGauge extends Gauge {
     this.canvas.scale(1, -1);
   }
 
+  /**
+   * @override
+   * @param {import('../graphics/canvas').Canvas} canvas 
+   */
   renderFill(canvas) {
     canvas.fillPie(0, 0, this.radius, this.startAngle, this.endAngle);
   }
 
+  /**
+   * @override
+   * @param {import('../graphics/canvas').Canvas} canvas 
+   */
   renderStroke(canvas) {
     canvas.strokeArc(0, 0, this.radius, this.startAngle, this.endAngle);
   }

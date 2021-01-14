@@ -3,29 +3,68 @@ import { Vector2 } from "../geom/vector2"
 import { clear } from "../core/array"
 
 /**
+ * @typedef {{
+ *   x: number
+ *   y: number
+ *   setInteractive: (flag:boolean) => any
+ * } & import("./accessory").AccessoryAttachable } FlickableTarget
+ */
+
+/**
  * @class phina.accessory.Flickable
  * Flickable
- * @extends phina.accessory.Accessory
+ * _extends phina.accessory.Accessory
  */
 export class Flickable extends Accessory {
 
   /**
    * @constructor
+   * @param {FlickableTarget} target
    */
   constructor(target) {
     super(target);
 
-    this.initialPosition = new Vector2(0, 0);
-    var self = this;
+    /** @type {FlickableTarget} */
+    this.target
 
+    /**
+     * フリック開始位置
+     */
+    this.initialPosition = new Vector2(0, 0);
+
+    /**
+     * 摩擦値
+     * @default 0.9
+     */
     this.friction = 0.9;
+
+    /**
+     * 速度ベクトル
+     */
     this.velocity = new Vector2(0, 0);
+
+    /**
+     * 上下の移動を許可するかどうか（初期値：true）
+     * @default true
+     */
     this.vertical = true;
+
+    /**
+     * 左右の移動を許可するかどうか（初期値：true）
+     * @default true
+     */
     this.horizontal = true;
 
+    /**
+     * キャッシュした差分値
+     * @protected
+     */
     this.cacheList = [];
 
-    this.on('attached', function() {
+    var self = this;
+    this.on('attached', 
+    /** @this {Flickable} */
+    function() {
       this.target.setInteractive(true);
 
       this.target.on('pointstart', function(e) {
@@ -70,6 +109,9 @@ export class Flickable extends Accessory {
     });
   }
 
+  /**
+   * 更新関数
+   */
   update() {
     if (!this.target) return ;
 
@@ -84,6 +126,10 @@ export class Flickable extends Accessory {
     }
   }
 
+  /**
+   * 位置・速度をフリック前に戻す
+   * @returns {void}
+   */
   cancel() {
     this.target.x = this.initialPosition.x;
     this.target.y = this.initialPosition.y;
@@ -99,6 +145,10 @@ export class Flickable extends Accessory {
     //     }.bind(this));
   }
 
+  /**
+   * フリック可能にする
+   * @returns {void}
+   */
   enable() {
     this._enable = true;
   }

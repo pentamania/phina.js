@@ -5,15 +5,10 @@ import { Support } from "../util/support";
 
 /**
  * @class phina.asset.Sound
- * @extends phina.asset.Asset
+ * _extends phina.asset.Asset
  */
 export class Sound extends Asset {
-  
-  // _loop: false,
-  // _loopStart: 0,
-  // _loopEnd: 0,
-  // _playbackRate: 1,
-  
+
   /**
    * @constructor
    */
@@ -25,8 +20,19 @@ export class Sound extends Asset {
     this._playbackRate = 1
     this.context = Sound.getAudioContext();
     this.gainNode = this.context.createGain();
+
+    /** @type {AudioBufferSourceNode | OscillatorNode} */
+    this.source;
+
+    /** @type {string} */
+    this.src;
   }
 
+  /**
+   * @param {number} [when]
+   * @param {number} [offset]
+   * @param {number} [duration]
+   */
   play(when, offset, duration) {
     when = when ? when + this.context.currentTime : 0;
     offset = offset || 0;
@@ -74,12 +80,16 @@ export class Sound extends Asset {
   }
 
   pause() {
+    // 型アサーション
+    this.source = /** @type {AudioBufferSourceNode} */ (this.source);
     this.source.playbackRate.value = 0;
     this.flare('pause');
     return this;
   }
 
   resume() {
+    // 型アサーション
+    this.source = /** @type {AudioBufferSourceNode} */ (this.source);
     this.source.playbackRate.value = this._playbackRate;
     this.flare('resume');
     return this;
@@ -103,6 +113,9 @@ export class Sound extends Asset {
     this.source.connect(context.destination);
   }
 
+  /**
+   * @param {AudioBuffer} [buffer] 
+   */
   loadFromBuffer(buffer) {
     var context = this.context;
 
@@ -121,26 +134,42 @@ export class Sound extends Asset {
     this.buffer = buffer;
   }
 
+  /**
+   * @param {boolean} loop
+   */
   setLoop(loop) {
     this.loop = loop;
     return this;
   }
 
+  /**
+   * @param {number} loopStart
+   */
   setLoopStart(loopStart) {
     this.loopStart = loopStart;
     return this;
   }
 
+  /**
+   * @param {number} loopEnd
+   */
   setLoopEnd(loopEnd) {
     this.loopEnd = loopEnd;
     return this;
   }
   
+  /**
+   * @param {number} playbackRate
+   */
   setPlaybackRate(playbackRate) {
     this.playbackRate = playbackRate;
     return this;
   }
 
+  /**
+   * @override
+   * @param {(...args: any) => any} r
+   */
   _load(r) {
     if (/^data:/.test(this.src)) {
       this._loadFromURIScheme(r);
@@ -150,6 +179,10 @@ export class Sound extends Asset {
     }
   }
 
+  /**
+   * @private
+   * @param {(...args: any) => any} r
+   */
   _loadFromFile(r) {
     var self = this;
 
@@ -198,6 +231,10 @@ export class Sound extends Asset {
     xml.send(null);
   }
 
+  /**
+   * @private
+   * @param {(...args: any) => any} r
+   */
   _loadFromURIScheme(r) {
     var byteString = '';
     if (this.src.split(',')[0].indexOf('base64') >= 0) {
@@ -251,11 +288,17 @@ export class Sound extends Asset {
   get playbackRate() { return this._playbackRate; }
   set playbackRate(v) {
     this._playbackRate = v;
+    this.source = /** @type {AudioBufferSourceNode} */(this.source);
     if(this.source && this.source.playbackRate.value !== 0){
       this.source.playbackRate.value = v;
     }
   }
 
+  /**
+   * マスターのゲインノードを返します。  
+   * GainNodeが未生成の場合は生成して返します。
+   * @returns {GainNode}
+   */
   static getMasterGain() {
     if(!this._masterGain) {
       var context = this.getAudioContext();
@@ -265,6 +308,12 @@ export class Sound extends Asset {
     return this._masterGain;
   }
 
+  /**
+   * WebAudioのコンテキストを生成して返します。  
+   * すでに生成済みの場合はそれを返します。  
+   * WebAudio未サポートの場合はnullを返します。
+   * @returns {AudioContext | null}
+   */
   static getAudioContext() {
     if (!Support.webAudio) return null;
 
@@ -299,3 +348,6 @@ export class Sound extends Asset {
     this.getMasterGain().gain.value = v;
   }
 }
+
+/** @type {AudioContext} */
+Sound.context;

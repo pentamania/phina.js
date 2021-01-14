@@ -3,16 +3,23 @@ import { Canvas } from "../graphics/canvas";
 
 /**
  * @class phina.display.PlainElement
- * @extends phina.display.DisplayElement
+ * _extends phina.display.DisplayElement
  */
 export class PlainElement extends DisplayElement {
 
+  /**
+   * @param {DisplayElement.defaults} options 
+   */
   constructor(options) {
     super(options);
     this.canvas = new Canvas();
     this.canvas.setSize(this.width, this.height);
   }
 
+  /**
+   * @param {Canvas} canvas
+   * @returns {void}
+   */
   draw(canvas) {
     var image = this.canvas.domElement;
     var w = image.width;

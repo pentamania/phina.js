@@ -5,6 +5,13 @@
  */
 export class QueryString {
 
+  /**
+   * @param {string} [text] 無指定のときは現在ページのURLを対象とする
+   * @param {string} [sep="&"] セパレータ
+   * @param {string} [eq="="] 
+   * @param {boolean} [isDecode] decodeURIComponentによるデコードを行うかどうか
+   * @returns {Object}
+   */
   static parse(text, sep, eq, isDecode) {
     text = text || location.search.substr(1);
     sep = sep || '&';
@@ -17,6 +24,13 @@ export class QueryString {
     }, {});
   }
 
+  /**
+   * @param {Object} value
+   * @param {string} [sep="&"]
+   * @param {string} [eq="="]
+   * @param {boolean} [isEncode] encodeURIComponentによるエンコードを行うかどうか
+   * @returns {string}
+   */
   static stringify(value, sep, eq, isEncode) {
     sep = sep || '&';
     eq = eq || '=';

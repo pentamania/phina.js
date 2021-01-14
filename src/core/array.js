@@ -5,8 +5,8 @@
 import { randint } from "./math";
 
 /**
- * @property {Object} first
- * 最初の要素
+ * @type {AccessorExtendObject} first
+ * 最初の要素を返す、もしくはそこにセットする
  *
  * ### Example
  *     arr = [6, 5, 2, 3, 1, 4];
@@ -14,13 +14,15 @@ import { randint } from "./math";
  */
 export const first = {
 // Array.prototype.accessor("first", {
+  /** @this Array */
   "get": function()   { return this[0]; },
+  /** @this Array */
   "set": function(v)  { this[0] = v; }
 }
 
 /**
- * @property {Object} last
- * 最後の要素
+ * @type {AccessorExtendObject} last
+ * 最後の要素を返す、もしくはそこにセットする
  *
  * ### Example
  *     arr = [6, 5, 2, 3, 1, 4];
@@ -28,7 +30,9 @@ export const first = {
  */
 export const last = {
 // Array.prototype.accessor("last", {
+  /** @this Array */
   "get": function()   { return this[this.length-1]; },
+  /** @this Array */
   "set": function(v)  { this[this.length-1] = v; }
 };
 
@@ -48,7 +52,8 @@ export const last = {
  *     arr.at(-1); // => 'f'
  *     arr.at(-8); // => 'e'
  *
- * @param {Number} index 添字
+ * @this Array
+ * @param {Number} i 添字
  * @return {Object} 添字で指定された要素
  */
 export function at(i) {
@@ -69,6 +74,7 @@ export function at(i) {
  *     arr2 = arr1.erase('b'); // => ['a', 'b', 'c']
  *     arr1 === arr2;          // => true
  *
+ * @this Array
  * @param {Object} elm 削除したいオブジェクト
  */
 export function erase(elm) {
@@ -89,6 +95,8 @@ export function erase(elm) {
  * ### Example
  *     arr = [1, 2, [3, 4]];
  *     arr.clear(); // => []
+ * 
+ * @this Array
  */
 export function clear(deep) {
 // Array.prototype.$method("clear", function() {
@@ -109,6 +117,7 @@ export function clear(deep) {
  *     arr.contains(3, -4); // => true
  *     arr.contains("6");   // => false
  *
+ * @this Array
  * @param {Object} item チェックするオブジェクト
  * @param {Number} [fromIndex=0] 検索を始める位置。負数を指定した場合は末尾からのオフセットと見なします。
  * @return {Boolean} チェックの結果
@@ -134,8 +143,9 @@ export function contains(item, fromIndex) {
  *     arr1[2][0] = 9;
  *     arr2;                     // => [1, 2, [3, 4]]
  *
+ * @this Array
  * @param {Boolean} [deep=false] 配列のネストをたどって複製するかどうか
- * @return {Object} 新しい配列
+ * @return {Array} 新しい配列
  */
 export function clone(deep) {
 // Array.prototype.$method("clone", function(deep) {
@@ -168,9 +178,10 @@ export function clone(deep) {
  *     arr.range(2, 14, 5); // => [2, 7, 12]
  *     arr.range(2, -3);    // => [2, 1, 0, -1, -2]
  *
+ * @this Array
  * @param {Number} start 最初の値（デフォルトは 0）
  * @param {Number} end 最後の値（省略不可）
- * @param {Number} [step=1または-1] 間隔
+ * @param {Number} [step] 間隔。デフォルト値は1または-1
  */
 export function range(start, end, step) {
 // Array.prototype.$method("range", function(start, end, step) {
@@ -219,6 +230,7 @@ export function range(start, end, step) {
  *     arr2.equals([6, 5, 2, [3, 1], 4]);     // => false
  *     arr2.deepEquals([6, 5, 2, [3, 1], 4]); // => true
  *
+ * @this Array
  * @param {Array} arr 比較する対象の配列
  * @return {Boolean} チェックの結果
  */
@@ -247,6 +259,7 @@ export function equals(arr) {
  *     arr.equals([6, 5, 2, [3, 1], 4]);     // => false
  *     arr.deepEquals([6, 5, 2, [3, 1], 4]); // => true
  *
+ * @this Array
  * @param {Array} arr 比較する対象の配列
  * @return {Boolean} チェックの結果
  */
@@ -274,6 +287,7 @@ export function deepEquals(arr) {
  *     arr2 = arr1.swap(0, 3); // => ['d', 'b', 'c', 'a']
  *     arr1 === arr2;          // => true
  *
+ * @this Array
  * @param {Number} a  インデックス
  * @param {Number} b  インデックス
  */
@@ -296,6 +310,7 @@ export function swap(a, b) {
  *     arr2 = arr1.eraseAll('b'); // => ['a', 'c']
  *     arr1 === arr2;             // => true
  *
+ * @this Array
  * @param {Object} elm 削除したいオブジェクト
  */
 export function eraseAll(elm) {
@@ -322,7 +337,8 @@ export function eraseAll(elm) {
  *     });
  *     // => ['bar', 'hoge', 'fuga']
  *
- * @param {Function} callback 各要素に対して実行するコールバック関数
+ * @this Array
+ * @param {Function} fn 各要素に対して実行するコールバック関数
  */
 export function eraseIf(fn) {
 // Array.prototype.$method("eraseIf", function(fn) {
@@ -349,7 +365,8 @@ export function eraseIf(fn) {
  *     });
  *     // => ['bar', 'fuga']
  *
- * @param {Function} callback 各要素に対して実行するコールバック関数
+ * @this Array
+ * @param {Function} fn 各要素に対して実行するコールバック関数
  */
 export function eraseIfAll(fn) {
 // Array.prototype.$method("eraseIfAll", function(fn) {
@@ -373,6 +390,7 @@ export function eraseIfAll(fn) {
  *     arr = ['foo', 'bar', 'hoge', 'fuga'];
  *     arr.random(2, 3);  // => 'hoge' または 'fuga'
  *
+ * @this Array
  * @param {Number} [min=0] インデックスの下限
  * @param {Number} [max=配列の最大インデックス] インデックスの上限
  * @return {Object} ランダムに1つ取り出した要素
@@ -387,9 +405,13 @@ export function random(min, max) {
 /**
  * @method pickup
  * 配列からランダムで1つ取り出した要素を返します。
- *
+ * 
  * {@link #random}、{@link #lot} と同じです。
  * @inheritdoc #random
+ * 
+ * @this {Array}
+ * @param {number} min
+ * @param {number} max
  */
 export function pickup(min, max) {
 // Array.prototype.$method("pickup", function(min, max) {
@@ -401,9 +423,13 @@ export function pickup(min, max) {
 /**
  * @method lot
  * 配列からランダムで1つ取り出した要素を返します。
- *
+ * 
  * {@link #random}、{@link #pickup} と同じです。
  * @inheritdoc #random
+ * 
+ * @this {Array}
+ * @param {number} min
+ * @param {number} max
  */
 export function lot(min, max) {
 // Array.prototype.$method("lot", function(min, max) {
@@ -422,7 +448,8 @@ export function lot(min, max) {
  *     arr = [1, 2, 3, 4, 3, 2];
  *     arr.uniq(); // => [1, 2, 3, 4]
  *
- * @param {Number} [deep] ※未使用
+ * @this Array
+ * @param {Number} [deep] 未使用
  * @return {Object} 新しい配列
  */
 export function uniq(deep) {
@@ -444,6 +471,7 @@ export function uniq(deep) {
  *     arr.flatten();  // => [1, 2, 3, 4, 5]
  *     arr.flatten(1); // => [1, 2, 3, [4, 5]]
  *
+ * @this Array<Array>
  * @param {Number} [level=0]  平滑化の再帰の深さ
  * @return {Object} 平滑化した配列
  */
@@ -479,6 +507,7 @@ export function flatten(level) {
  *     arr.fill("x");       // => ["x", "x", "x", "x", "x"]
  *     arr.fill("x", 2, 4); // => [1, 2, "x", "x", 5]
  *
+ * @this Array
  * @param {Object} value 埋める値
  * @param {Number} [start=0] 値を埋める最初のインデックス
  * @param {Number} [end=自身の配列の長さ] 値を埋める最後のインデックス+1
@@ -504,6 +533,8 @@ export function fill(value, start, end) {
  * ### Example
  *     arr = [1, 2, 3, 4, 5];
  *     arr.shuffle(); // => [5, 1, 4, 2, 3] など
+ * 
+ * @this Array
  */
 export function shuffle() {
 // Array.prototype.$method("shuffle", function() {
@@ -529,6 +560,7 @@ export function shuffle() {
  *     arr = [1, 2, 3, 4, 5, 6];
  *     arr.sum(); // => 21
  *
+ * @this Array
  * @return {Number} 合計
  */
 export function sum() {
@@ -550,6 +582,7 @@ export function sum() {
  *     arr = [1, 2, 3, 4, 5, 6]
  *     arr.average(); // => 3.5
  *
+ * @this Array
  * @return {Number} 平均値
  */
 export function average() {
@@ -622,12 +655,15 @@ export function each(callback, self) {
  *     points = [ {x:0, y:0}, {x:640, y:960}, {x:-80, y:100} ];
  *     points.most(function(e){return e.x;}).min; // => [x:-80, y:100]
  *     points.most(function(e){return e.y;}).max; // => [x:640, y:960]
+ * 
+ * @typedef {Object} ArrayMostReturnValue max と min をキーに持つオブジェクト
+ * @property {number} min - 関数の返り値が最小となる要素
+ * @property {number} max - 関数の返り値が最大となる要素
  *
- * @param {Function} [callback] 各要素に対して実行するコールバック関数
+ * @this Array<number>
+ * @param {Function} [func] 各要素に対して実行するコールバック関数
  * @param {Object} [self=this] 関数内で this として参照される値。デフォルトは自分自身。
- * @return {Object} max と min をキーに持つオブジェクト
- * @return {Object} return.min 関数の返り値が最小となる要素
- * @return {Object} return.max 関数の返り値が最大となる要素
+ * @return {ArrayMostReturnValue}
  */
 export function most(func, self) {
 // Array.prototype.$method("most", function(func, self) {

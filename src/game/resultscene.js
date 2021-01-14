@@ -7,13 +7,28 @@ import { format } from "../core/string";
 import { Twitter } from "../social/twitter";
 
 /**
+ * @typedef {Object} ResultSceneOptionExtend
+ * @property {number} [score] [description]
+ * @property {string} [message] [description]
+ * @property {string} [hashtags] [description]
+ * @property {string} [url] [description]
+ * @property {"touch"} [exitType] [description]
+ * @property {import("../graphics/canvas").CanvasStyle} [fontColor] [description]
+ * @property {import("../graphics/canvas").CanvasStyle} [backgroundColor]
+ * @property {string} [backgroundImage] 未使用
+ * 
+ * @typedef {import("../display/displayscene").DisplaySceneOptions & ResultSceneOptionExtend} ResultSceneOptions
+ */
+
+/**
  * @class phina.game.ResultScene
- * @extends phina.display.DisplayScene
+ * _extends phina.display.DisplayScene
  */
 export class ResultScene extends DisplayScene {
 
   /**
    * @constructor
+   * @param {ResultSceneOptions} [params]
    */
   constructor(params) {
     params = $safe.call({}, params, ResultScene.defaults);
@@ -113,6 +128,9 @@ export class ResultScene extends DisplayScene {
       });
     }
 
+    /** @type Button & {onclick: Function} */
+    this.shareButton;
+
     this.shareButton.onclick = function() {
       var text = format.call('Score: {0}\n{1}', params.score, message);
       // var text = 'Score: {0}\n{1}'.format(params.score, message);
@@ -127,6 +145,7 @@ export class ResultScene extends DisplayScene {
 
 }
 
+/** @type {ResultSceneOptions} */
 ResultScene.defaults = {
   score: 16,
 

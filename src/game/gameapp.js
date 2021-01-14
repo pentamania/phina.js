@@ -11,7 +11,19 @@ import { PauseScene } from "./pausescene";
 import { ResultScene } from "./resultscene";
 
 /**
- * デフォルトのain class
+ * @typedef {{
+ *   assets?: import("../asset/assetloader").AssetLoaderLoadParam
+ *   scenes?: import("./managerscene").SceneData[]
+ *   startLabel?: import("../app/scene").SceneLabel
+ *   autoPause?: boolean
+ *   debug?: boolean
+ *   loadingScene?: typeof DisplayScene
+ *   pauseScene?: typeof DisplayScene
+ * } & import("../display/canvasapp").CanvasAppOptions } GameAppOptions
+ */
+
+/**
+ * デフォルトのmain class
  */
 class DefaultMainScene extends DisplayScene {
   constructor(options) {
@@ -37,10 +49,13 @@ function isGameClassDefined(className) {
 
 /**
  * @class phina.game.GameApp
- * @extends phina.display.CanvasApp
+ * _extends phina.display.CanvasApp
  */
 export class GameApp extends CanvasApp {
 
+  /**
+   * @param {GameAppOptions} options
+   */
   constructor(options) {
     options = $safe.call(options || {}, {
     // options = (options || {}).$safe({
@@ -48,6 +63,8 @@ export class GameApp extends CanvasApp {
     });
     super(options);
 
+    /** @type {any} dat.GUIインスタンス */
+    this.gui = undefined
 
     var startLabel = options.startLabel || 'title';
 
@@ -125,20 +142,28 @@ export class GameApp extends CanvasApp {
         var pauseScene = (typeof definedPauseScene === 'function') 
           ? definedPauseScene() 
           : (options.pauseScene) 
-            ? new options.pauseScene() 
+            ? new options.pauseScene(options) 
             : new PauseScene()
         this.pushScene(pauseScene);
       });
     }
   }
 
+  /**
+   * @private
+   */
   _enableDebugger() {
     if (this.gui) return ;
 
-    this.enableDatGUI(function(gui) {
+    this.enableDatGUI(
+    /**
+     * @this {GameApp}
+     * @param {{ addFolder: (arg0: string) => any; }} gui Dat.guiインスタンス
+     */
+    function(gui) {
       var f = gui.addFolder('scenes');
       var funcs = {};
-      each.call(this.rootScene.scenes, function(scene) {
+      each.call(/** @type {ManagerScene} */(this.rootScene).scenes, function(scene) {
       // this.rootScene.scenes.each(function(scene) {
         funcs[scene.label] = function() {
           this.rootScene.replaceScene(scene.label);
@@ -156,5 +181,4 @@ export class GameApp extends CanvasApp {
       this.gui = gui;
     }.bind(this));
   }
-
 }

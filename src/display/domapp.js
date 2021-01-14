@@ -1,27 +1,44 @@
 import phina from "../phina";
 import {Mouse} from "../input/mouse";
 import {Keyboard} from "../input/keyboard";
-import {Touch, TouchList} from "../input/touch";
+import {Touch as PhinaTouch, TouchList} from "../input/touch";
 // import {Acclerometer} from "../input/accelerometer"; // TODO later
 import {BaseApp} from "../app/baseapp";
-import { 
-  // window.stopとかぶるので一応回避
-  stop as eventStop
+import {
+  stop as eventStop // window.stopとかぶるので念のため回避　
 } from "../dom/event";
 
 /**
+ * phina独自のPointer型
+ * @typedef {Mouse | PhinaTouch} Pointer
+ */
+
+/**
+ * DomApp初期化オプション  
+ * domElementもしくはqueryいずれかは必ず指定すること
+ * @typedef {{
+ *  domElement?: HTMLCanvasElement;
+ *  query?: string; 
+ *  fps?: number; 
+ *  runner?: (run: TimerHandler, delay: number) => void;
+ * }} DomAppOptions
+ */
+
+/**
  * @class phina.display.DomApp
- * @extends phina.app.BaseApp
+ * _extends phina.app.BaseApp
  */
 export class DomApp extends BaseApp {
 
-  // domElement: null,
-
   /**
    * @constructor
+   * @param {DomAppOptions} options
    */
   constructor(options) {
-    super(options);
+    super();
+
+    /** @type HTMLCanvasElement */
+    this.domElement;
 
     if (options.domElement) {
       this.domElement = options.domElement;
@@ -44,21 +61,26 @@ export class DomApp extends BaseApp {
     }
 
     this.mouse = new Mouse(this.domElement);
-    this.touch = new Touch(this.domElement);
+    this.touch = new PhinaTouch(this.domElement);
     this.touchList = new TouchList(this.domElement);
     this.keyboard = new Keyboard(document);
     // // 加速度センサーを生成
     // this.accelerometer = phina.input.Accelerometer();
 
     // ポインタをセット(PC では Mouse, Mobile では Touch)
+    /** @type {Pointer} */
     this.pointer = this.touch;
+    /** @type {Pointer[]} */
     this.pointers = this.touchList.touches;
-
-    this.domElement.addEventListener("touchstart", function () {
+    this.domElement.addEventListener("touchstart", 
+    /** @this DomApp */
+    function () {
       this.pointer = this.touch;
       this.pointers = this.touchList.touches;
     }.bind(this));
-    this.domElement.addEventListener("mouseover", function () {
+    this.domElement.addEventListener("mouseover", 
+    /** @this DomApp */
+    function () {
       this.pointer = this.mouse;
       this.pointers = [this.mouse];
     }.bind(this));
@@ -108,7 +130,13 @@ export class DomApp extends BaseApp {
     });
   }
 
-  _checkClick(e) {
+  /**
+   * @private
+   * touchend/mouseupでの疑似clickイベント処理
+   * @param {*} _e 
+   */
+  _checkClick(_e) {
+    /** @param {import('../app/element').Element} element */
     var _check = function(element) {
       if (element.children.length > 0) {
         element.children.forEach(function(child) {

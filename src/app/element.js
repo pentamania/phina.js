@@ -6,30 +6,29 @@ import { Tweener } from "../accessory/tweener"
 import { Draggable } from "../accessory/draggable";
 
 /**
+ * TODO: Elementのプロパティを引き継ぎたい…
+ * @typedef {Element | any} ElementBasedObject
+ * _typedef {{[k: string]: any} & Element} ElementBasedObject
+ */
+
+/**
+ * Elementに適合するためのプロパティを保持してるかチェック: template用
+ * @typedef {{
+ *   addChild: (el: Elementizable)=> Elementizable
+ *   remove: ()=> Elementizable
+ *   parent?: Elementizable
+ *   has: (type:string)=> boolean
+ *   flare: (type:string)=> any
+ * }} Elementizable 
+ */
+
+/**
  * @class phina.app.Element
- * @extends phina.util.EventDispatcher
+ * _extends phina.util.EventDispatcher
  * # 主に要素の親子関係を扱うクラス
  * 主に親子関係等を定義するクラスです。
  */
 export class Element extends EventDispatcher {
-
-  /**
-   * @property parent
-   * 親要素
-   */
-  // parent = null;
-
-  /**
-   * @property children
-   * 子要素
-   */
-  // children = null;
-
-  /**
-   * @property awake
-   * 有効かどうか
-   */
-  // awake = true;
 
   /**
    * @constructor
@@ -37,7 +36,50 @@ export class Element extends EventDispatcher {
   constructor() {
     super();
 
+    /**
+     * @type {ElementBasedObject}
+     * 親要素
+     */
+    this.parent = null
+
+    /**
+     * @type {ElementBasedObject[]}
+     * 子要素配列
+     */
     this.children = [];
+
+    /**
+     * @type {boolean}
+     * 有効かどうか
+     */
+    this.awake = true;
+
+    /**
+     * @type {boolean}
+     * クリック処理用フラグ
+     */
+    this._clicked = undefined;
+
+    /**
+     * @type {import('../accessory/accessory').Accessory[]}
+     * Accessory配列
+     * attachメソッドによって初期化
+     */
+    this.accessories = undefined;
+
+    /**
+     * @private
+     * @type {Tweener}
+     * 内部Tweenerクラス
+     * tweenerアクセサによって初期化
+     */
+    this._tweener = undefined;
+
+    /**
+     * @private
+     * @type {Draggable}
+     */
+    this._draggable = undefined;
   }
 
   /**
@@ -46,7 +88,9 @@ export class Element extends EventDispatcher {
    *
    * 自身を子要素として引数で指定した要素に追加するには {@link #addChildTo} を使用してください。
    *
-   * @param {Object} child 追加する子要素
+   * @template {Elementizable} T
+   * @param {T} child 追加する子要素
+   * @returns {T} 追加した子要素
    */
   addChild(child) {
     if (child.parent) child.remove();
@@ -65,7 +109,9 @@ export class Element extends EventDispatcher {
    *
    * 自身に子要素を追加するには {@link #addChild} を使用してください。
    *
-   * @param {Object} parent 自身を子要素として追加する要素
+   * @template {Elementizable} T
+   * @param {T} parent 自身を子要素として追加する要素
+   * @returns {this}
    */
   addChildTo(parent) {
     parent.addChild(this);
@@ -77,8 +123,10 @@ export class Element extends EventDispatcher {
    * @method addChildAt
    * 自身を、指定した要素の子要素の任意の配列インデックスに追加します。
    *
-   * @param {Object} child 追加する子要素
+   * @template {Elementizable} T
+   * @param {T} child 追加する子要素
    * @param {Number} index インデックス番号
+   * @returns {T} 追加した子要素
    */
   addChildAt(child, index) {
     if (child.parent) child.remove();
@@ -96,7 +144,7 @@ export class Element extends EventDispatcher {
    * 指定したインデックスの子要素を返します。
    *
    * @param {Number} index インデックス番号
-   * @return {Object} 指定したインデックスの子要素
+   * @returns {ElementBasedObject} 指定したインデックスの子要素
    */
   getChildAt(index) {
     // return this.children.at(index);
@@ -104,6 +152,7 @@ export class Element extends EventDispatcher {
   }
 
   /**
+   * @todo
    * @method getChildByName
    * 指定した名前の子要素を返します。（未実装）
    */
@@ -115,7 +164,7 @@ export class Element extends EventDispatcher {
    * @method getChildIndex
    * 指定した子要素のインデックス番号を返します。
    *
-   * @param {Object} child 子要素
+   * @param {ElementBasedObject} child 子要素
    * @return {Number} 指定した子要素のインデックス番号
    */
   getChildIndex(child) {
@@ -126,7 +175,7 @@ export class Element extends EventDispatcher {
    * @method getParent
    * 指定した要素の親要素を返します。
    *
-   * @return {Object} 指定した要素の親要素
+   * @return {ElementBasedObject} 指定した要素の親要素
    */
   getParent() {
     return this.parent;
@@ -136,9 +185,10 @@ export class Element extends EventDispatcher {
    * @method getRoot
    * 指定した要素の階層ツリーのルートを返します。
    *
-   * @return {Object} 指定した要素の階層ツリーのルート
+   * @return {ElementBasedObject} 指定した要素の階層ツリーのルート
    */
   getRoot() {
+    /** @type {ElementBasedObject} */
     var elm = this;
     for (elm=this.parent; elm.parent != null; elm = elm.parent) {
 
@@ -151,7 +201,9 @@ export class Element extends EventDispatcher {
    * @chainable
    * 指定した要素を自身の子要素から削除します。
    *
-   * @param {Object} child 要素
+   * @template {Elementizable} T
+   * @param {T} child 要素
+   * @returns {this}
    */
   removeChild(child) {
     var index = this.children.indexOf(child);
@@ -165,6 +217,7 @@ export class Element extends EventDispatcher {
   /**
    * @method remove
    * 自身を親要素の子要素から削除します。
+   * @returns {this}
    */
   remove() {
     if (!this.parent) return ;
@@ -188,6 +241,7 @@ export class Element extends EventDispatcher {
   /**
    * @method wakeUp
    * 自身を有効にします。
+   * @returns {this}
    */
   wakeUp() {
     this.awake = true;
@@ -197,11 +251,20 @@ export class Element extends EventDispatcher {
   /**
    * @method sleep
    * 自身を無効にします。
+   * @returns {this}
    */
   sleep() {
     this.awake = false;
     return this;
   }
+
+  /**
+   * @virtual
+   * 更新用仮想関数
+   * @param {AppUnion} [_app] アプリケーションクラス
+   * @returns {any}
+   */
+  update(_app) {}
 
   /**
    * @method fromJSON
@@ -218,12 +281,24 @@ export class Element extends EventDispatcher {
    *          },
    *        },
    *      });
-   *
-   * @param {JSON} json JSON 形式
+   * 
+   * @typedef {{
+   *   children?: fromJSONData
+   *   className?: string | Constructable
+   *   arguments?: any
+   *   [otherProp: string]: any
+   * }} fromJSONData
+   * @param {fromJSONData} json JSON 形式
+   * @returns {this}
    */
   fromJSON(json) {
 
-    var createChildren = function(name, data) {
+    var createChildren = 
+      /**
+       * @param {string | number} name
+       * @param {fromJSONData} data
+       */
+      function(name, data) {
       var args = data.arguments;
       args = (args instanceof Array) ? args : [args];
 
@@ -235,7 +310,7 @@ export class Element extends EventDispatcher {
         element = _class.apply(null, args);
       } else if (typeof data.className === 'function') {
         // is ES class
-        // インスタンス化にスプレッド構文が必要なため、es5サポートの場合babelが必要
+        // FIXME: インスタンス化にスプレッド構文が必要なため、es5サポートの場合babelが必要
         element = new data.className(...args);
       }
 
@@ -309,7 +384,7 @@ export class Element extends EventDispatcher {
 
   /**
    * accessoryを付与する
-   * @param  {Accessory} Accessory継承クラス
+   * @param  {import('../accessory/accessory').Accessory} accessory Accessory継承クラス
    * @return {this}
    */
   attach(accessory) {
@@ -331,7 +406,7 @@ export class Element extends EventDispatcher {
 
   /**
    * accessoryを削除
-   * @param  {Accessory} Accessory継承クラス
+   * @param  {import('../accessory/accessory').Accessory} accessory Accessory継承クラス
    * @return {this}
    */
   detach(accessory) {
@@ -345,6 +420,11 @@ export class Element extends EventDispatcher {
     return this;
   }
 
+  /**
+   * 自身に付与（attach）された内部tweenerオブジェクトを返却
+   * 
+   * アクセス時に存在しない場合、新たにTweenerを生成・付与する
+   */
   get tweener() {
     if (!this._tweener) {
       this._tweener = new Tweener().attachTo(this);
@@ -352,6 +432,12 @@ export class Element extends EventDispatcher {
     return this._tweener;
   }
 
+  /**
+   * 自身に付与（attach）された内部draggableオブジェクトを返却
+   * 
+   * アクセス時に存在しない場合、新たにDraggableを生成・付与する
+   * その際自動で有効化されるため、アクセスした地点でドラッグ可能になる
+   */
   get draggable() {
     if (!this._draggable) {
       this._draggable = new Draggable().attachTo(this);

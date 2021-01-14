@@ -3,7 +3,7 @@ import { EventDispatcher } from "../util/eventdispatcher"
 /**
  * @class phina.util.Ticker
  * tick management class
- * @extends phina.util.EventDispatcher
+ * _extends phina.util.EventDispatcher
  */
 export class Ticker extends EventDispatcher {
 
@@ -22,6 +22,12 @@ export class Ticker extends EventDispatcher {
   constructor() {
     super();
 
+    /**
+     * @private
+     * @type {number}
+     */
+    this._fps
+
     this.fps = 30;
     this.frame = 0;
     this.deltaTime = 0;
@@ -30,14 +36,26 @@ export class Ticker extends EventDispatcher {
     this.runner = Ticker.runner;
   }
 
+  /**
+   * ティック処理毎に実行されるイベントハンドラを設定
+   * @param {import("./eventdispatcher").PhinaEventListener} func 
+   */
   tick(func) {
     this.on('tick', func);
   }
 
+  /**
+   * イベントハンドラを解除
+   * @param {import("./eventdispatcher").PhinaEventListener} func 
+   */
   untick(func) {
     this.off('tick', func);
   }
 
+  /**
+   * 経過時間を計測・記録しながらティック処理（アプリ更新処理）を行う
+   * @returns {number} 次の更新処理までの待ち時間
+   */
   run() {
     var now = (new Date()).getTime();
     // 1フレームに掛かった時間
@@ -95,6 +113,10 @@ export class Ticker extends EventDispatcher {
     this.frameTime = 1000/this._fps;
   }
 
+  /**
+   * @param {TimerHandler} run
+   * @param {number} delay
+   */
   static runner(run, delay) {
     setTimeout(run, delay);
   }

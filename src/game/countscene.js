@@ -4,13 +4,26 @@ import { DisplayScene } from "../display/displayscene";
 import { Label } from "../display/label";
 
 /**
+ * @typedef {Object} CountSceneOptionExtend
+ * @property {number|number[]} [count] カウントダウン回数。配列で渡した場合、その逆順でカウントダウンを行う
+ * @property {import("../index.esm").CanvasStyle} [fontColor] フォントの色
+ * @property {number} [fontSize] フォントサイズ
+ * @property {string} [exitType] 'auto'のとき、自動でpopScene
+ * @typedef {import("../display/displayscene").DisplaySceneOptions & CountSceneOptionExtend} CountSceneOptions
+ */
+
+/**
  * @class phina.game.CountScene
- * @extends phina.display.DisplayScene
+ * _extends phina.display.DisplayScene
+ * 
+ * 自動でカウントダウンを行う一時用Scene
+ * メインのシーンでゲーム開始前にpushSceneするのが一般的な使い方
  */
 export class CountScene extends DisplayScene {
 
   /**
    * @constructor
+   * @param {CountSceneOptions} [options]
    */
   constructor(options) {
     super(options);
@@ -35,6 +48,12 @@ export class CountScene extends DisplayScene {
         },
       }
     });
+
+    /** @type {Label} */
+    this.label;
+
+    /** @type {number[]} */
+    this.countList;
 
     if (options.count instanceof Array) {
       this.countList = clone.call(options.count).reverse();
@@ -70,7 +89,9 @@ export class CountScene extends DisplayScene {
         scaleY: 1.5,
         alpha: 0.0
       }, 250)
-      .call(function() {
+      .call(
+      /** @this CountScene */
+      function() {
         if (this.counter <= 0) {
           this.flare('finish');
           if (this.exitType === 'auto') {
@@ -85,6 +106,7 @@ export class CountScene extends DisplayScene {
 
 }
 
+/** @type {CountSceneOptions} */
 CountScene.defaults = {
   count: 3,
 

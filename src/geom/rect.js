@@ -5,48 +5,42 @@ import { Circle } from "./circle";
  * # 矩形領域を表すクラス
  * キャンバス上の矩形領域を扱うクラスです。
  * 
+ * ### Example
+ *     rect = phina.geom.Rect(8, 16, 32, 64);
  */
 export class Rect {
 
-  // /**
-  //  * @property {Number} x
-  //  * 矩形の左上頂点の x 座標
-  //  */
-  // x: 0,
-  // /**
-  //  * @property {Number} y
-  //  * 矩形の左上頂点の y 座標
-  //  */
-  // y: 0,
-  // /**
-  //  * @property {Number} width
-  //  * 矩形の幅
-  //  */
-  // width: 32,
-  // /**
-  //  * @property {Number} hight
-  //  * 矩形の高さ
-  //  */
-  // height: 32,
-
   /**
-   * @method init
-   * 矩形領域のコンストラクタです。
-   *
-   * ### Example
-   *     rect = phina.geom.Rect(8, 16, 32, 64);
-   *
-   * @param {Number} x 矩形の左上頂点の x 座標
-   * @param {Number} y 矩形の左上頂点の y 座標
-   * @param {Number} width 幅
-   * @param {Number} height 高さ
-   * @return {phina.geom.Rect} 矩形領域オブジェクト
+   * @param {Number} [x] 矩形の左上頂点の x 座標
+   * @param {Number} [y] 矩形の左上頂点の y 座標
+   * @param {Number} [width] 幅
+   * @param {Number} [height] 高さ
    */
   constructor(x, y, width, height) {
+    /**
+     * @property {Number} x
+     * 矩形の左上頂点の x 座標
+     */
     this.x = 0;
+    
+    /**
+     * @property {Number} y
+     * 矩形の左上頂点の y 座標
+     */
     this.y = 0;
+
+    /**
+     * @property {Number} width
+     * 矩形の幅
+     */
     this.width = 32;
+
+    /**
+     * @property {Number} hight
+     * 矩形の高さ
+     */
     this.height = 32;
+
     this.set(x, y, width, height);
   }
 
@@ -63,6 +57,7 @@ export class Rect {
    * @param {Number} y 矩形の左上頂点の y 座標
    * @param {Number} width 幅
    * @param {Number} height 高さ
+   * @returns {this}
    */
   set(x, y, width, height) {
     this.x = x;
@@ -86,6 +81,7 @@ export class Rect {
    *
    * @param {Number} x 移動先の x 座標
    * @param {Number} y 移動先の y 座標
+   * @returns {this}
    */
   moveTo(x, y) {
     this.x = x;
@@ -106,6 +102,7 @@ export class Rect {
    *
    * @param {Number} x 移動量の x 座標
    * @param {Number} y 移動量の y 座標
+   * @returns {this}
    */
   moveBy(x, y) {
     this.x += x;
@@ -124,8 +121,9 @@ export class Rect {
    *     rect.width; // => 10
    *     rect.height; // => 20
    *
-   * @param {Number} width 幅
-   * @param {Number} height 高さ
+   * @param {Number} w 幅
+   * @param {Number} h 高さ
+   * @returns {this}
    */
   setSize(w, h) {
     this.width = w;
@@ -154,6 +152,7 @@ export class Rect {
    * @param {Number} right 右辺のパディング幅
    * @param {Number} bottom 下辺のパディング幅
    * @param {Number} left 左辺のパディング幅
+   * @returns {this}
    */
   padding(top, right, bottom, left) {
     // css の padding に合わせて時計回りにパラメータ調整
@@ -206,7 +205,7 @@ export class Rect {
    *     rect2 = rect.clone();
    *     rect2.x == rect.x; // => true
    *
-   * @return {Object} 生成した矩形領域
+   * @return {Rect} 生成した矩形領域
    */
   clone() {
     return new Rect(this.x, this.y, this.width, this.height);
@@ -223,7 +222,7 @@ export class Rect {
    *     circle.y; // => 164
    *     circle.radius; // => 50
    *
-   * @return {Object} 生成した円領域
+   * @return {Circle} 生成した円領域
    */
   toCircle() {
     var radius = ((this.width < this.height) ? this.width : this.height)/2;

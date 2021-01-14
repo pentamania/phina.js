@@ -3,24 +3,36 @@ import { Vector2 } from "../geom/vector2"
 
 /**
  * @class phina.input.Keyboard
- * @extends phina.input.Input
+ * _extends phina.input.Input
  */
 export class Keyboard extends Input {
 
   /**
    * @constructor
+   * @param {Document} domElement
    */
   constructor(domElement) {
     super(domElement);
 
+    /** @type {HTMLDocument} */
+    this.domElement;
+
+    /** @type {{[k: number]: boolean}} */
     this.key = {};
+    /** @type {{[k: number]: any}} true|false or 1|0 */
     this.press  = {};
+    /** @type {{[k: number]: any}} */
     this.down   = {};
+    /** @type {{[k: number]: any}} */
     this.up     = {};
+    /** @type {{[k: number]: any}} */
     this.last   = {};
 
+    /** @type {number | null} */
     this._keydown = null;
+    /** @type {number | null} */
     this._keyup = null;
+    /** @type {number | null} */
     this._keypress = null;
 
     var self = this;
@@ -40,8 +52,8 @@ export class Keyboard extends Input {
 
   /**
    * 情報更新処理
-   * マイフレーム呼んで下さい.
-   * @private
+   * 毎フレーム呼んで下さい.
+   * @returns {this}
    */
   update() {
     // TODO: 一括ビット演算で行うよう修正する
@@ -71,7 +83,7 @@ export class Keyboard extends Input {
 
   /**
    * キーを押しているかをチェック
-   * @param   {Number/String} key keyCode or keyName
+   * @param   {number|string} key keyCode or keyName
    * @returns {Boolean}   チェック結果
    */
   getKey(key) {
@@ -83,7 +95,7 @@ export class Keyboard extends Input {
   
   /**
    * キーを押したかをチェック
-   * @param   {Number/String} key keyCode or keyName
+   * @param   {number|string} key keyCode or keyName
    * @returns {Boolean}   チェック結果
    */
   getKeyDown(key) {
@@ -95,7 +107,7 @@ export class Keyboard extends Input {
   
   /**
    * キーを離したかをチェック
-   * @param   {Number/String} key keyCode or keyName
+   * @param   {number|string} key keyCode or keyName
    * @returns {Boolean}   チェック結果
    */
   getKeyUp(key) {
@@ -131,6 +143,7 @@ export class Keyboard extends Input {
   /**
    * キーの押している向きを取得
    * 正規化されている
+   * @returns {Vector2}
    */
   getKeyDirection() {
     var direction = new Vector2(0, 0);
@@ -157,6 +170,9 @@ export class Keyboard extends Input {
   
   /**
    * キーの状態を設定する
+   * @param {string | number} key
+   * @param {boolean} flag
+   * @returns {this}
    */
   setKey(key, flag) {
     if (typeof(key) == "string") {
@@ -169,6 +185,7 @@ export class Keyboard extends Input {
 
   /**
    * キーを全て離したことにする
+   * @returns {this}
    */
   clearKey() {
     this.key = {};
@@ -178,11 +195,11 @@ export class Keyboard extends Input {
 
 }
 
+
 /**
  * @static
- * @enum ARROW_BIT_TO_ANGLE_TABLE
+ * @enum {number}
  * 方向のアングル jsduckでは数字をプロパティに指定できない？
- * @private
  */
 Keyboard.ARROW_BIT_TO_ANGLE_TABLE = {
   /* @property 下 */
@@ -215,11 +232,10 @@ Keyboard.ARROW_BIT_TO_ANGLE_TABLE = {
   0x07:   0,
 };
 
-/*
+/**
  * @static
- * @enum KEY_CODE
+ * @enum {number}
  * キー番号
- * @private
  */
 Keyboard.KEY_CODE = {
   /* @property */

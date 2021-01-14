@@ -15,7 +15,7 @@ import { EventDispatcher } from "./eventdispatcher";
 
 /**
  * @class phina.util.ChangeDispatcher
- * @extends phina.util.EventDispatcher
+ * _extends phina.util.EventDispatcher
  */
 export class ChangeDispatcher extends EventDispatcher {
 
@@ -25,6 +25,10 @@ export class ChangeDispatcher extends EventDispatcher {
     this._observe = true;
   }
 
+  /**
+   * @param {string} key
+   * @param {any} defaultValue
+   */
   register(key, defaultValue) {
     if (arguments.length === 1) {
       var obj = arguments[0];

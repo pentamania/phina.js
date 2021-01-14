@@ -3,22 +3,38 @@ import { Texture } from "../asset/texture";
 import { Sprite } from "../display/sprite";
 
 /**
+ * @typedef {Object} SplashSceneOptionExtend
+ * @property {string} imageURL 表示する画像URL
+ * 
+ * @typedef {import("../display/displayscene").DisplaySceneOptions & SplashSceneOptionExtend} SplashSceneOptions
+ */
+
+/**
  * @class phina.game.SplashScene
- * @extends phina.display.DisplayScene
+ * _extends phina.display.DisplayScene
  */
 export class SplashScene extends DisplayScene {
 
+  /**
+   * @param {SplashSceneOptions} [options]
+   */
   constructor(options) {
     var defaults = SplashScene.defaults;
     super(options);
 
     var texture = new Texture();
-    texture.load(defaults.imageURL).then(function() {
+    texture.load(defaults.imageURL).then(
+    /** @this SplashScene */
+    function() {
       this._init();
     }.bind(this));
     this.texture = texture;
   }
 
+  /**
+   * @private
+   * 初期化関数
+   */
   _init() {
     this.sprite = new Sprite(this.texture).addChildTo(this);
 
@@ -39,6 +55,7 @@ export class SplashScene extends DisplayScene {
 
 }
 
+/** @type {SplashSceneOptions} */
 SplashScene.defaults = {
   imageURL: 'http://cdn.rawgit.com/phi-jp/phina.js/develop/logo.png',
 };

@@ -1,4 +1,3 @@
-
 /**
  * @class phina.geom.Vector3
  * # 3次元ベクトルクラス（未実装）
@@ -6,19 +5,28 @@
  */
 export class Vector3 {
 
-  /** x座標 */
-  // x: 0,
-  /** y座標 */
-  // y: 0,
-  /** z座標 */
-  // z: 0,
-
   /**
-   * @constructor
+   * @param {number} [x=0]
+   * @param {number} [y=0]
+   * @param {number} [z=0]
    */
   constructor(x, y, z) {
+    /**
+     * x座標
+     * @type {number}
+     */
     this.x = x || 0;
+
+    /**
+     * y座標
+     * @type {number}
+     */
     this.y = y || 0;
+
+    /**
+     * z座標
+     * @type {number}
+     */
     this.z = z || 0;
 
     /**

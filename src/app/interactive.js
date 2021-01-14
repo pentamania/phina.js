@@ -2,10 +2,23 @@ import phina from "../phina";
 import {erase, clear} from "../core/array"
 
 /**
+ * Interactiveクラスのappとして必要なプロパティ
+ * @typedef {{
+ *   on: (type: string, listener: function) => any
+ *   domElement?: HTMLCanvasElement
+ *   pointer?: import('../display/domapp').Pointer
+ *   pointers?: import('../display/domapp').Pointer[]
+ * }} InteractableApp
+ */
+
+/**
  * @class phina.app.Interactive
  */
 export class Interactive {
 
+  /**
+   * @param {InteractableApp} app 
+   */
   constructor(app) {
     this.app = app;
     this._enable = true;
@@ -15,6 +28,7 @@ export class Interactive {
       hover: 'pointer',
     };
 
+    /** @type {import('./object2d').Object2D[]} */
     this._holds = [];
     this.app.on('changescene', function() {
       clear.call(this._holds);
@@ -22,16 +36,26 @@ export class Interactive {
     }.bind(this));
   }
 
+  /**
+   * @returns {this}
+   */
   enable() {
     this._enable = true;
     return this;
   }
 
+  /**
+   * @returns {this}
+   */
   disable() {
     this._enable = false;
     return this;
   }
 
+  /**
+   * 指定要素のインタラクションチェック開始  
+   * @param {import('./element').Element | import('./object2d').Object2D} root Sceneクラスに渡されるため
+   */
   check(root) {
     // カーソルのスタイルを反映
     if (this.app.domElement) {
@@ -47,6 +71,12 @@ export class Interactive {
     this._checkElement(root);
   }
 
+  /**
+   * 指定要素のインタラクションチェック  
+   * 子供がいれば再帰処理
+   * @private
+   * @param {import('./element').Element | import('./object2d').Object2D} element 
+   */
   _checkElement(element) {
     var app = this.app;
 
@@ -66,19 +96,30 @@ export class Interactive {
     this._checkPoint(element);
   }
 
+  /**
+   * タッチ判定を行う
+   * @private
+   * @param {import('./element').Element | import('./object2d').Object2D} obj 
+   */
   _checkPoint(obj) {
+    var _obj = /** @type {import('./object2d').Object2D} */(obj);
     if (this.multiTouch) {
       this.app.pointers.forEach(function(p) {
         if (p.id !== null) {
-          this.__checkPoint(obj, p);
+          this.__checkPoint(_obj, p);
         }
       }, this);
     }
     else {
-      this.__checkPoint(obj, this.app.pointer);
+      this.__checkPoint(_obj, this.app.pointer);
     }
   }
 
+  /**
+   * @private
+   * @param {import('./object2d').Object2D} obj
+   * @param {import('../display/domapp').Pointer} p
+   */
   __checkPoint(obj, p) {
     if (!obj.interactive) return ;
 

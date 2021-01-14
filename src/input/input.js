@@ -5,13 +5,14 @@ import { Vector2 } from "../geom/vector2"
 
 /**
  * @class phina.input.Input
- * @extends phina.util.EventDispatcher
+ * _extends phina.util.EventDispatcher
  */
 export class Input extends EventDispatcher {
 
-  // /** domElement */
-  // domElement = null
-
+  /**
+   * @constructor
+   * @param {HTMLCanvasElement | HTMLDocument} domElement KeyBoardサブクラスではHTMLDocument、それ以外のサブクラスではHTMLCanvasElement
+   */
   constructor(domElement) {
     super();
 
@@ -30,8 +31,18 @@ export class Input extends EventDispatcher {
     this.flickVelocity = new Vector2(0, 0);
 
     this.flags = 0;
+    
+    /**
+     * KeyBoardクラス拡張時の型エラー対策のためunion型とするが、本クラスではnumberとして使用
+     * @type {number | {[k: string]: number}}
+     */
+    this.last
   }
 
+  /**
+   * 更新
+   * @returns {void}
+   */
   update() {
     this.last = this.now;
     this.now = this.flags;
@@ -65,6 +76,12 @@ export class Input extends EventDispatcher {
     this.cachePositions.push(this.position.clone());
   }
 
+  /**
+   * @param {number} x
+   * @param {number} y
+   * @param {number} [flag=1] デフォルトは1(true)
+   * @returns {void}
+   */
   _start(x, y, flag) {
     flag = (flag !== undefined) ? flag : 1;
     // console.log('start', x, y);
@@ -72,8 +89,8 @@ export class Input extends EventDispatcher {
 
     this.flags |= flag;
 
-    var x = this._tempPosition.x;
-    var y = this._tempPosition.y;
+    x = this._tempPosition.x;
+    y = this._tempPosition.y;
     this.position.set(x, y);
     this.prevPosition.set(x, y);
 
@@ -82,6 +99,10 @@ export class Input extends EventDispatcher {
     this.cachePositions.length = 0;
   }
 
+  /**
+   * @param {number} [flag=1]
+   * @returns {void}
+   */
   _end(flag) {
     flag = (flag !== undefined) ? flag : 1;
     this.flags &= ~(flag);
@@ -108,13 +129,18 @@ export class Input extends EventDispatcher {
     this.cachePositions.length = 0;
   }
 
-  // スケールを考慮
+  /**
+   * スケールを考慮して位置を移動
+   * @param {number} x
+   * @param {number} y
+   * @returns {void}
+   */
   _move(x, y) {
     this._tempPosition.x = x;
     this._tempPosition.y = y;
 
     // adjust scale
-    var elm = this.domElement;
+    var elm = /** @type {HTMLCanvasElement} */(this.domElement);
     var rect = elm.getBoundingClientRect();
     if (rect.width) {
       this._tempPosition.x *= elm.width / rect.width;

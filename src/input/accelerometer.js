@@ -6,22 +6,22 @@ import { Vector3 } from "../geom/vector3";
  * スマートフォンのセンサー情報
  */
 export class Accelerometer {
-
-  /** @property  gravity 重力センサー */
-  /** @property  acceleration 加速度センサー */
-  /** @property  rotation 回転加速度センサー */
-  /** @property  orientation スマートフォンの傾き */
-
   /**
    * @constructor
    */
   constructor() {
-
     var self = this;
-    
+
+    /** @property  gravity 重力センサー */
     this.gravity        = new Vector3(0, 0, 0);
+
+    /** @property  acceleration 加速度センサー */
     this.acceleration   = new Vector3(0, 0, 0);
+
+    /** @property  rotation 回転加速度センサー */
     this.rotation       = new Vector3(0, 0, 0);
+
+    /** @property  orientation スマートフォンの傾き */
     this.orientation    = new Vector3(0, 0, 0);
 
     if (phina.isMobile()) {

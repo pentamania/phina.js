@@ -3,27 +3,57 @@ import { Vector2 } from "../geom/vector2";
 import { Tweener } from "./tweener";
 
 /**
+ * @typedef {{
+ *   x: number
+ *   y: number
+ *   flare: (type: string)=> any
+ *   setInteractive: (flag: boolean)=> any
+ * } & import("./accessory").AccessoryAttachable } DraggableTarget
+ */
+
+/**
  * @class phina.accessory.Draggable
  * Draggable
- * @extends phina.accessory.Accessory
+ * _extends phina.accessory.Accessory
  */
 export class Draggable extends Accessory {
 
   /**
    * @constructor
+   * @param {DraggableTarget} [target]
    */
   constructor(target) {
     super(target);
 
+    /** @type {DraggableTarget} */
+    this.target;
+
+    /**
+     * @private
+     * @type {boolean}
+     */
+    this._dragging = false;
+
+    /**
+     * @private
+     * @type {boolean}
+     * ※未使用
+     */
+    this._enable;
+
     this.initialPosition = new Vector2(0, 0);
     var self = this;
 
-    this.on('attached', function() {
+    this.on('attached',
+    /** @this {Draggable} */
+    function() {
       this.target.setInteractive(true);
 
       self._dragging = false;
 
-      this.target.on('pointstart', function(e) {
+      this.target.on('pointstart', 
+      /** @this {DraggableTarget} */
+      function() {
         if (Draggable._lock) return ;
 
         self._dragging = true;
@@ -32,7 +62,10 @@ export class Draggable extends Accessory {
         self.flare('dragstart');
         this.flare('dragstart');
       });
-      this.target.on('pointmove', function(e) {
+
+      this.target.on('pointmove', 
+      /** @this {DraggableTarget} */
+      function(e) {
         if (!self._dragging) return ;
 
         this.x += e.pointer.dx;
@@ -41,7 +74,9 @@ export class Draggable extends Accessory {
         this.flare('drag');
       });
 
-      this.target.on('pointend', function(e) {
+      this.target.on('pointend', 
+      /** @this {DraggableTarget} */
+      function(e) {
         if (!self._dragging) return ;
 
         self._dragging = false;
@@ -51,6 +86,10 @@ export class Draggable extends Accessory {
     });
   }
 
+  /**
+   * @param {number} time
+   * @param {import("../util/tween").TweenEasingType} [easing='easeOutElastic']
+   */
   back(time, easing) {
     if (time) {
       var t = this.target;
@@ -75,14 +114,23 @@ export class Draggable extends Accessory {
     }
   }
 
+  /**
+   * @returns {void}
+   */
   enable() {
     this._enable = true;
   }
 
+  /**
+   * @returns {void}
+   */
   static lock() {
     this._lock = true;
   }
 
+  /**
+   * @returns {void}
+   */
   static unlock() {
     this._lock = false;
   }
@@ -91,7 +139,7 @@ export class Draggable extends Accessory {
 
 Draggable._lock = false;
 
-// 呼び出しで拡張する？ TweenerはElement側で定義
+// Element側で定義
 // phina.app.Element.prototype.getter('draggable', function() {
 //   if (!this._draggable) {
 //     this._draggable = phina.accessory.Draggable().attachTo(this);

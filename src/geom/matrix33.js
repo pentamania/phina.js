@@ -27,8 +27,7 @@ export class Matrix33 {
    *     mat1.m00 + mat2.m00; // => 2
    *     mat1.m01 - mat2.m01; // => 2
    *
-   * @param {Number...} m00, m01,... 各要素の値
-   * @return {phina.geom.Matrix33} 行列オブジェクト
+   * @param {...Number} m00, m01,... 各要素の値
    */
   constructor() {
     if (arguments.length >= 9) {
@@ -41,17 +40,24 @@ export class Matrix33 {
 
   /**
    * @method set
-   * @chainable
-   * this の各要素の値を再設定します。
-   *
+   * @chainable this の各要素の値を再設定します。
+   * 
    * ### Example
-   *     mat1 = phina.geom.Matrix33(1, 2, 3, 4, 5, 6, 7, 8, 9);
-   *     mat2 = phina.geom.Matrix33();
-   *     mat2.set(1, 2, 3, 4, 5, 6, 7, 8, 9);
-   *     mat1.toString() == mat2.toString(); // => true
-   *
-   * @param {Number...} m00, m01,... 各要素の値
-   * @return {phina.geom.Matrix33} 行列オブジェクト
+   *   mat1 = phina.geom.Matrix33(1, 2, 3, 4, 5, 6, 7, 8, 9);
+   *   mat2 = phina.geom.Matrix33();
+   *   mat2.set(1, 2, 3, 4, 5, 6, 7, 8, 9);
+   *   mat1.toString() == mat2.toString(); // => true
+   * 
+   * @param {number} m00
+   * @param {number} m01
+   * @param {number} m02
+   * @param {number} m10
+   * @param {number} m11
+   * @param {number} m12
+   * @param {number} m20
+   * @param {number} m21
+   * @param {number} m22
+   * @returns {this}
    */
   set(m00, m01, m02, m10, m11, m12, m20, m21, m22) {
     this.m00 = m00; this.m01 = m01; this.m02 = m02;
@@ -64,14 +70,14 @@ export class Matrix33 {
   /**
    * @method identity
    * @chainable
-   * this を単位行列にします。
+   * 自身を単位行列にして返します。
    *
    * ### Example
    *     mat1 = phina.geom.Matrix33(1, 2, 3, 4, 5, 6, 7, 8, 9);
    *     mat2 = phina.geom.Matrix33();
    *     mat1.identity().toString() == mat2.toString(); // => true
    *
-   * @return {phina.geom.Matrix33} 単位行列
+   * @returns {this}
    */
   identity() {
     this.m00 = 1; this.m01 = 0; this.m02 = 0;
@@ -82,7 +88,7 @@ export class Matrix33 {
 
   /**
    * @method clone
-   * this のコピーを生成して返します。
+   * 自身のコピーを生成して返します。
    *
    * ### Example
    *     mat1 = phina.geom.Matrix33(1, 2, 3, 4, 5, 6, 7, 8, 9);
@@ -90,7 +96,7 @@ export class Matrix33 {
    *     mat1.toString() == mat2.toString(); // => true
    *     mat1 == mat2; // => false
    *
-   * @return {phina.geom.Matrix33} 行列オブジェクト
+   * @return {Matrix33} 行列オブジェクト
    */
   clone() {
     return new Matrix33(
@@ -122,14 +128,14 @@ export class Matrix33 {
   /**
    * @method transpose
    * @chainable
-   * 転置行列を返します。
+   * 自身を転置行列にして返します。
    *
    * ### Example
    *     mat1 = phina.geom.Matrix33(1, 2, 3, 4, 5, 6, 7, 8, 9);
    *     mat2 = phina.geom.Matrix33(1, 4, 7, 2, 5, 8, 3, 6, 9);
    *     mat1.transpose().toString() == mat2.toString(); // => true
    *
-   * @return {phina.geom.Matrix33} 転置行列
+   * @returns {this}
    */
   transpose() {
     var swap = function(a, b) {
@@ -148,7 +154,7 @@ export class Matrix33 {
   /**
    * @method invert
    * @chainable
-   * 逆行列を返します。
+   * 自身を逆行列にして返します。
    *
    * ### Example
    *     mat1 = phina.geom.Matrix33(0, -1, 1, -1, 4, -2, 1, 1, 1);
@@ -156,7 +162,7 @@ export class Matrix33 {
    *     mat3 = mat1.clone().multiply(mat2);
    *     mat3.toString() == phina.geom.Matrix33.IDENTITY.toString(); // => true
    *
-   * @return {phina.geom.Matrix33} 逆行列
+   * @returns {this}
    */
   invert() {
     var m00 = this.m00; var m01 = this.m01; var m02 = this.m02;
@@ -188,7 +194,8 @@ export class Matrix33 {
 
   /**
    * @method multiply
-   * this に other を乗じます。
+   * @chainable
+   * 自身に別の行列を乗じます。
    *
    * ### Example
    *     mat1 = phina.geom.Matrix33(0, -1, 1, -1, 4, -2, 1, 1, 1);
@@ -196,13 +203,10 @@ export class Matrix33 {
    *     mat3 = mat1.clone().multiply(mat2);
    *     mat3.toString() == phina.geom.Matrix33.IDENTITY.toString(); // => true
    *
-   * @param {phina.geom.Matrix33} other 乗じる行列
-   * @return {phina.geom.Matrix33} 乗算結果の行列
+   * @param {Matrix33} mat 乗じる行列
+   * @returns {this}
    */
   multiply(mat) {
-    var tm = this.m;
-    var om = mat.m;
-
     var a00 = this.m00, a01 = this.m01, a02 = this.m02;
     var a10 = this.m10, a11 = this.m11, a12 = this.m12;
     var a20 = this.m20, a21 = this.m21, a22 = this.m22;
@@ -227,7 +231,7 @@ export class Matrix33 {
 
   /**
    * @method multiplyVector2
-   * this に2次元ベクトル v を乗じます。
+   * 自身に2次元ベクトル v を乗じます。
    * 2次元ベクトルは (x, y, 1) として乗算します。
    *
    * ### Example
@@ -235,8 +239,8 @@ export class Matrix33 {
    *     v = phina.geom.Vector2(2, 4)
    *     mat.multiplyVector2(v) // => {x: -3, y: 12}
    *
-   * @param {phina.geom.Vector2} v 乗じるベクトル
-   * @return {phina.geom.Vector2} 乗算結果のベクトル
+   * @param {import("./vector2").PrimitiveVector2} v 乗じるベクトル
+   * @return {Vector2} 乗算結果のベクトル
    */
   multiplyVector2(v) {
     var vx = this.m00*v.x + this.m01*v.y + this.m02;
@@ -257,8 +261,8 @@ export class Matrix33 {
    *     mat1.getRow(1); // [4, 5, 6]
    *     mat1.getRow(9); // null
    *
-   * @param {0/1/2} row 行番号
-   * @return {Number[]} 行を表す配列
+   * @param {0|1|2} row 行番号
+   * @return {Number[]|null} 行を表す配列
    */
   getRow(row) {
     if ( row === 0 ) {
@@ -285,8 +289,8 @@ export class Matrix33 {
    *     mat1.getCol(1); // [2, 5, 8]
    *     mat1.getRow(-1); // null
    *
-   * @param {0/1/2} col 列番号
-   * @return {Number[]} 列を表す配列
+   * @param {0|1|2} col 列番号
+   * @return {Number[]|null} 列を表す配列
    */
   getCol(col) {
     if ( col === 0 ) {

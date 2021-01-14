@@ -4,25 +4,32 @@ import phina from "../phina";
 import { Support } from "../util/support";
 
 /**
+ * Canvasのfillstyle/strokeStyleの値として使用できる型。文字列の場合、CSS colorデータ型に準拠するもの
+ * @typedef {string | CanvasGradient | CanvasPattern} CanvasStyle
+ */
+
+/**
  * @class phina.graphics.Canvas
  * キャンバス拡張クラス
  */
 export class Canvas {
-  // domElement: null,
-  // canvas: null,
-  // context: null,
 
   /**
-   * 初期化
+   * @param {string | HTMLCanvasElement} [canvas] ベースとなるcanvas要素。文字列で指定するときは`#phina`のようにセレクタ形式にする。指定しなかった場合は新規作成される
    */
   constructor(canvas) {
+    /** @type HTMLCanvasElement */
+    this.canvas;
     if (typeof canvas === 'string') {
       this.canvas = document.querySelector(canvas);
     } else {
       this.canvas = canvas || document.createElement('canvas');
     }
 
+    /** @type HTMLCanvasElement */
     this.domElement = this.canvas;
+
+    /** @type CanvasRenderingContext2D */
     this.context = this.canvas.getContext('2d');
     this.context.lineCap = 'round';
     this.context.lineJoin = 'round';
@@ -30,6 +37,9 @@ export class Canvas {
 
   /**
    * サイズをセット
+   * @param {number} width
+   * @param {number} height
+   * @returns {this}
    */
   setSize(width, height) {
     this.canvas.width   = width;
@@ -37,6 +47,10 @@ export class Canvas {
     return this;
   }
 
+  /**
+   * サイズを画面（ウィンドウサイズ）に合わせてリセット
+   * @returns {this}
+   */
   setSizeToScreen() {
     this.canvas.style.position  = "fixed";
     this.canvas.style.margin    = "0px";
@@ -46,6 +60,11 @@ export class Canvas {
     return this.setSize(window.innerWidth, window.innerHeight);
   }
 
+  /**
+   * 比率を維持しながらサイズを画面（ウィンドウサイズ）に合わせる
+   * @param {boolean} [isEver=true] ウィンドウリサイズで変更が必要になるたびにリサイズ処理をするかどうか
+   * @returns {void}
+   */
   fitScreen(isEver) {
     isEver = isEver === undefined ? true : isEver;
 
@@ -85,6 +104,11 @@ export class Canvas {
 
   /**
    * クリア
+   * @param {number} [x=0]
+   * @param {number} [y=0]
+   * @param {number} [width]
+   * @param {number} [height]
+   * @returns {this}
    */
   clear(x, y, width, height) {
     x = x || 0;
@@ -95,6 +119,14 @@ export class Canvas {
     return this;
   }
 
+  /**
+   * @param {CanvasStyle} fillStyle
+   * @param {number} [x]
+   * @param {number} [y]
+   * @param {number} [width]
+   * @param {number} [height]
+   * @returns {this}
+   */
   clearColor(fillStyle, x, y, width, height) {
     x = x || 0;
     y = y || 0;
@@ -115,6 +147,7 @@ export class Canvas {
 
   /**
    * パスを開始(リセット)
+   * @returns {this}
    */
   beginPath() {
     this.context.beginPath();
@@ -122,7 +155,8 @@ export class Canvas {
   }
 
   /**
-   *  パスを閉じる
+   * パスを閉じる
+   * @returns {this}
    */
   closePath() {
     this.context.closePath();
@@ -131,7 +165,10 @@ export class Canvas {
 
 
   /**
-   *  新規パス生成
+   * 新規パス生成
+   * @param {number} x
+   * @param {number} y
+   * @returns {this}
    */
   moveTo(x, y) {
     this.context.moveTo(x, y);
@@ -140,17 +177,28 @@ export class Canvas {
 
   /**
    * パスに追加
+   * @param {number} x
+   * @param {number} y
+   * @returns {this}
    */
   lineTo(x, y) {
     this.context.lineTo(x, y);
     return this;
   }
 
+  /**
+   * 
+   * @returns {this}
+   */
   quadraticCurveTo() {
     this.context.quadraticCurveTo.apply(this.context, arguments);
     return this;
   }
 
+  /**
+   * 
+   * @returns {this}
+   */
   bezierCurveTo() {
     this.context.bezierCurveTo.apply(this.context, arguments);
     return this;
@@ -158,6 +206,7 @@ export class Canvas {
 
   /**
    * パス内を塗りつぶす
+   * @returns {this}
    */
   fill() {
     this.context.fill();
@@ -166,6 +215,7 @@ export class Canvas {
 
   /**
    * パス上にラインを引く
+   * @returns {this}
    */
   stroke() {
     this.context.stroke();
@@ -174,6 +224,7 @@ export class Canvas {
 
   /**
    * クリップ
+   * @returns {this}
    */
   clip() {
     this.context.clip();
@@ -183,6 +234,9 @@ export class Canvas {
       
   /**
    * 点描画
+   * @param {number} x
+   * @param {number} y
+   * @returns {this}
    */
   drawPoint(x, y) {
     return this.strokeRect(x, y, 1, 1);
@@ -190,6 +244,11 @@ export class Canvas {
 
   /**
    * ラインパスを作成
+   * @param {number} x0
+   * @param {number} y0
+   * @param {number} x1
+   * @param {number} y1
+   * @returns {this}
    */
   line(x0, y0, x1, y1) {
     return this.moveTo(x0, y0).lineTo(x1, y1);
@@ -197,6 +256,11 @@ export class Canvas {
   
   /**
    * ラインを描画
+   * @param {number} x0
+   * @param {number} y0
+   * @param {number} x1
+   * @param {number} y1
+   * @returns {this}
    */
   drawLine(x0, y0, x1, y1) {
     return this.beginPath().line(x0, y0, x1, y1).stroke();
@@ -204,6 +268,12 @@ export class Canvas {
 
   /**
    * ダッシュラインを描画
+   * @param {number} x0
+   * @param {number} y0
+   * @param {number} x1
+   * @param {number} y1
+   * @param {string|number} pattern
+   * @returns {this}
    */
   drawDashLine(x0, y0, x1, y1, pattern) {
     var patternTable = null;
@@ -239,6 +309,12 @@ export class Canvas {
   /**
    * v0(x0, y0), v1(x1, y1) から角度を求めて矢印を描画
    * http://hakuhin.jp/as/rotation.html
+   * @param {number} x0
+   * @param {number} y0
+   * @param {number} x1
+   * @param {number} y1
+   * @param {number} arrowRadius
+   * @returns {this}
    */
   drawArrow(x0, y0, x1, y1, arrowRadius) {
     var vx = x1-x0;
@@ -254,6 +330,7 @@ export class Canvas {
 
   /**
    * lines
+   * @returns {this}
    */
   lines() {
     this.moveTo(arguments[0], arguments[1]);
@@ -265,6 +342,7 @@ export class Canvas {
 
   /**
    * ラインストローク描画
+   * @returns {this}
    */
   strokeLines() {
     this.beginPath();
@@ -275,6 +353,7 @@ export class Canvas {
 
   /**
    * ライン塗りつぶし描画
+   * @returns {this}
    */
   fillLines() {
     this.beginPath();
@@ -285,14 +364,20 @@ export class Canvas {
   
   /**
    * 四角形パスを作成する
+   * @param {number} _x
+   * @param {number} _y
+   * @param {number} _width
+   * @param {number} _height
+   * @returns {this}
    */
-  rect(x, y, width, height) {
+  rect(_x, _y, _width, _height) {
     this.context.rect.apply(this.context, arguments);
     return this;
   }
   
   /**
    * 四角形塗りつぶし描画
+   * @returns {this}
    */
   fillRect() {
     this.context.fillRect.apply(this.context, arguments);
@@ -301,6 +386,7 @@ export class Canvas {
   
   /**
    * 四角形ライン描画
+   * @returns {this}
    */
   strokeRect() {
     this.context.strokeRect.apply(this.context, arguments);
@@ -309,6 +395,12 @@ export class Canvas {
   
   /**
    * 角丸四角形パス
+   * @param {number} x
+   * @param {number} y
+   * @param {number} width
+   * @param {number} height
+   * @param {number} radius
+   * @returns {this}
    */
   roundRect(x, y, width, height, radius) {
     var l = x + radius;
@@ -340,6 +432,12 @@ export class Canvas {
 
   /**
    * 角丸四角形塗りつぶし
+   * @param {number} x
+   * @param {number} y
+   * @param {number} width
+   * @param {number} height
+   * @param {number} radius
+   * @returns {this}
    */
   fillRoundRect(x, y, width, height, radius) {
     return this.beginPath().roundRect(x, y, width, height, radius).fill();
@@ -347,6 +445,12 @@ export class Canvas {
 
   /**
    * 角丸四角形ストローク描画
+   * @param {number} x
+   * @param {number} y
+   * @param {number} width
+   * @param {number} height
+   * @param {number} radius
+   * @returns {this}
    */
   strokeRoundRect(x, y, width, height, radius) {
     return this.beginPath().roundRect(x, y, width, height, radius).stroke();
@@ -354,6 +458,10 @@ export class Canvas {
 
   /**
    * 円のパスを設定
+   * @param {number} x
+   * @param {number} y
+   * @param {number} radius
+   * @returns {this}
    */
   circle(x, y, radius) {
     this.context.arc(x, y, radius, 0, Math.PI*2, false);
@@ -362,6 +470,10 @@ export class Canvas {
   
   /**
    * 塗りつぶし円を描画
+   * @param {number} x
+   * @param {number} y
+   * @param {number} radius
+   * @returns {this}
    */
   fillCircle(x, y, radius) {
     var c = this.context;
@@ -374,6 +486,10 @@ export class Canvas {
   
   /**
    * ストローク円を描画
+   * @param {number} x
+   * @param {number} y
+   * @param {number} radius
+   * @returns {this}
    */
   strokeCircle(x, y, radius) {
     var c = this.context;
@@ -386,6 +502,13 @@ export class Canvas {
 
   /**
    * 円弧のパスを設定
+   * @param {number} x
+   * @param {number} y
+   * @param {number} radius
+   * @param {number} startAngle
+   * @param {number} endAngle
+   * @param {boolean} [anticlockwise]
+   * @returns {this}
    */
   arc(x, y, radius, startAngle, endAngle, anticlockwise) {
     this.context.arc(x, y, radius, startAngle, endAngle, anticlockwise);
@@ -394,6 +517,13 @@ export class Canvas {
   
   /**
    * 塗りつぶし円弧を描画
+   * @param {number} x
+   * @param {number} y
+   * @param {number} radius
+   * @param {number} startAngle
+   * @param {number} endAngle
+   * @param {boolean} [anticlockwise]
+   * @returns {this}
    */
   fillArc(x, y, radius, startAngle, endAngle, anticlockwise) {
     return this.beginPath().arc(x, y, radius, startAngle, endAngle, anticlockwise).fill();
@@ -401,12 +531,28 @@ export class Canvas {
   
   /**
    * ストローク円弧を描画
+   * @param {number} x
+   * @param {number} y
+   * @param {number} radius
+   * @param {number} startAngle
+   * @param {number} endAngle
+   * @param {boolean} [anticlockwise]
+   * @returns {this}
    */
   strokeArc(x, y, radius, startAngle, endAngle, anticlockwise) {
     return this.beginPath().arc(x, y, radius, startAngle, endAngle, anticlockwise).stroke();
   }
 
 
+  /**
+   * @param {number} x
+   * @param {number} y
+   * @param {number} radius
+   * @param {number} startAngle
+   * @param {number} endAngle
+   * @param {boolean} [anticlockwise]
+   * @returns {this}
+   */
   pie(x, y, radius, startAngle, endAngle, anticlockwise) {
     var context = this.context;
     context.beginPath();
@@ -415,9 +561,29 @@ export class Canvas {
     context.closePath();
     return this;
   }
+
+  /**
+   * @param {number} x
+   * @param {number} y
+   * @param {number} radius
+   * @param {number} startAngle
+   * @param {number} endAngle
+   * @param {boolean} [anticlockwise]
+   * @returns {this}
+   */
   fillPie(x, y, radius, startAngle, endAngle, anticlockwise) {
     return this.beginPath().pie(x, y, radius, startAngle, endAngle, anticlockwise).fill();
   }
+
+  /**
+   * @param {number} x
+   * @param {number} y
+   * @param {number} radius
+   * @param {number} startAngle
+   * @param {number} endAngle
+   * @param {boolean} [anticlockwise]
+   * @returns {this}
+   */
   strokePie(x, y, radius, startAngle, endAngle, anticlockwise) {
     return this.beginPath().pie(x, y, radius, startAngle, endAngle, anticlockwise).stroke();
   }
@@ -425,6 +591,12 @@ export class Canvas {
   
   /**
    * ポリゴンパス
+   * @param {number} x
+   * @param {number} y
+   * @param {number} size
+   * @param {number} sides
+   * @param {number} [offsetAngle]
+   * @returns {this}
    */
   polygon(x, y, size, sides, offsetAngle) {
     var radDiv = (Math.PI*2)/sides;
@@ -441,14 +613,28 @@ export class Canvas {
     this.closePath();
     return this;
   }
+
   /**
    * ポリゴン塗りつぶし
+   * @param {number} x
+   * @param {number} y
+   * @param {number} radius
+   * @param {number} sides
+   * @param {number} [offsetAngle]
+   * @returns {this}
    */
   fillPolygon(x, y, radius, sides, offsetAngle) {
     return this.beginPath().polygon(x, y, radius, sides, offsetAngle).fill();
   }
+
   /**
    * ポリゴンストローク描画
+   * @param {number} x
+   * @param {number} y
+   * @param {number} radius
+   * @param {number} sides
+   * @param {number} [offsetAngle]
+   * @returns {this}
    */
   strokePolygon(x, y, radius, sides, offsetAngle) {
     return this.beginPath().polygon(x, y, radius, sides, offsetAngle).stroke();
@@ -456,12 +642,18 @@ export class Canvas {
   
   /**
    * star
+   * @param {number} [x=0]
+   * @param {number} [y=0]
+   * @param {number} [radius=64]
+   * @param {number} [sides=5]
+   * @param {any} [sideIndent=0.38]
+   * @param {number} [offsetAngle]
    */
   star(x, y, radius, sides, sideIndent, offsetAngle) {
-    var x = x || 0;
-    var y = y || 0;
-    var radius = radius || 64;
-    var sides = sides || 5;
+    x = x || 0;
+    y = y || 0;
+    radius = radius || 64;
+    sides = sides || 5;
     var sideIndentRadius = radius * (sideIndent || 0.38);
     var radOffset = (offsetAngle) ? offsetAngle*Math.PI/180 : -Math.PI/2;
     var radDiv = (Math.PI*2)/sides/2;
@@ -485,6 +677,13 @@ export class Canvas {
 
   /**
    * 星を塗りつぶし描画
+   * @param {number} [x]
+   * @param {number} [y]
+   * @param {number} [radius]
+   * @param {number} [sides]
+   * @param {any} [sideIndent]
+   * @param {number} [offsetAngle]
+   * @returns {this}
    */
   fillStar(x, y, radius, sides, sideIndent, offsetAngle) {
     this.beginPath().star(x, y, radius, sides, sideIndent, offsetAngle).fill();
@@ -493,14 +692,26 @@ export class Canvas {
 
   /**
    * 星をストローク描画
+   * @param {number} [x]
+   * @param {number} [y]
+   * @param {number} [radius]
+   * @param {number} [sides]
+   * @param {any} [sideIndent]
+   * @param {number} [offsetAngle]
+   * @returns {this}
    */
   strokeStar(x, y, radius, sides, sideIndent, offsetAngle) {
     this.beginPath().star(x, y, radius, sides, sideIndent, offsetAngle).stroke();
     return this;
   }
 
-  /*
+  /**
    * heart
+   * @param {number} x
+   * @param {number} y
+   * @param {number} radius
+   * @param {number} angle
+   * @returns {this}
    */
   heart(x, y, radius, angle) {
     var half_radius = radius*0.5;
@@ -529,23 +740,38 @@ export class Canvas {
     return this;
   }
 
-  /*
+  /**
    * fill heart
+   * @param {number} x
+   * @param {number} y
+   * @param {number} radius
+   * @param {number} angle
+   * @returns {this}
    */
   fillHeart(x, y, radius, angle) {
     return this.beginPath().heart(x, y, radius, angle).fill();
   }
 
-  /*
+  /**
    * stroke heart
+   * @param {number} x
+   * @param {number} y
+   * @param {number} radius
+   * @param {number} angle
+   * @returns {this}
    */
   strokeHeart(x, y, radius, angle) {
     return this.beginPath().heart(x, y, radius, angle).stroke();
   }
 
-  /*
-   * http://stackoverflow.com/questions/14169234/the-relation-of-the-bezier-curve-and-ellipse
-   */
+ /**
+  * http://stackoverflow.com/questions/14169234/the-relation-of-the-bezier-curve-and-ellipse
+  * @param {number} x
+  * @param {number} y
+  * @param {number} w
+  * @param {number} h
+  * @returns {this}
+  */
   ellipse(x, y, w, h) {
     var ctx = this.context;
     var kappa = 0.5522848;
@@ -567,25 +793,49 @@ export class Canvas {
     return this;
   }
 
+  /**
+   * @param {number} x
+   * @param {number} y
+   * @param {number} width
+   * @param {number} height
+   * @returns {this}
+   */
   fillEllipse(x, y, width, height) {
     return this.beginPath().ellipse(x, y, width, height).fill();
   }
+
+  /**
+   * @param {number} x
+   * @param {number} y
+   * @param {number} width
+   * @param {number} height
+   * @returns {this}
+   */
   strokeEllipse(x, y, width, height) {
     return this.beginPath().ellipse(x, y, width, height).stroke();
   }
 
+  /**
+   * 
+   * @returns {this}
+   */
   fillText() {
     this.context.fillText.apply(this.context, arguments);
     return this;
   }
 
+  /**
+   * 
+   * @returns {this}
+   */
   strokeText() {
     this.context.strokeText.apply(this.context, arguments);
     return this;
   }
 
-  /*
+  /**
    * 画像を描画
+   * @returns {void} this返し忘れ？
    */
   drawImage() {
     this.context.drawImage.apply(this.context, arguments);
@@ -593,6 +843,13 @@ export class Canvas {
 
   /**
    * 行列をセット
+   * @param {number} m11
+   * @param {number} m12
+   * @param {number} m21
+   * @param {number} m22
+   * @param {number} dx
+   * @param {number} dy
+   * @returns {this}
    */
   setTransform(m11, m12, m21, m22, dx, dy) {
     this.context.setTransform(m11, m12, m21, m22, dx, dy);
@@ -601,6 +858,7 @@ export class Canvas {
 
   /**
    * 行列をリセット
+   * @returns {this}
    */
   resetTransform() {
     this.setTransform(1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
@@ -608,6 +866,7 @@ export class Canvas {
   }
   /**
    * 中心に移動
+   * @returns {this}
    */
   transformCenter() {
     this.context.setTransform(1, 0, 0, 1, this.width/2, this.height/2);
@@ -616,6 +875,9 @@ export class Canvas {
 
   /**
    * 移動
+   * @param {number} x
+   * @param {number} y
+   * @returns {this}
    */
   translate(x, y) {
     this.context.translate(x, y);
@@ -624,6 +886,8 @@ export class Canvas {
   
   /**
    * 回転
+   * @param {number} rotation
+   * @returns {this}
    */
   rotate(rotation) {
     this.context.rotate(rotation);
@@ -632,6 +896,9 @@ export class Canvas {
   
   /**
    * スケール
+   * @param {number} scaleX
+   * @param {number} scaleY
+   * @returns {this}
    */
   scale(scaleX, scaleY) {
     this.context.scale(scaleX, scaleY);
@@ -640,6 +907,7 @@ export class Canvas {
 
   /**
    * 状態を保存
+   * @returns {this}
    */
   save() {
     this.context.save();
@@ -648,6 +916,7 @@ export class Canvas {
 
   /**
    * 状態を復元
+   * @returns {this}
    */
   restore() {
     this.context.restore();
@@ -656,6 +925,8 @@ export class Canvas {
 
   /**
    * 画像として保存
+   * @param {string} [mime_type="image/png"]
+   * @returns {void}
    */
   saveAsImage(mime_type) {
     mime_type = mime_type || "image/png";
@@ -731,21 +1002,39 @@ export class Canvas {
     this.context['mozImageSmoothingEnabled'] = v;
   }
 
+  /**
+   * テキストの長さを計測
+   * @param {string} font
+   * @param {string} text
+   * @returns {TextMetrics}
+   */
   static measureText(font, text) {
     this._context.font = font;
     return this._context.measureText(text);
   }
 
+  /**
+   * 線形グラデーションを生成
+   * @returns {CanvasGradient}
+   */
   static createLinearGradient() {
     return this._context.createLinearGradient.apply(this._context, arguments);
   }
 
+  /**
+   * 円形グラデーションを生成
+   * @returns {CanvasGradient}
+   */
   static createRadialGradient() {
     return this._context.createRadialGradient.apply(this._context, arguments);
   }
 
 }
 
+/**
+ * デフォルトのプライベートCanvasコンテキスト  
+ * Staticメソッド用
+ */
 Canvas._context = (function() {
   if (Support.canvas) {
     return document.createElement('canvas').getContext('2d');

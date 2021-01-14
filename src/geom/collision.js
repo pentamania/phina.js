@@ -20,8 +20,8 @@ export class Collision {
    *     circle2 = phina.geom.Circle(130, 140, 30);
    * phina.geom.Collision.testCircleCircle(circle1, circle2); // => true
    *
-   * @param {phina.geom.Circle} circle1 円領域オブジェクト
-   * @param {phina.geom.Circle} circle2 円領域オブジェクト
+   * @param {Circle} circle0 円領域オブジェクト
+   * @param {Circle} circle1 円領域オブジェクト
    * @return {Boolean} 領域が重なっているかどうか
    */
   static testCircleCircle(circle0, circle1) {
@@ -38,8 +38,8 @@ export class Collision {
    *     rect2 = phina.geom.Rect(200, 200, 10, 10);
    *     phina.geom.Collision.testRectRect(rect1, rect2); // => false
    *
-   * @param {phina.geom.Rect} rect1 矩形領域オブジェクト
-   * @param {phina.geom.Rect} rect2 矩形領域オブジェクト
+   * @param {Rect} rect0 矩形領域オブジェクト
+   * @param {Rect} rect1 矩形領域オブジェクト
    * @return {Boolean} 領域が重なっているかどうか
    */
   static testRectRect(rect0, rect1) {
@@ -56,8 +56,8 @@ export class Collision {
    *     rect = phina.geom.Rect(100, 100, 30, 40);
    *     phina.geom.Collision.testCircleRect(circle, rect); // => true
    *
-   * @param {phina.geom.Circle} circle 円領域オブジェクト
-   * @param {phina.geom.Rect} rect 矩形領域オブジェクト
+   * @param {Circle} circle 円領域オブジェクト
+   * @param {Rect} rect 矩形領域オブジェクト
    * @return {Boolean} 領域が重なっているかどうか
    */
   static testCircleRect(circle, rect) {
@@ -109,9 +109,9 @@ export class Collision {
    *     p2 = phina.geom.Vector2(300, 400);
    *     phina.geom.Collision.testCircleLine(circle, p1, p2); // => true
    *
-   * @param {phina.geom.Circle} circle 円領域オブジェクト
-   * @param {phina.geom.Vector2} p1 線分の端の座標
-   * @param {phina.geom.Vector2} p2 線分の端の座標
+   * @param {Circle} circle 円領域オブジェクト
+   * @param {import("./vector2").PrimitiveVector2} p1 線分の端の座標
+   * @param {import("./vector2").PrimitiveVector2} p2 線分の端の座標
    * @return {Boolean} 円領域と線分が重なっているかどうか
    */
   static testCircleLine (circle, p1, p2) {
@@ -155,10 +155,10 @@ export class Collision {
    *     p4 = phina.geom.Vector2(200, 100);
    * phina.geom.Collision.testLineLine(p1, p2, p3, p4); // => true
    *
-   * @param {phina.geom.Vector2} p1 線分1の端の座標
-   * @param {phina.geom.Vector2} p2 線分1の端の座標
-   * @param {phina.geom.Vector2} p3 線分2の端の座標
-   * @param {phina.geom.Vector2} p4 線分2の端の座標
+   * @param {import("./vector2").PrimitiveVector2} p1 線分1の端の座標
+   * @param {import("./vector2").PrimitiveVector2} p2 線分1の端の座標
+   * @param {import("./vector2").PrimitiveVector2} p3 線分2の端の座標
+   * @param {import("./vector2").PrimitiveVector2} p4 線分2の端の座標
    * @return {Boolean} 線分1と線分2が重なっているかどうか
    */
   static testLineLine (p1, p2, p3, p4) {
@@ -193,9 +193,9 @@ export class Collision {
    *     p2 = phina.geom.Vector2(200, 200);
    * phina.geom.Collision.testRectLine(rect, p1, p2); // => true
    *
-   * @param {phina.geom.Rect} rect 矩形領域オブジェクト
-   * @param {phina.geom.Vector2} p1 線分の端の座標
-   * @param {phina.geom.Vector2} p2 線分の端の座標
+   * @param {Rect} rect 矩形領域オブジェクト
+   * @param {import("./vector2").PrimitiveVector2} p1 線分の端の座標
+   * @param {import("./vector2").PrimitiveVector2} p2 線分の端の座標
    * @return {Boolean} 矩形と線分が重なっているかどうか
    */
   static testRectLine (rect, p1, p2) {

@@ -15,6 +15,7 @@ import {clamp as mathClamp, RAD_TO_DEG, DEG_TO_RAD} from "./math";
  *       arr.push(i);
  *     }); // => [0, 1, 2, 3, 4]
  *
+ * @this Number
  * @param {Function} fn コールバック関数
  * @param {Object} [self=this] 関数内で this として参照される値。デフォルトは自分自身。
  */
@@ -39,6 +40,7 @@ export function times(fn, self) {
  *       arr.push(n);
  *      }); // => [2.4, 3.2, 4.0, 4.8]
  *
+ * @this Number
  * @param {Number} limit カウンタの上限値
  * @param {Number} step カウンタを増分する量
  * @param {Function} fn コールバック関数。引数にカウンタが渡される。
@@ -75,6 +77,7 @@ export function step(limit, step, fn, self) {
  *
  *     (12345.67).round(-3); // => 12000
  *
+ * @this Number
  * @param {Number} [figure=0] 四捨五入する位
  * @return {Number} 小数第 figure 位で四捨五入した値
  */
@@ -103,6 +106,7 @@ export function round(figure) {
  *
  *     (12345.67).ceil(-3); // => 13000
  *
+ * @this Number
  * @param {Number} [figure=0] 切り上げる位
  * @return {Number} 小数第 figure 位で切り上げた値
  */
@@ -131,6 +135,7 @@ export function ceil(figure) {
  *
  *     (12345.67).floor(-3); // => 12000
  *
+ * @this Number
  * @param {Number} [figure=0] 切り下げる位
  * @return {Number} 小数第 figure 位で切り下げた値
  */
@@ -154,6 +159,7 @@ export function floor(figure) {
  * ### Example
  *     (42.195).toInt(); // => 42
  *
+ * @this Number
  * @return {Number} 整数値
  */
 export function toInt() {
@@ -170,6 +176,7 @@ export function toInt() {
  *     (-26).toHex(); // => "-1a"
  *     (26.25).toHex(); // => "1a.4"
  *
+ * @this Number
  * @return {String} 16進数表記の文字列
  */
 export function toHex() {
@@ -187,6 +194,7 @@ export function toHex() {
  *     (0xA3).toBin(); // => "10100011"
  *     (6.25).toHex(); // => "110.01"
  *
+ * @this Number
  * @return {String} 2進数表記の文字列
  */
 export function toBin() {
@@ -209,6 +217,7 @@ export function toBin() {
  *     rgba.toHex(); // => "-2000000"
  *     rgba.toUnsigned().toHex(); // => "fe000000"
  *
+ * @this Number
  * @return {Number} unsigned int 型に変換した値
  */
 export function toUnsigned() {
@@ -225,6 +234,7 @@ export function toUnsigned() {
  *     (123).padding(5, "_"); // => "__123"
  *     (-12).padding(5); // => "-0012"
  *
+ * @this Number
  * @param {Number} n 桁数
  * @param {String} [ch="0"] 埋める文字
  * @return {String} 桁数を揃えた文字列
@@ -262,6 +272,7 @@ export function padding(n, ch) {
  *     });
  *     arr; // => [6, 7, 8]
  *
+ * @this Number
  * @param {Function} fn コールバック関数。引数にカウンタが渡される。
  * @param {Object} [self=this] 関数内で this として参照される値。デフォルトは自分自身。
  */
@@ -286,6 +297,7 @@ export function upto(t, fn, self) {
  *       arr.push(i);
  *     }); // => [7, 6, 5, 4]
  *
+ * @this Number
  * @param {Function} fn コールバック関数。引数にカウンタが渡される。
  * @param {Object} [self=this] 関数内で this として参照される値。デフォルトは自分自身。
  */
@@ -309,6 +321,7 @@ export function downto(t, fn, self) {
  *       return i*i;
  *     }); // => [0, 1, 4, 9, 16]
  *
+ * @this Number
  * @param {Function} fn コールバック関数。引数にカウンタが渡される。
  * @param {Object} [self=this] 関数内で this として参照される値。デフォルトは自分自身。
  * @return {Array} 生成した配列
@@ -333,6 +346,7 @@ export function map(fn, self) {
  *     (-5).abs(); // => 5
  *     (+5).abs(); // => 5
  *
+ * @this Number
  * @return {Number} 絶対値
  */
 export function abs() { return Math.abs(this) }
@@ -346,6 +360,7 @@ export function abs() { return Math.abs(this) }
  *     (0).asin(); // => 0
  *     (1).asin(); // => 1.5707963267948966
  *
+ * @this Number
  * @return {Number} アークコサイン
  */
 export function acos() { return Math.acos(this) }
@@ -359,6 +374,7 @@ export function acos() { return Math.acos(this) }
  *     (1).acos(); // => 0
  *     (-1).acos(); // => 3.141592653589793
  *
+ * @this Number
  * @return {Number} アークサイン
  */
 export function asin() { return Math.asin(this) }
@@ -372,6 +388,7 @@ export function asin() { return Math.asin(this) }
  *     (0).atan(); // => 0
  *     (1).atan(); // => 0.7853981633974483
  *
+ * @this Number
  * @return {Number} アークタンジェント
  */
 export function atan() { return Math.atan(this) }
@@ -384,6 +401,7 @@ export function atan() { return Math.atan(this) }
  * ### Example
  *     (Math.PI/3).cos(); // => 0.5
  *
+ * @this Number
  * @return {Number} コサイン
  */
 export function cos() { return Math.cos(this) }
@@ -397,6 +415,7 @@ export function cos() { return Math.cos(this) }
  *     (2).exp(); // => e<sup>2</sup>
  *     (0).exp(); // => 1
  *
+ * @this Number
  * @return {Number} e<sup>x</sup>
  */
 export function exp() { return Math.exp(this) }
@@ -411,6 +430,7 @@ export function exp() { return Math.exp(this) }
  *     (1).log(); // => 0
  *     (0).log(); // => -Infinity
  *
+ * @this Number
  * @return {Number} 自然対数
  */
 export function log() { return Math.log(this) }
@@ -424,6 +444,7 @@ export function log() { return Math.log(this) }
  *     (15).max(10); // => 15
  *     (15).max(90); // => 90
  *
+ * @this Number
  * @param {Number} value 比較する値
  * @return {Number} 最大値
  */
@@ -438,6 +459,7 @@ export function max(value) { return Math.max(this, value) }
  *     (15).min(10); // => 10
  *     (15).min(90); // => 15
  *
+ * @this Number
  * @param {Number} value 比較する値
  * @return {Number} 最小値
  */
@@ -453,6 +475,7 @@ export function min(value) { return Math.min(this, value) }
  *     (-15).clamp(0, 640); // => 0
  *     (999).clamp(0, 640); // => 640
  *
+ * @this Number
  * @param {Number} min 範囲の下限
  * @param {Number} max 範囲の上限
  * @return {Number} 範囲内に収めた値
@@ -467,6 +490,7 @@ export function clamp(min, max) { return mathClamp(this, min, max) }
  * ### Example
  *     (3).pow(2); // => 9
  *
+ * @this Number
  * @param {Number} exponent 累乗する指数
  * @return {Number} 累乗した結果の値
  */
@@ -480,6 +504,7 @@ export function pow(exponent) { return Math.pow(this, exponent) }
  * ### Example
  *     (Math.PI/4).sin(); // => 0.7071067811865476
  *
+ * @this Number
  * @return {Number} サイン
  */
 export function sin() { return Math.sin(this) }
@@ -492,6 +517,7 @@ export function sin() { return Math.sin(this) }
  * ### Example
  *     (49).sqrt(); // => 7
  *
+ * @this Number
  * @return {Number} 平方根
  */
 export function sqrt() { return Math.sqrt(this) }
@@ -504,6 +530,7 @@ export function sqrt() { return Math.sqrt(this) }
  * ### Example
  *     (Math.PI/4).tan(); // => 1.0
  *
+ * @this Number
  * @return {Number} タンジェント
  */
 export function tan() { return Math.tan(this) }
@@ -516,6 +543,7 @@ export function tan() { return Math.tan(this) }
  * ### Example
  *     Math.radToDeg(Math.PI/4); // => 45
  *
+ * @this Number
  * @return {Number} 度
  */
 export function toDegree() { return (this * RAD_TO_DEG); }
@@ -528,6 +556,7 @@ export function toDegree() { return (this * RAD_TO_DEG); }
  * ### Example
  *     (180).toRadian(); // => 3.141592653589793
  *
+ * @this Number
  * @return {Number} ラジアン
  */
 export function toRadian() { return this * DEG_TO_RAD; }

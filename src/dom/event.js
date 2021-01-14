@@ -1,45 +1,45 @@
 /**
  * MouseEvent/Touch拡張
- * @method    pointX
  * マウスのX座標.
  */
 export var pointX = {
+  /** @this {MouseEvent|Touch} */
   get: function() {
-    return this.clientX - this.target.getBoundingClientRect().left;
+    return this.clientX - /** @type {HTMLElement} */(this.target).getBoundingClientRect().left;
   }
 }
 
 /**
  * MouseEvent/Touch拡張
- * @method    pointX
- * マウスのX座標.
+ * マウスのY座標.
  */
 export var pointY = {
+  /** @this {MouseEvent|Touch} */
   get: function() {
-    return this.clientY - this.target.getBoundingClientRect().top;
+    return this.clientY - /** @type {HTMLElement} */(this.target).getBoundingClientRect().top;
   }
 }
 
 /**
  * TouchEvent拡張
- * @method    pointX
- * タッチイベント.
+ * タッチイベントのX座標.
  */
 export var touchPointX = {
+  /** @this {TouchEvent} */
   get: function() {
-    return this.touches[0].clientX - this.target.getBoundingClientRect().left;
+    return this.touches[0].clientX - /** @type {HTMLElement} */(this.target).getBoundingClientRect().left;
     // return this.touches[0].pageX - this.target.getBoundingClientRect().left - tm.global.scrollX;
   }
 }
 
 /**
  * TouchEvent拡張
- * @method    pointY
- * タッチイベント.
+ * タッチイベントのY座標.
  */
 export var touchPointY = {
+  /** @this {TouchEvent} */
   get: function() {
-    return this.touches[0].clientY - this.target.getBoundingClientRect().top;
+    return this.touches[0].clientY - /** @type {HTMLElement} */(this.target).getBoundingClientRect().top;
     // return this.touches[0].pageY - this.target.getBoundingClientRect().top - tm.global.scrollY;
   }
 }

@@ -1,17 +1,26 @@
-
 /**
  * @class phina.app.Updater
  */
 export class Updater {
 
+  /**
+   * @param {AppUnion} app
+   */
   constructor(app) {
     this.app = app;
   }
 
+  /**
+   * @param {import('../app/scene').Scene} root 
+   */
   update(root) {
     this._updateElement(root);
   }
 
+  /**
+   * @private
+   * @param {import('../app/element').Element} element
+   */
   _updateElement(element) {
     var app = this.app;
 

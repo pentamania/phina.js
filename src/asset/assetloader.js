@@ -10,13 +10,22 @@ import { Font } from "./font";
 import { File } from "./file";
 
 /**
+ * @typedef {{
+ *   [assetType: string]: {
+ *     [assetKey: string]: string
+ *   }
+ * }} AssetLoaderLoadParam
+ */
+
+/**
  * @class phina.asset.AssetLoader
- * @extends phina.util.EventDispatcher
+ * _extends phina.util.EventDispatcher
  */
 export class AssetLoader extends EventDispatcher {
 
   /**
    * @constructor
+   * @param {{ cache: boolean }} [params]
    */
   constructor(params) {
     super();
@@ -30,13 +39,17 @@ export class AssetLoader extends EventDispatcher {
     this.cache = params.cache;
   }
 
+  /**
+   * @param {AssetLoaderLoadParam} params
+   * @returns {Flow}
+   */
   load(params) {
     var self = this;
     var flows = [];
 
     var counter = 0;
     var length = 0;
-    forIn.call(params, function(type, assets) {
+    forIn.call(params, function(_type, assets) {
     // params.forIn(function(type, assets) {
       length += Object.keys(assets).length;
     });
@@ -95,6 +108,11 @@ export class AssetLoader extends EventDispatcher {
     });
   }
 
+  /**
+   * アセット種類に応じたロード関数を登録
+   * @param {string | number} key アセットタイプ名
+   * @param {(...args: any)=> Flow} func Flowインスタンスを返す関数
+   */
   static register(key, func) {
     this.assetLoadFunctions[key] = func;
     return this;
@@ -102,6 +120,9 @@ export class AssetLoader extends EventDispatcher {
 
 }
 
+/**
+ * 登録済みアセットロード関数
+ */
 AssetLoader.assetLoadFunctions = {
   image: function(key, path) {
     var texture = new Texture();

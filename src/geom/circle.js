@@ -34,7 +34,6 @@ export class Circle {
    * @param {Number} x 円の中心の x 座標
    * @param {Number} y 円の中心の y 座標
    * @param {Number} radius 半径
-   * @return {phina.geom.Rect} 円領域オブジェクト
    */
   constructor(x, y, radius) {
     this.x = 0;
@@ -55,7 +54,7 @@ export class Circle {
    * @param {Number} x 円を囲う矩形の左上頂点の x 座標
    * @param {Number} y 円を囲う矩形の左上頂点の x 座標
    * @param {Number} radius 半径
-   * @return {phina.geom.Circle} 円領域オブジェクト
+   * @returns {this}
    */
   set(x, y, radius) {
     this.x = x;
@@ -78,6 +77,7 @@ export class Circle {
    *
    * @param {Number} x 移動先の x 座標
    * @param {Number} y 移動先の y 座標
+   * @returns {this}
    */
   moveTo(x, y) {
     this.x = x;
@@ -98,6 +98,7 @@ export class Circle {
    *
    * @param {Number} x 移動量の x 座標
    * @param {Number} y 移動量の y 座標
+   * @returns {this}
    */
   moveBy(x, y) {
     this.x += x;
@@ -135,7 +136,7 @@ export class Circle {
    *     circle2 = circle.clone();
    *     circle2.x == circle.x; // => true
    *
-   * @return {Object} 生成した円領域
+   * @return {Circle} 生成した円領域
    */
   clone() {
     return new Circle(this.x, this.y, this.radius);
@@ -151,7 +152,7 @@ export class Circle {
    *     rect.x; // => 10
    *     rect.y; // => 60
    *     rect.width; // => 80
-   *
+   * 
    * @return {Object} 生成した矩形領域
    */
   toRect() {

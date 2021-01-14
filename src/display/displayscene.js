@@ -5,11 +5,23 @@ import { CanvasRenderer } from "../display/canvasrenderer"
 import { Grid } from "../util/grid"
 
 /**
+ * @typedef {{
+ *   width?: number,
+ *   height?: number,
+ *   imageSmoothing?: boolean,
+ *   backgroundColor?: import("../graphics/canvas").CanvasStyle,
+ * }} DisplaySceneOptions
+ */
+
+/**
  * @class phina.display.DisplayScene
- * @extends phina.app.Scene
+ * _extends phina.app.Scene
  */
 export class DisplayScene extends Scene {
 
+  /**
+   * @param {DisplaySceneOptions} [params]
+   */
   constructor(params) {
     super();
 
@@ -53,18 +65,31 @@ export class DisplayScene extends Scene {
     return true;
   }
 
+  /**
+   * @virtual
+   * @param {import("../display/canvasapp").CanvasApp} [_app] アプリケーション本体の参照
+   */
+  update(_app) {}
+
+  /**
+   * @returns {void}
+   */
   _update() {
     if (this.update) {
       this.update();
     }
   }
 
+  /**
+   * @returns {void}
+   */
   _render() {
     this.renderer.render(this);
   }
 
 }
 
+/** @type DisplaySceneOptions */
 DisplayScene.defaults = {
   width: 640,
   height: 960,

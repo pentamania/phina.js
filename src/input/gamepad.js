@@ -4,34 +4,18 @@ import { EventDispatcher } from "../util/eventdispatcher"
 import { Vector2 } from "../geom/vector2"
 
 /**
+ * Gamepad API指定インターフェイス：https://developer.mozilla.org/en-US/docs/Web/API/Gamepad
+ * 混同回避のためのエイリアス
+ * @typedef {Gamepad} RawGamepad
+ */
+
+/**
  * @class phina.input.GamepadManager
  * ゲームパッドマネージャー.
  * ゲームパッド接続状況の監視、個々のゲームパッドの入力状態の更新を行う.
- * @extends phina.util.EventDispatcher
+ * _extends phina.util.EventDispatcher
  */
 export class GamepadManager extends EventDispatcher {
-
-  /**
-   * 作成済みphina.input.Gamepadオブジェクトのリスト
-   *
-   * @type {Object.<number, phina.input.Gamepad>}
-   */
-  // gamepads: null,
-
-  /**
-   * 作成済みゲームパッドのindexのリスト
-   *
-   * @type {number[]}
-   * @private
-   */
-  // _created: null,
-
-  /**
-   * ラップ前Gamepadのリスト
-   * @type {phina.input.Gamepad[]}
-   * @private
-   */
-  // _rawgamepads: null,
 
   /**
    * @constructor
@@ -39,14 +23,39 @@ export class GamepadManager extends EventDispatcher {
   constructor() {
     super();
 
+    /**
+     * 作成済みphina.input.Gamepadオブジェクトのリスト
+     *
+     * @type {Object.<number, PhinaGamepad>}
+     */
     this.gamepads = {};
+
+    /**
+     * 作成済みゲームパッドのindexのリスト
+     * @type {number[]}
+     * @private
+     */
     this._created = [];
+
+    /**
+     * ラップ前Gamepadのリスト
+     * @type {RawGamepad[]}
+     * @private
+     */
     this._rawgamepads = [];
 
+    /**
+     * RawGamepadのtimestampとの比較用
+     * number[]と一緒？
+     * @type {{[i:number]: number}}
+     */
     this._prevTimestamps = {};
 
+    /** @type {Function} */
     this._getGamepads = null;
-    var navigator = phina.global.navigator;
+
+    var global = phina.global
+    var navigator = global.navigator;
     if (navigator && navigator.getGamepads) {
       this._getGamepads = navigator.getGamepads.bind(navigator);
     } else if (navigator && navigator['webkitGetGamepads']) {
@@ -55,7 +64,9 @@ export class GamepadManager extends EventDispatcher {
       this._getGamepads = function() {};
     }
 
-    phina.global.addEventListener('gamepadconnected', function(e) {
+    global.addEventListener('gamepadconnected', 
+    /** @this GamepadManager */
+    function(e) {
       var gamepad = this.get(e.gamepad.index);
       gamepad.connected = true;
       this.flare('connected', {
@@ -63,7 +74,9 @@ export class GamepadManager extends EventDispatcher {
       });
     }.bind(this));
 
-    phina.global.addEventListener('gamepaddisconnected', function(e) {
+    global.addEventListener('gamepaddisconnected',
+    /** @this GamepadManager */
+    function(e) {
       var gamepad = this.get(e.gamepad.index);
       gamepad.connected = false;
       this.flare('disconnected', {
@@ -99,15 +112,16 @@ export class GamepadManager extends EventDispatcher {
 
   /**
    * 指定されたindexのGamepadオブジェクトを返す.
-   *
    * 未作成の場合は作成して返す.
+   * @param {number} [index=0]
+   * @returns {PhinaGamepad}
    */
   get(index) {
     index = index || 0;
 
     if (!this.gamepads[index]) {
       this._created.push(index);
-      this.gamepads[index] = new Gamepad(index);
+      this.gamepads[index] = new PhinaGamepad(index);
     }
 
     return this.gamepads[index];
@@ -116,6 +130,8 @@ export class GamepadManager extends EventDispatcher {
   /**
    * 指定されたindexのGamepadオブジェクトを破棄する.
    * 破棄されたGamepadオブジェクトは以降更新されない.
+   * @param {number} index
+   * @returns {void}
    */
   dispose(index) {
     if (contains.call(this._created, index)) {
@@ -131,8 +147,9 @@ export class GamepadManager extends EventDispatcher {
 
   /**
    * 指定されたindexのゲームパッドが接続中かどうかを返す.
-   *
    * Gamepadオブジェクトが未作成の場合でも動作する.
+   * @param {number} [index=0]
+   * @returns {boolean}
    */
   isConnected(index) {
     index = index || 0;
@@ -142,6 +159,7 @@ export class GamepadManager extends EventDispatcher {
 
   /**
    * @private
+   * @returns {void}
    */
   _poll() {
     var rawGamepads = this._getGamepads();
@@ -180,27 +198,30 @@ GamepadManager.isAvailable = (function() {
 
 
 /**
+ * @typedef {Object} PhinaGamepadButtonState gamepadボタンパラメータ
+ * @property {number} value ボタンの状態を表すdouble型の数値 参考：https://developer.mozilla.org/en-US/docs/Web/API/GamepadButton/value
+ * @property {*} pressed 0 | 1 (false | true)
+ * @property {*} last 0 | 1 (false | true)
+ * @property {*} down 0 | 1 (false | true)
+ * @property {*} up 0 | 1 (false | true)
+ */
+
+/**
  * @class phina.input.Gamepad
  * ゲームパッド
  *
  * 直接インスタンス化せず、phina.input.GamepadManagerオブジェクトから取得して使用する.
+ * ※"Gamepad"という名前のインターフェイスがすでに存在するため（https://developer.mozilla.org/en-US/docs/Web/API/Gamepad）、混同回避のためクラス名を変更
  */
-class Gamepad {
-// phina.define("phina.input.Gamepad", {
+class PhinaGamepad {
 
-  // index: null,
-  // buttons: null,
-  // /** @type {Array.<phina.geom.Vector2>} */
-  // sticks: null,
-
-  // id: null,
-  // connected: false,
-  // mapping: null,
-  // timestamp: null,
-
+  /**
+   * @param {number} [index=0]
+   */
   constructor(index) {
     this.index = index || 0;
 
+    /** @type {PhinaGamepadButtonState[]} */
     // this.buttons = Array.range(0, 16).map(function() {
     this.buttons = range.call([], 0, 16).map(function() {
       return {
@@ -211,6 +232,11 @@ class Gamepad {
         up: false,
       };
     });
+
+    /**
+     * アナログスティック傾き管理用
+     * @type {Vector2[]}
+     */
     this.sticks = range.call([], 0, 2).map(function() {
     // this.sticks = Array.range(0, 2).map(function() {
       return new Vector2(0, 0);
@@ -223,10 +249,12 @@ class Gamepad {
 
   /**
    * ボタンが押されているか.
+   * @param {number|string} button ボタンコード数値、あるいはラベル文字列
+   * @returns {boolean}
    */
   getKey(button) {
     if (typeof(button) === 'string') {
-      button = Gamepad.BUTTON_CODE[button];
+      button = /** @type {number} */ (PhinaGamepad.BUTTON_CODE[button]);
     }
     if (this.buttons[button]) {
       return this.buttons[button].pressed;
@@ -237,10 +265,12 @@ class Gamepad {
 
   /**
    * ボタンを押した.
+   * @param {number|string} button ボタンコード数値、あるいはラベル文字列
+   * @returns {boolean}
    */
   getKeyDown(button) {
     if (typeof(button) === 'string') {
-      button = Gamepad.BUTTON_CODE[button];
+      button = PhinaGamepad.BUTTON_CODE[button];
     }
     if (this.buttons[button]) {
       return this.buttons[button].down;
@@ -251,10 +281,12 @@ class Gamepad {
 
   /**
    * ボタンを離した.
+   * @param {number|string} button ボタンコード数値、あるいはラベル文字列
+   * @returns {boolean}
    */
   getKeyUp(button) {
     if (typeof(button) === 'string') {
-      button = Gamepad.BUTTON_CODE[button];
+      button = PhinaGamepad.BUTTON_CODE[button];
     }
     if (this.buttons[button]) {
       return this.buttons[button].up;
@@ -264,7 +296,8 @@ class Gamepad {
   }
 
   /**
-   * 十字キーの入力されている方向.
+   * 十字キーの入力されている方向を度数単位で返す。
+   * @returns {number | null} どの方向にも当てはまらない時はnull
    */
   getKeyAngle() {
     var angle = null;
@@ -284,6 +317,7 @@ class Gamepad {
   /**
    * 十字キーの入力されている方向をベクトルで.
    * 正規化されている.
+   * @returns {Vector2}
    */
   getKeyDirection() {
     var direction = new Vector2(0, 0);
@@ -308,6 +342,8 @@ class Gamepad {
 
   /**
    * スティックの入力されている方向.
+   * @param {number} [stickId=0]
+   * @returns {number | null} 該当するstickオブジェクトがない場合はnull
    */
   getStickAngle(stickId) {
     stickId = stickId || 0;
@@ -317,6 +353,8 @@ class Gamepad {
 
   /**
    * スティックの入力されている方向をベクトルで.
+   * @param {number} [stickId=0]
+   * @returns {Vector2}
    */
   getStickDirection(stickId) {
     stickId = stickId || 0;
@@ -324,7 +362,7 @@ class Gamepad {
   }
 
   /**
-   * @private
+   * @param {RawGamepad} gamepad
    */
   _updateState(gamepad) {
     this.id = gamepad.id;
@@ -343,7 +381,7 @@ class Gamepad {
   }
 
   /**
-   * @private
+   * ボタンの入力状態をリセット
    */
   _updateStateEmpty() {
     for (var i = 0, iend = this.buttons.length; i < iend; i++) {
@@ -352,10 +390,12 @@ class Gamepad {
     }
   }
 
-  /**
+   /**
    * @private
+   * @param {number | GamepadButton} value
+   * @param {number} buttonId
    */
-  _updateButton(value, buttonId) {
+   _updateButton(value, buttonId) {
     if (this.buttons[buttonId] === undefined) {
       this.buttons[buttonId] = {
         value: 0,
@@ -375,7 +415,7 @@ class Gamepad {
       button.pressed = value.pressed;
     } else {
       button.value = value;
-      button.pressed = value > Gamepad.ANALOGUE_BUTTON_THRESHOLD;
+      button.pressed = value > PhinaGamepad.ANALOGUE_BUTTON_THRESHOLD;
     }
 
     button.down = (button.pressed ^ button.last) & button.pressed;
@@ -384,6 +424,9 @@ class Gamepad {
 
   /**
    * @private
+   * @param {number} value
+   * @param {number} stickId
+   * @param {string} axisName
    */
   _updateStick(value, stickId, axisName) {
     if (this.sticks[stickId] === undefined) {
@@ -395,7 +438,7 @@ class Gamepad {
 }
 
 /** ブラウザがGamepad APIに対応しているか. */
-Gamepad.isAvailable = (function() {
+PhinaGamepad.isAvailable = (function() {
   var nav = phina.global.navigator;
   if (!nav) return false;
 
@@ -403,10 +446,10 @@ Gamepad.isAvailable = (function() {
 })();
 
 /** アナログ入力対応のボタンの場合、どの程度まで押し込むとonになるかを表すしきい値. */
-Gamepad.ANALOGUE_BUTTON_THRESHOLD = 0.5;
+PhinaGamepad.ANALOGUE_BUTTON_THRESHOLD = 0.5;
 
 /** ボタン名とボタンIDのマップ. */
-Gamepad.BUTTON_CODE = {
+PhinaGamepad.BUTTON_CODE = {
   'a': 0,
   'b': 1,
   'x': 2,
