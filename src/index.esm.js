@@ -62,6 +62,7 @@ export * from "./asset/texture";
 export * from "./asset/spritesheet";
 export * from "./asset/font";
 export * from "./asset/script";
+export * from "./asset/sound";
 export * from "./asset/soundmanager";
 
 export * from "./ui/button";
