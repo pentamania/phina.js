@@ -19,7 +19,7 @@ export default [
     },
     plugins: [
       replace({
-        delimiters: ['\'<%= ', ' %>\''],
+        delimiters: ['\"<%= ', ' %>\"'],
         values: {
           'version': JSON.stringify(pkg.version),
         },
