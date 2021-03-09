@@ -9,6 +9,11 @@ import { Object2D } from "../app/object2d";
  */
 
 /**
+ * globalCompositeOperation(https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalCompositeOperation) のtypeと同じ
+ * @typedef { 'source-over' | 'source-in' | 'source-out' | 'source-atop' | 'destination-over' | 'destination-in' | 'destination-out' | 'destination-atop' | 'lighter' | 'copy' | 'xor' | 'multiply' | 'screen' | 'overlay' | 'darken' | 'lighten' | 'color-dodge' | 'color-burn' | 'hard-light' | 'soft-light' | 'difference' | 'exclusion' | 'hue' | 'saturation' | 'color' | 'luminosity'} BlendMode
+ */
+
+/**
  * @class phina.display.DisplayElement
  * _extends phina.app.Object2D
  */
@@ -36,7 +41,7 @@ export class DisplayElement extends Object2D {
 
     /**
      * ブレンドモード
-     * @type {string}
+     * @type {BlendMode}
      */
     this.blendMode = "source-over";
 
