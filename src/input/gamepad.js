@@ -249,12 +249,12 @@ class PhinaGamepad {
 
   /**
    * ボタンが押されているか.
-   * @param {number|string} button ボタンコード数値、あるいはラベル文字列
+   * @param {number|keyof typeof PhinaGamepad.BUTTON_CODE} button ボタンコード数値、あるいはラベル文字列
    * @returns {boolean}
    */
   getKey(button) {
     if (typeof(button) === 'string') {
-      button = /** @type {number} */ (PhinaGamepad.BUTTON_CODE[button]);
+      button = PhinaGamepad.BUTTON_CODE[button];
     }
     if (this.buttons[button]) {
       return this.buttons[button].pressed;
@@ -265,7 +265,7 @@ class PhinaGamepad {
 
   /**
    * ボタンを押した.
-   * @param {number|string} button ボタンコード数値、あるいはラベル文字列
+   * @param {number|keyof typeof PhinaGamepad.BUTTON_CODE} button ボタンコード数値、あるいはラベル文字列
    * @returns {boolean}
    */
   getKeyDown(button) {
@@ -281,7 +281,7 @@ class PhinaGamepad {
 
   /**
    * ボタンを離した.
-   * @param {number|string} button ボタンコード数値、あるいはラベル文字列
+   * @param {number|keyof typeof PhinaGamepad.BUTTON_CODE} button ボタンコード数値、あるいはラベル文字列
    * @returns {boolean}
    */
   getKeyUp(button) {

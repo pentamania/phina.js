@@ -83,7 +83,7 @@ export class Keyboard extends Input {
 
   /**
    * キーを押しているかをチェック
-   * @param   {number|string} key keyCode or keyName
+   * @param   {number|keyof typeof Keyboard.KEY_CODE} key keyCode or keyName
    * @returns {Boolean}   チェック結果
    */
   getKey(key) {
@@ -95,7 +95,7 @@ export class Keyboard extends Input {
   
   /**
    * キーを押したかをチェック
-   * @param   {number|string} key keyCode or keyName
+   * @param   {number|keyof typeof Keyboard.KEY_CODE} key keyCode or keyName
    * @returns {Boolean}   チェック結果
    */
   getKeyDown(key) {
@@ -107,7 +107,7 @@ export class Keyboard extends Input {
   
   /**
    * キーを離したかをチェック
-   * @param   {number|string} key keyCode or keyName
+   * @param   {number|keyof typeof Keyboard.KEY_CODE} key keyCode or keyName
    * @returns {Boolean}   チェック結果
    */
   getKeyUp(key) {
