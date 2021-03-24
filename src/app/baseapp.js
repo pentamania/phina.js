@@ -279,25 +279,21 @@ export class BaseApp extends EventDispatcher {
 
   /**
    * 前フレームでの処理にかかった時間
-   * @readonly
    */
   get deltaTime() { return this.ticker.deltaTime; }
 
   /**
    * 開始処理からの経過時間
-   * @readonly
    */
   get elapsedTime() { return this.ticker.elapsedTime; }
 
   /**
    * 現在の時間（最後の更新処理時のUNIXタイムスタンプ）
-   * @readonly
    */
   get currentTime() { return this.ticker.currentTime; }
 
   /**
    * アプリ開始時間（開始処理時のUNIXタイムスタンプ）
-   * @readonly
    */
   get startTime() { return this.ticker.startTime; }
 

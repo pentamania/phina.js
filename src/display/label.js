@@ -122,7 +122,6 @@ export class Label extends Shape {
   }
 
   /**
-   * @readonly
    * @returns {string}
    */
   get font() {

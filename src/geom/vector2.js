@@ -798,31 +798,26 @@ export class Vector2 {
 
   /**
    * @property {Vector2} ZERO ゼロベクトル
-   * @readonly
    */
   static get ZERO() { return ZERO; }
 
   /**
    * @property {Vector2} LEFT 左方向の単位ベクトル
-   * @readonly
    */
   static get LEFT() { return LEFT; }
 
   /**
    * @property {Vector2} RIGHT 右方向の単位ベクトル
-   * @readonly
    */
   static get RIGHT() { return RIGHT; }
 
   /**
    * @property {Vector2} UP 上方向の単位ベクトル
-   * @readonly
    */
   static get UP() { return UP; }
 
   /**
    * @property {Vector2} DOWN 下方向の単位ベクトル
-   * @readonly
    */
   static get DOWN() { return DOWN; }
 }

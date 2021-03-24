@@ -325,7 +325,6 @@ export class Matrix33 {
 
   /**
    * デフォルト単位行列を返す
-   * @readonly
    */
   static get IDENTITY() {
     return IDENTITY

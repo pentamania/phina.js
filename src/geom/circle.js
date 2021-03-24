@@ -177,7 +177,6 @@ export class Circle {
 
   /**
    * @property {Number} left
-   * @readonly
    * キャンバス左端から円の左端までの距離
    *
    * 現時点では読み取り専用です。
@@ -196,7 +195,6 @@ export class Circle {
 
   /**
    * @property {Number} top
-   * @readonly
    * キャンバス上端から円の上端までの距離
    *
    * 現時点では読み取り専用です。
@@ -208,7 +206,6 @@ export class Circle {
 
   /**
    * @property {Number} right
-   * @readonly
    * キャンバス右端から円の右端までの距離
    *
    * 現時点では読み取り専用です。
@@ -220,7 +217,6 @@ export class Circle {
 
   /**
    * @property {Number} bottom
-   * @readonly
    * キャンバス下端から円の下端までの距離
    *
    * 現時点では読み取り専用です。
@@ -232,7 +228,6 @@ export class Circle {
     
   /**
    * @property {Number} size
-   * @readonly
    * 円の直径
    *
    * 現時点では読み取り専用です。
