@@ -68,7 +68,7 @@ export class Tweener extends Accessory {
   }
 
   /**
-   * @param {BaseApp} app
+   * @param {import('../app/baseapp').BaseApp} app
    */
   update(app) {
     this._update(app);
@@ -441,7 +441,7 @@ export class Tweener extends Accessory {
   }
 
   /**
-   * @param {BaseApp} app 
+   * @param {import('../app/baseapp').BaseApp} app
    */
   _updateTask(app) {
     if (!this.playing) return ;
@@ -501,7 +501,7 @@ export class Tweener extends Accessory {
   }
 
   /**
-   * @param {BaseApp} app 
+   * @param {import('../app/baseapp').BaseApp} app
    */
   _updateTween(app) {
     var tween = this._tween;
@@ -518,7 +518,7 @@ export class Tweener extends Accessory {
   }
 
   /**
-   * @param {BaseApp} app 
+   * @param {import('../app/baseapp').BaseApp} app
    */
   _updateWait(app) {
     var wait = this._wait;
@@ -534,7 +534,7 @@ export class Tweener extends Accessory {
 
   /**
    * @private
-   * @param {BaseApp} app 
+   * @param {import('../app/baseapp').BaseApp} app
    */
   _getUnitTime(app) {
     var obj = UPDATE_MAP[this.updateType];
@@ -570,7 +570,7 @@ export class Tweener extends Accessory {
  * 
  * @type {{
  *   [key in TweenerUpdateType]: {
- *     func: (app?: BaseApp)=> number,
+ *     func: (app: import('../app/baseapp').BaseApp)=> number,
  *     duration: number,
  *   }
  * }}
