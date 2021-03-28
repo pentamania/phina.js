@@ -4,7 +4,7 @@
 export class Updater {
 
   /**
-   * @param {AppUnion} app
+   * @param {import('../game/gameapp').AppUnion} app
    */
   constructor(app) {
     this.app = app;

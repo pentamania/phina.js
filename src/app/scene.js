@@ -13,7 +13,7 @@ export class Scene extends PhinaElement {
   constructor() {
     super();
 
-    /** @type {AppUnion|undefined} */
+    /** @type {import("../game/gameapp").AppUnion|undefined} */
     this.app = undefined
     
     /**

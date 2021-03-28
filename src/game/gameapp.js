@@ -182,3 +182,8 @@ export class GameApp extends CanvasApp {
     }.bind(this));
   }
 }
+
+/**
+ * Appクラス統合型
+ * @typedef {import('../app/baseapp').BaseApp | import('../display/domapp').DomApp | import('../display/canvasapp').CanvasApp | GameApp} AppUnion
+ */

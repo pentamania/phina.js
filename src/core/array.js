@@ -5,7 +5,7 @@
 import { randint } from "./math";
 
 /**
- * @type {AccessorExtendObject} first
+ * @type {import('../phina').AccessorExtendObject} first
  * 最初の要素を返す、もしくはそこにセットする
  *
  * ### Example
@@ -21,7 +21,7 @@ export const first = {
 }
 
 /**
- * @type {AccessorExtendObject} last
+ * @type {import('../phina').AccessorExtendObject} last
  * 最後の要素を返す、もしくはそこにセットする
  *
  * ### Example

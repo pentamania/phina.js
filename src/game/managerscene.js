@@ -5,7 +5,7 @@ import { Scene } from "../app/scene";
 
 /**
  * @typedef {{
- *   className: string | Constructable
+ *   className: string | (new (...args: any)=> any)
  *   label: import("../app/scene").SceneLabel
  *   arguments?: any
  *   nextLabel?: import("../app/scene").SceneLabel
@@ -76,7 +76,7 @@ export class ManagerScene extends Scene {
     /** @type {Scene} */
     var scene;
 
-    /** @type {Constructable} */
+    /** @type {(new (...args: any)=> any)} */
     var SceneConstructor;
     if (typeof data.className === 'string') {
       // 文字列型の場合：phina.define、あるいはグローバルスコープ（window）に直接定義されたクラスの文字列

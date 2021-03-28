@@ -2,6 +2,11 @@ import { accessor, $extend, forIn } from "./core/object";
 import { clone, clear, last } from "./core/array";
 
 /**
+ * アクセサ拡張用オブジェクト
+ * @typedef {{get: ()=> any, set: (v:any)=> void}} AccessorExtendObject
+ */
+
+/**
  * @typedef {{
  *   _creator: any
  *   _hierarchies: PhinaClass[]

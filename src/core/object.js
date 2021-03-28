@@ -58,7 +58,7 @@ export function getter(name, fn) {
  * 
  * @this Object
  * @param {string | number | symbol} name
- * @param {AccessorExtendObject} param
+ * @param {import('../phina').AccessorExtendObject} param
  */
 // Object.prototype.$method("accessor", function(name, param) {
 export function accessor(name, param) {

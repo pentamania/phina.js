@@ -261,7 +261,7 @@ export class Element extends EventDispatcher {
   /**
    * @virtual
    * 更新用仮想関数
-   * @param {AppUnion} [_app] アプリケーションクラス
+   * @param {import("../game/gameapp").AppUnion} [_app] アプリケーションクラス
    * @returns {any}
    */
   update(_app) {}
@@ -284,7 +284,7 @@ export class Element extends EventDispatcher {
    * 
    * @typedef {{
    *   children?: fromJSONData
-   *   className?: string | Constructable
+   *   className?: string | (new (...args: any)=> any)
    *   arguments?: any
    *   [otherProp: string]: any
    * }} fromJSONData

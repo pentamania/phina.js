@@ -16,7 +16,7 @@ import {
 
 /** @typedef {"Object"|"Array"|"ArrayStatic"|"Math"|"String"|"Number"|"Date"|"DateStatic"} ExtendableObjectType */
 /** @typedef {{ [key in ExtendableObjectType]: any } } ObjectTypeMapForExtension */
-/** @typedef {{ [key in ExtendableObjectType]: Function | AccessorExtendObject | number | string }} ExtensionMethodMap */
+/** @typedef {{ [key in ExtendableObjectType]: Function | import('./phina').AccessorExtendObject | number | string }} ExtensionMethodMap */
 
 /**
  * カスタムメソッドを定義
@@ -37,7 +37,7 @@ function _defineMethod(obj, methodName, func) {
  * カスタムアクセサを定義
  * @param {any} obj
  * @param {string} accessorName
- * @param {AccessorExtendObject} extendObj
+ * @param {import('./phina').AccessorExtendObject} extendObj
  */
 function _defineAccessor(obj, accessorName, extendObj) {
   return objectExtensions.accessor.call(obj, accessorName, extendObj);
