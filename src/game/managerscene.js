@@ -70,7 +70,8 @@ export class ManagerScene extends Scene {
    */
   _instantiateScene(data, args) {
     // Scene初期化引数
-    var initArguments = $extend.call({}, data.arguments, args);
+    // typescriptが何故かargumentsに反応して余計な引数定義を生成するため、文字列参照とする
+    var initArguments = $extend.call({}, data["arguments"], args);
     // var initArguments = {}.$extend(data.arguments, args);
 
     /** @type {Scene} */
