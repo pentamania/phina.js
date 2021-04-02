@@ -9,6 +9,7 @@ import { Label } from "../display/label";
  * @property {import("../index.esm").CanvasStyle} [fontColor] フォントの色
  * @property {number} [fontSize] フォントサイズ
  * @property {string} [exitType] 'auto'のとき、自動でpopScene
+ * 
  * @typedef {import("../display/displayscene").DisplaySceneOptions & CountSceneOptionExtend} CountSceneOptions
  */
 

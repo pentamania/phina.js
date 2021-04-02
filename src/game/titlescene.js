@@ -4,11 +4,11 @@ import { $safe } from "../core/object";
 
 /**
  * @typedef {Object} TitleSceneOptionExtend
- * @property {string} title タイトル文字列
- * @property {string} message 未使用
- * @property {import("../graphics/canvas").CanvasStyle} fontColor タイトルラベルの色
- * @property {string} backgroundImage 未使用
- * @property {"touch"|""} exitType 
+ * @property {string} [title] タイトル文字列
+ * @property {string} [message] 未使用
+ * @property {import("../graphics/canvas").CanvasStyle} [fontColor] タイトルラベルの色
+ * @property {string} [backgroundImage] 未使用
+ * @property {"touch"|""} [exitType] "touch"指定時に自動でタッチ遷移イベントを付与
  * 
  * @typedef {import("../display/displayscene").DisplaySceneOptions & TitleSceneOptionExtend} TitleSceneOptions
  */
