@@ -1,5 +1,4 @@
 import phina from "../phina";
-import { accessor } from "../core/object";
 import { Asset } from "./asset";
 import { Support } from "../util/support";
 
@@ -21,7 +20,7 @@ export class Sound extends Asset {
     this.context = Sound.getAudioContext();
     this.gainNode = this.context.createGain();
 
-    /** @type {AudioBufferSourceNode | OscillatorNode} */
+    /** @type {(AudioBufferSourceNode | OscillatorNode)?} */
     this.source;
 
     /** @type {string} */
@@ -29,9 +28,13 @@ export class Sound extends Asset {
   }
 
   /**
-   * @param {number} [when]
-   * @param {number} [offset]
-   * @param {number} [duration]
+   * 音源を再生
+   * 音源終了時に"ended"イベントを発生
+   * 
+   * @param {number} [when=0] 指定の秒数、再生を遅らせる
+   * @param {number} [offset=0] 音源のどの時間位置で再生するかを秒数指定
+   * @param {number} [duration] 再生時間を秒数指定
+   * @returns {this}
    */
   play(when, offset, duration) {
     when = when ? when + this.context.currentTime : 0;
@@ -51,6 +54,7 @@ export class Sound extends Asset {
     // connect
     source.connect(this.gainNode);
     this.gainNode.connect(Sound.getMasterGain());
+
     // play
     if (duration !== undefined) {
       source.start(when, offset, duration);
@@ -58,7 +62,7 @@ export class Sound extends Asset {
     else {
       source.start(when, offset);
     }
-    
+
     // check play end
     source.addEventListener('ended', function(){
       this.flare('ended');
@@ -67,8 +71,13 @@ export class Sound extends Asset {
     return this;
   }
 
+  /**
+   * 再生を停止（再生中でなかった時は何もしない）  
+   * 再生中だった場合、同時に"stop", "ended"イベントを発火する
+   * 
+   * @returns {this}
+   */
   stop() {
-    // stop
     if (this.source) {
       // stop すると source.endedも発火する
       this.source.stop && this.source.stop(0);
@@ -79,23 +88,38 @@ export class Sound extends Asset {
     return this;
   }
 
+  /**
+   * 再生を一時停止
+   * 同時に"pause"イベントを発火する
+   * 
+   * @returns {this}
+   */
   pause() {
-    // 型アサーション
-    this.source = /** @type {AudioBufferSourceNode} */ (this.source);
-    this.source.playbackRate.value = 0;
+    /** @type {AudioBufferSourceNode} */
+    (this.source).playbackRate.value = 0;
     this.flare('pause');
     return this;
   }
 
+  /**
+   * 再生を再開
+   * 同時に"resume"イベントを発火する
+   * 
+   * @returns {this}
+   */
   resume() {
-    // 型アサーション
-    this.source = /** @type {AudioBufferSourceNode} */ (this.source);
-    this.source.playbackRate.value = this._playbackRate;
+    /** @type {AudioBufferSourceNode} */
+    (this.source).playbackRate.value = this._playbackRate;
     this.flare('resume');
     return this;
   }
 
-  // 試してみるなう
+  /**
+   * @private
+   * 未実装
+   * 
+   * @param {*} type 
+   */
   _oscillator(type) {
     var context = this.context;
 
@@ -114,6 +138,8 @@ export class Sound extends Asset {
   }
 
   /**
+   * AudioBufferからロード
+   * 
    * @param {AudioBuffer} [buffer] 
    */
   loadFromBuffer(buffer) {
@@ -135,7 +161,10 @@ export class Sound extends Asset {
   }
 
   /**
+   * ループ設定
+   * 
    * @param {boolean} loop
+   * @returns {this}
    */
   setLoop(loop) {
     this.loop = loop;
@@ -143,7 +172,10 @@ export class Sound extends Asset {
   }
 
   /**
+   * ループ開始位置を秒数で設定
+   * 
    * @param {number} loopStart
+   * @returns {this}
    */
   setLoopStart(loopStart) {
     this.loopStart = loopStart;
@@ -151,7 +183,10 @@ export class Sound extends Asset {
   }
 
   /**
+   * ループ終了位置を秒数で設定
+   * 
    * @param {number} loopEnd
+   * @returns {this}
    */
   setLoopEnd(loopEnd) {
     this.loopEnd = loopEnd;
@@ -159,7 +194,11 @@ export class Sound extends Asset {
   }
   
   /**
+   * 再生速度を設定
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/AudioBufferSourceNode/playbackRate
+   * 
    * @param {number} playbackRate
+   * @returns {this}
    */
   setPlaybackRate(playbackRate) {
     this.playbackRate = playbackRate;
@@ -263,33 +302,52 @@ export class Sound extends Asset {
     });
   }
 
+  /**
+   * @override
+   * ダミーバッファをロード
+   */
   loadDummy() {
     this.loadFromBuffer();
   }
 
+  /**
+   * 音量
+   */
   get volume()  { return this.gainNode.gain.value; }
   set volume(v) { this.gainNode.gain.value = v; }
 
+  /**
+   * ループ設定
+   */
   get loop()  { return this._loop; }
   set loop(v) {
     this._loop = v;
   }
 
+  /**
+   * ループ開始時間位置(second)
+   */
   get loopStart()  { return this._loopStart; }
   set loopStart(v) {
     this._loopStart = v;
   }
 
+  /**
+   * ループ終了時間位置(second)
+   */
   get loopEnd()  { return this._loopEnd; }
   set loopEnd(v) {
     this._loopEnd = v;
   }
 
+  /**
+   * 再生速度
+   */
   get playbackRate() { return this._playbackRate; }
   set playbackRate(v) {
     this._playbackRate = v;
     this.source = /** @type {AudioBufferSourceNode} */(this.source);
-    if(this.source && this.source.playbackRate.value !== 0){
+    if (this.source && this.source.playbackRate.value !== 0) {
       this.source.playbackRate.value = v;
     }
   }
@@ -337,11 +395,15 @@ export class Sound extends Asset {
     return context;
   }
 
-  static get volume () {
+  /**
+   * マスター音量を取得
+   */
+  static get volume() {
     return this.getMasterGain().gain.value;
   }
 
   /**
+   * マスター音量をセット
    * @param {number} v
    */
   static set volume(v) {
@@ -349,5 +411,8 @@ export class Sound extends Asset {
   }
 }
 
-/** @type {AudioContext} */
+/**
+ * WebAudioコンテキスト
+ * @type {AudioContext}
+ */
 Sound.context;
