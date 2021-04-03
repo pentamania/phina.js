@@ -2,6 +2,9 @@ import { AssetManager } from "./assetmanager";
 
 /**
  * @class phina.asset.SoundManager
+ * 全てのクラスメンバーがstaticな静的クラス
+ * サウンドの再生は基本これを使う
+ * 
  * ### Ref
  * - http://evolve.reintroducing.com/_source/classes/as3/SoundManager/SoundManager.html
  * - https://github.com/nicklockwood/SoundManager
@@ -13,11 +16,17 @@ export class SoundManager {
   // currentMusic: null,
 
   /**
+   * @private インスタンス化しない
+   */
+  constructor() {}
+
+  /**
    * 音源を再生
-   * @param {string} name
-   * @param {number} [when]
-   * @param {number} [offset]
-   * @param {number} [duration]
+   * 
+   * @param {string} name 音源キー名
+   * @param {number} [when=0] 指定の秒数、再生を遅らせる
+   * @param {number} [offset=0] 音源のどの時間位置で再生するかを秒数指定
+   * @param {number} [duration] 再生時間を秒数指定
    * @returns {import('../asset/sound').Sound}
    */
   static play(name, when, offset, duration) {
@@ -30,17 +39,30 @@ export class SoundManager {
     return sound;
   }
 
+  /**
+   * @private 未実装のため
+   */
   static stop() {
     // TODO: 
   }
+
+  /**
+   * @private 未実装のため
+   */
   static pause() {
     // TODO: 
   }
+
+  /**
+   * @private 未実装のため
+   */
   static fade() {
     // TODO: 
   }
 
   /**
+   * 通常サウンド音量をセット
+   * 
    * @param {number} volume
    * @returns {void}
    */
@@ -49,6 +71,8 @@ export class SoundManager {
   }
 
   /**
+   * 通常サウンド音量を取得
+   * 
    * @returns {number}
    */
   static getVolume() {
@@ -57,6 +81,7 @@ export class SoundManager {
 
   /**
    * ミュート
+   * 
    * @returns {SoundManager}
    */
   static mute() {
@@ -69,6 +94,7 @@ export class SoundManager {
 
   /**
    * ミュート解除
+   * 
    * @returns {SoundManager}
    */
   static unmute() {
@@ -81,6 +107,7 @@ export class SoundManager {
 
   /**
    * ミュート状態かどうか
+   * 
    * @returns {boolean}
    */
   static isMute() {
@@ -89,12 +116,13 @@ export class SoundManager {
 
   /**
    * 音楽系の音源を再生：ループの有無などを細かく調整可能
-   * @param {string} name
-   * @param {number} [fadeTime]
-   * @param {boolean} [loop]
-   * @param {number} [when]
-   * @param {number} [offset]
-   * @param {number} [duration]
+   * 
+   * @param {string} name 音源キー名
+   * @param {number} [fadeTime] 指定時間をかけて音量フェードイン。単位はミリ秒
+   * @param {boolean} [loop] ループするかどうか。Default: true
+   * @param {number} [when=0] 指定の秒数、再生を遅らせる
+   * @param {number} [offset=0] 音源のどの時間位置で再生するかを秒数指定
+   * @param {number} [duration] 再生時間を秒数指定
    * @returns {import('../asset/sound').Sound} 再生したSoundクラス
    */
   static playMusic(name, fadeTime, loop, when, offset, duration) {
@@ -141,7 +169,8 @@ export class SoundManager {
 
   /**
    * 音楽を停止
-   * @param {number} [fadeTime]
+   * 
+   * @param {number} [fadeTime] 指定時間をかけて音量フェードアウト。単位はミリ秒
    * @returns {void}
    */
   static stopMusic(fadeTime) {
@@ -178,6 +207,7 @@ export class SoundManager {
 
   /**
    * 音楽を一時停止
+   * 
    * @returns {void}
    */
   static pauseMusic() {
@@ -187,6 +217,7 @@ export class SoundManager {
 
   /**
    * 音楽を再開
+   * 
    * @returns {void}
    */
   static resumeMusic() {
@@ -195,7 +226,8 @@ export class SoundManager {
   }
 
   /**
-   * 音楽のボリュームを設定
+   * 音楽の音量を設定
+   * 
    * @param {number} volume
    * @returns {SoundManager}
    */
@@ -209,7 +241,8 @@ export class SoundManager {
   }
 
   /**
-   * 音楽のボリュームを取得
+   * 音楽の音量を取得
+   * 
    * @returns {number}
    */
   static getVolumeMusic() {
@@ -218,8 +251,26 @@ export class SoundManager {
 
 }
 
-// static props
+/**
+ * 通常サウンド（SE）音量
+ * @type {number}
+ */
 SoundManager.volume = 0.8
+
+/**
+ * 音楽音量
+ * @type {number}
+ */
 SoundManager.musicVolume = 0.8
+
+/**
+ * ミュート状態
+ * @type {boolean}
+ */
 SoundManager.muteFlag = false
+
+/**
+ * 再生中の音楽音源
+ * @type {import('../asset/sound').Sound | null}
+ */
 SoundManager.currentMusic = null
