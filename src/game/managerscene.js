@@ -46,11 +46,15 @@ export class ManagerScene extends Scene {
 
     this.on("resume", this.onnext.bind(this));
 
+    /**
+     * @private 未使用
+     */
     this.commonArguments = {};
   }
 
   /**
    * scenes をセット
+   * 
    * @param {SceneData[]} scenes
    * @returns {this}
    */
@@ -62,10 +66,11 @@ export class ManagerScene extends Scene {
   }
 
   /**
-   * Sceneクラスをインスタンス化して返す
    * @private
-   * @param {SceneData} data
-   * @param {any} args
+   * Sceneクラスをインスタンス化して返す
+   * 
+   * @param {SceneData} data Sceneデータ
+   * @param {any} args インスタンス化の際のコンストラクタの引数
    * @returns {Scene}
    */
   _instantiateScene(data, args) {
@@ -77,7 +82,7 @@ export class ManagerScene extends Scene {
     /** @type {Scene} */
     var scene;
 
-    /** @type {(new (...args: any)=> any)} */
+    /** @type {(new (args: any)=> any)} */
     var SceneConstructor;
     if (typeof data.className === 'string') {
       // 文字列型の場合：phina.define、あるいはグローバルスコープ（window）に直接定義されたクラスの文字列
@@ -105,9 +110,10 @@ export class ManagerScene extends Scene {
   }
 
   /**
+   * 指定したlabelに対応するシーンへ飛ぶ  
    * Sceneクラスをインスタンス化してappにreplaceSceneさせる  
-   * ライブラリ内では使われていない
-   * @param  {import("../app/scene").SceneLabel} label シーンの対応ラベル
+   * 
+   * @param  {import("../app/scene").SceneLabel} label シーンラベル
    * @param  {any} [args] Sceneにわたす引数がある場合に指定
    * @returns {this}
    */
@@ -124,10 +130,12 @@ export class ManagerScene extends Scene {
   }
 
   /**
-   * index(or label) のシーンへ飛ぶ
-   * replaceSceneとの違いはapp.replaceSceneではなく、app.pushSceneを実行する点
-   * @param {import("../app/scene").SceneLabel} label
-   * @param {any} args
+   * 指定したlabelに対応するシーンへ飛ぶ  
+   * replaceSceneとの違いはapp.replaceSceneではなく、
+   * app.pushSceneを実行する点
+   * 
+   * @param {import("../app/scene").SceneLabel} label シーンラベル
+   * @param {any} args Sceneコンストラクタの引数
    * @returns {this}
    */
   gotoScene(label, args) {
@@ -143,35 +151,38 @@ export class ManagerScene extends Scene {
   }
 
   /**
-   * 次のシーンへ飛ぶ
-   * @param {any} args
+   * 次のシーンへ飛ぶ  
+   * シーンが存在しない場合、"finish"イベントを発火して終了
+   * 
+   * @param {any} args 次のSceneコンストラクタの引数
    * @returns {this}
    */
   gotoNext(args) {
     var data = this.scenes[this.sceneIndex];
     var nextIndex = null;
 
-    // 次のラベルが設定されていた場合
     if (data.nextLabel) {
-        nextIndex = this.labelToIndex(data.nextLabel);
+      // 次のラベルが設定されていた場合
+      nextIndex = this.labelToIndex(data.nextLabel);
     }
-    // 次のシーンに遷移
     else if (this.sceneIndex+1 < this.scenes.length) {
-        nextIndex = this.sceneIndex+1;
+      // index上の次のシーンに遷移
+      nextIndex = this.sceneIndex+1;
     }
 
     if (nextIndex !== null) {
-        this.gotoScene(nextIndex, args);
+      this.gotoScene(nextIndex, args);
     }
     else {
-        this.flare("finish");
+      this.flare("finish");
     }
 
     return this;
   }
 
   /**
-   * シーンインデックスを取得
+   * 現在のシーンのインデックスを取得
+   * 
    * @returns {number}
    */
   getCurrentIndex() {
@@ -179,7 +190,8 @@ export class ManagerScene extends Scene {
   }
 
   /**
-   * シーンラベルを取得
+   * 現在のシーンのラベルを取得
+   * 
    * @returns {import("../app/scene").SceneLabel} label
    */
   getCurrentLabel() {
@@ -188,6 +200,7 @@ export class ManagerScene extends Scene {
 
   /**
    * ラベルからインデックスに変換
+   * 
    * @param {import("../app/scene").SceneLabel} label
    */
   labelToIndex(label) {
@@ -200,6 +213,7 @@ export class ManagerScene extends Scene {
 
   /**
    * インデックスからラベルに変換
+   * 
    * @param {number} index
    * @returns {import("../app/scene").SceneLabel} label
    */
@@ -208,7 +222,10 @@ export class ManagerScene extends Scene {
   }
 
   /**
-   * {@link BaseApp#popScene}の際にresumeイベント経由で実行され、対応する次のシーンに移行する
+   * @private
+   * {@link BaseApp#popScene} の際にresumeイベント経由で実行され、
+   * 対応する次のシーンに移行する
+   * 
    * @param {{ prevScene: { nextLabel: import("../app/scene").SceneLabel; nextArguments: any; }; }} e
    * @returns {void}
    */
