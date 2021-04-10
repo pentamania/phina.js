@@ -13,6 +13,14 @@ import {Element as PhinaElement} from "./element"
  */
 
 /**
+ * SceneのAppクラス参照として最低限のインタフェースを備えた型
+ * @typedef {{
+ *   popScene: typeof import("./baseapp").BaseApp.prototype.popScene
+ *   [key: string]: any,
+ * }} SceneAppAppliable
+ */
+
+/**
  * @class phina.app.Scene
  * _extends phina.app.Element
  */
@@ -21,7 +29,10 @@ export class Scene extends PhinaElement {
   constructor() {
     super();
 
-    /** @type {import("../game/gameapp").AppUnion|undefined} */
+    /**
+     * Appクラス参照
+     * @type {SceneAppAppliable | undefined}
+     */
     this.app = undefined
     
     /**
