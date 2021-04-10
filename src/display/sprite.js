@@ -3,8 +3,17 @@ import { Rect } from "../geom/rect";
 import { AssetManager } from "../asset/assetmanager";
 
 /**
- * AssetManagerに登録した際の画像キー、もしくはTextureクラスそのもの
- * @typedef {string | import("../asset/texture").Texture} SpriteImage
+ * Sprite画像ソースとして使えるオブジェクト型
+ * TextureクラスやCanvasクラスなど
+ * @typedef {{
+ *   domElement: HTMLCanvasElement | HTMLImageElement;
+ *   [key: string]: any;
+ * }} SpriteImage
+ */
+
+/**
+ * AssetManagerに登録した画像キー、もしくはSpriteImageオブジェクト
+ * @typedef {string | SpriteImage} SpriteImageSrc
  */
 
 /**
@@ -14,7 +23,7 @@ import { AssetManager } from "../asset/assetmanager";
 export class Sprite extends DisplayElement {
 
   /**
-   * @param {SpriteImage} image
+   * @param {SpriteImageSrc} image
    * @param {number} [width]
    * @param {number} [height]
    */
@@ -24,7 +33,7 @@ export class Sprite extends DisplayElement {
     /**
      * スプライト元画像（テクスチャ）。setImageで初期化
      * @private
-     * @type {import("../asset/texture").Texture}
+     * @type {SpriteImage}
      */
     this._image
 
@@ -64,7 +73,7 @@ export class Sprite extends DisplayElement {
 
   /**
    * スプライト元画像を設定
-   * @param {SpriteImage} image
+   * @param {SpriteImageSrc} image
    * @param {number} [width]
    * @param {number} [height]
    * @returns {this}
@@ -73,7 +82,7 @@ export class Sprite extends DisplayElement {
     if (typeof image === 'string') {
       image = AssetManager.get('image', image);
     }
-    this._image = /**@type {import("../asset/texture").Texture} */ (image);
+    this._image = /**@type {SpriteImage} */ (image);
     this.width = this._image.domElement.width;
     this.height = this._image.domElement.height;
 
