@@ -17,14 +17,16 @@ import { $method, forIn } from "../core/object"
 
 /**
  * @class phina.util.EventDispatcher
+ * 
  * # イベントを扱うためのクラス
  * イベントを扱うためのメソッドやプロパティを定義しているクラスです。
- * phina.js が提供するクラスの多くはこの EventDispatcher クラスの子孫となっているため、
- * ほとんどのオブジェクトで容易にイベントを扱うことができます。
+ * phina.js が提供するクラスの多くはこの EventDispatcher クラスのサブクラスとなっているため、
+ * ほとんどのクラスで容易にイベントを扱うことができます。
  *
- * # 少し説明
- * this.onxxx = function(){}; でもイベントリスナを設定できるが、あまり推奨しない。
- * 呼び出される順序は、まず this.onxxxx が呼び出され、あとは on() で登録した順番。
+ * 当クラスに`onhoge`のように`on~`という名前でメソッドを定義することで
+ * イベントリスナを設定することもできるが、あまり推奨されない。
+ * 呼び出される順序は、まずon~関数が呼び出され、その後 `on`メソッド で登録した順番。
+ * 
  * @memberof phina
  */
 export class EventDispatcher {
@@ -38,29 +40,40 @@ export class EventDispatcher {
   }
 
   /**
-   * @chainable
    * イベントリスナを登録します。
+   * 登録したイベントリスナは{@link #flare} や {@link #fire}を
+   * 介して実行（発火）することができます。
    *
    * １つのイベントに対するイベントリスナはいくつでも登録することができます。
    *
-   * 標準のイベントを検知するには、オブジェクトの {@link Object2D#interactive} プロパティが true である必要があります。
-   * {@link Object2D#interactive} プロパティを設定するには {@link Object2D#setInteractive} メソッドを呼び出してください。
+   * いくつかのサブクラスについてはライブラリが特定条件下で発火するイベントがあります。
+   * 例えば {@link #Object2D} クラスを継承したクラスではユーザーインタラクションに対して
+   * "pointstart"などのイベントが発火されます。
    *
-   * また、{@link #flare} や {@link #fire} によって定義したカスタムイベントに対するイベントリスナも登録することが
-   * できます。カスタムイベントのイベントリスナは {@link Object2D#interactive} プロパティによらず呼び出されます。
-   * なおカスタムイベントのオブジェクトは Event オブジェクトとは異なります。
+   * @example
+   * const myObj = new EventDispatcher();
+   * myObj.on("myevent", ()=> {
+   *   console.log("Event 1");
+   * });
+   * myObj.on("myevent", ()=> {
+   *   console.log("Event 2");
+   * });
+   * // イベント発火
+   * myObj.flare("myevent"); // "Event 1" "Event 2"
+   * 
+   * @example
+   * // thisはアクティブなSceneクラスのインスタンス
+   * const shape = new CircleShape()
+   *   .addChildTo(this)
+   *   .setInteractive(true) // interactiveプロパティをtrueにする
+   *   .setPosition(50, 50);
+   * shape.on("pointstart", function(e) {
+   *   console.log("Pointed shape");
+   * });
    *
-   * ###Reference
-   * 標準のイベントの種類は以下を参照してください。
-   * - [Event reference | MDN]( https://developer.mozilla.org/en-US/docs/Web/Events )
-   *
-   * ### Example
-   *     var shape = CircleShape().addChildTo(this).setInteractive(true).setPosition(50, 50);
-   *     shape.on("touchstart", function(e){
-   *       this.color = "blue";
-   *     });
-   *
-   * @param {String} type イベントの種類
+   * @chainable
+   * 
+   * @param {string} type イベントの種類
    * @param {PhinaEventHandler} listener イベントリスナとなる関数
    * @returns {this}
    */
@@ -74,12 +87,26 @@ export class EventDispatcher {
   }
 
   /**
-   * @chainable
    * イベントリスナを削除します。
-   *
-   * ある種類のイベントに対するイベントリスナをすべて削除するには {@link #clear} を使用してください。
-   *
-   * @param {String} type イベントの種類
+   * 
+   * ある種類のイベントに対するイベントリスナをすべて削除するには {@link #clearEventListener} を使用してください。
+   * 
+   * @example
+   * const myObj = new EventDispatcher();
+   * const eventHandler = ()=> {
+   *   console.log("Event fired!");
+   * })
+   * myObj.on("myevent", eventHandler);
+   * 
+   * // イベント発火
+   * myObj.flare("myevent"); // "Event fired!"
+   * 
+   * // イベント削除
+   * myObj.off("myevent", eventHandler);
+   * 
+   * @chainable
+   * 
+   * @param {string} type イベントの種類
    * @param {PhinaEventHandler} listener イベントリスナ関数
    * @returns {this}
    */
@@ -93,11 +120,22 @@ export class EventDispatcher {
   }
 
   /**
-   * @method fire
+   * イベントパラメータオブジェクトを指定してイベントを発火します。
+   * {@link #flare} の内部処理で使用、単独で使用することは稀
+   * 
+   * @example
+   * const myObj = new EventDispatcher();
+   * const fireParam = {type: "myevent"}
+   * myObj.on("myevent", (e)=> {
+   *   console.log(e); // {type: "myevent", target: myObj}
+   *   console.log(e === fireParam); // -> true
+   * });
+   * 
+   * myObj.fire(fireParam)
+   * 
    * @chainable
-   * カスタムイベントを表すオブジェクトを指定してカスタムイベントを発火します。
    *
-   * @param {BasicEventObject} e カスタムイベントを表すオブジェクト
+   * @param {BasicEventObject} e イベントパラメータオブジェクト
    * @returns {this}
    */
    fire(e) {
@@ -118,18 +156,24 @@ export class EventDispatcher {
   }
 
   /**
-   * @chainable
    * イベント名を指定してカスタムイベントを発火します。
    *
    * param 引数を指定することによりカスタムイベントに任意のプロパティを設定することができます。
    * これにより、呼び出し元がイベントリスナに任意の値を渡すことができます。
    * （ただし target プロパティには必ず自分自身が格納されます。）
    *
-   * ### Example
-   *     //
+   * @example
+   * const myObj = new EventDispatcher();
+   * myObj.on("myevent", (e)=> {
+   *   console.log(e); // {type: "myevent", target: myObj, foo: "foo"}
+   * });
+   * 
+   * myObj.flare("myevent", {foo: "foo"});
+   * 
+   * @chainable
    *
-   * @param {String} type カスタムイベントの名前
-   * @param {Object} [param] カスタムイベントにプロパティを設定するためのオブジェクト
+   * @param {string} type カスタムイベントの名前
+   * @param {any} [param] カスタムイベントにプロパティを設定するためのオブジェクト
    * @returns {this}
   */
   flare(type, param) {
@@ -146,12 +190,22 @@ export class EventDispatcher {
   }
 
   /**
-   * @chainable
    * 一度だけ実行されるイベントリスナを登録します。
+   * 指定したイベントリスナが一度実行されると、そのイベントリスナは削除されます。
+   * それ以外の挙動は {@link #on} と同じです。
+   * 
+   * @example
+   * const myObj = new EventDispatcher();
+   * myObj.one("fireonce", (e)=> {
+   *   console.log("Event fired!");
+   * });
+   * 
+   * myObj.flare("fireonce"); // "Event fired!"
+   * myObj.flare("fireonce"); // イベントリスナは削除されているため、何も起きません
+   * 
+   * @chainable
    *
-   * 指定したイベントリスナが一度実行されると、そのイベントリスナは削除されます。それ以外の挙動は {@link #on} と同じです。
-   *
-   * @param {String} type イベントの種類
+   * @param {string} type イベントの種類
    * @param {PhinaEventHandler} listener イベントリスナとなる関数
    * @returns {this}
    */
@@ -171,22 +225,43 @@ export class EventDispatcher {
 
   /**
    * イベントリスナが登録されているかどうかを調べます。
+   * 
+   * 指定したイベントの種類に対するイベントリスナが登録されている場合は true、
+   * そうでない場合は false を返します。
    *
-   * 指定したイベントの種類に対するイベントリスナが登録されている場合は true、そうでない場合は false を返します。
-   *
-   * @param {String} type イベントの種類
-   * @return {Boolean} 指定したイベントのイベントリスナが登録されているかどうか
+   * @example
+   * const myObj = new EventDispatcher();
+   * myObj.on("myevent", (e)=> {
+   *   console.log("Event fired!");
+   * });
+   * 
+   * myObj.has("myevent"); // true
+   * myObj.has("otherevent"); // false
+   * 
+   * @param {string} type イベントの種類
+   * @return {boolean} 指定したイベントのイベントリスナが登録されているかどうか
    */
   has(type) {
     return (this._listeners[type] !== undefined && this._listeners[type].length !== 0) || !!this['on' + type];
   }
 
   /**
-   * @chainable
    * ある種類のイベントに対するイベントリスナをすべて削除します。
    *
    * 特定のイベントリスナのみを削除するには {@link #off} を使用してください。
-   * @param {String} type イベントの種類
+   * 
+   * @example
+   * const myObj = new EventDispatcher();
+   * myObj.on("myevent", (e)=> {
+   *   console.log("Event fired!");
+   * });
+   * 
+   * myObj.clearEventListener("myevent");
+   * myObj.flare("myevent"); // イベントリスナは削除されているため、何も起きません
+   * 
+   * @chainable
+   * 
+   * @param {string} type イベントの種類
    * @returns {this}
    */
   clearEventListener(type) {
