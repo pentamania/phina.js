@@ -11,7 +11,7 @@ import { $method, forIn } from "../core/object"
  * イベントリスナとなる関数  
  * thisの参照は呼び出したオブジェクト自身となる
  * @callback PhinaEventHandler
- * @param {BasicEventObject & {[key:string]:any}} [event] BasicEventObjectに加え、自身で付け加えたデータをパラメータとして渡すことができる
+ * @param {BasicEventObject & {[key:string]:any}} event BasicEventObjectに加え、自身で付け加えたデータをパラメータとして渡すことができる
  * @typedef {PhinaEventHandler} PhinaEventListener
  */
 
