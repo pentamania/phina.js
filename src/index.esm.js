@@ -1,4 +1,13 @@
 export {default as phina} from "./phina";
+
+export * as ObjectEx from "./core/object";
+export * as ArrayEx from "./core/array";
+export * as ArrayExStatic from "./core/array-static";
+export * as NumberEx from "./core/number";
+export * as StringEx from "./core/string";
+export * as dateEx from "./core/date";
+export * as dateExStatic from "./core/date-static";
+export * as MathEx from "./core/math";
 export * from "./extendBuiltIn";
 
 export * from "./util/eventdispatcher";
