@@ -33,6 +33,15 @@ export class Accessory extends EventDispatcher {
   }
 
   /**
+   * @virtual
+   * アタッチしたtargetのenterframeイベントを経由して
+   * 毎フレーム実行される
+   * 
+   * @param {*} _app Appクラスインスタンス
+   */
+  update(_app) {}
+
+  /**
    * @param {AccessoryTarget} target
    * @returns {this}
    */

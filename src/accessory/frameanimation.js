@@ -52,8 +52,9 @@ export class FrameAnimation extends Accessory {
 
   /**
    * 更新関数
+   * @param {*} _app Appクラスインスタンス
    */
-  update() {
+  update(_app) {
     if (this.paused) return ;
     if (!this.currentAnimation) return ;
 

@@ -111,8 +111,9 @@ export class Flickable extends Accessory {
 
   /**
    * 更新関数
+   * @param {*} _app Appクラスインスタンス
    */
-  update() {
+  update(_app) {
     if (!this.target) return ;
 
     this.velocity.x *= this.friction;
