@@ -137,7 +137,7 @@ export class Random {
    */
   static random() {
     this.seed = this.xor32(this.seed);
-    return (this.seed >>> 0) / phina.util.Random.MAX;
+    return (this.seed >>> 0) / this.MAX;
   }
 
   /**
