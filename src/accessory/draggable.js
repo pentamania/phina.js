@@ -3,6 +3,7 @@ import { Vector2 } from "../geom/vector2";
 import { Tweener } from "./tweener";
 
 /**
+ * Draggableのtargetに指定可能なオブジェクト型
  * @typedef {{
  *   x: number
  *   y: number
@@ -13,14 +14,40 @@ import { Tweener } from "./tweener";
 
 /**
  * @class phina.accessory.Draggable
- * Draggable
  * _extends phina.accessory.Accessory
+ * 
+ * 対象をドラッグ可能にするAccessory派生クラス
+ * 
+ * phina.app.Element派生クラスであれば、
+ * draggableゲッターにアクセスするだけで有効化することも可能
+ * 
+ * ### イベント発火について
+ * ドラッグ開始時に`dragstart`、
+ * ドラッグ移動毎に`drag`、
+ * ドラッグ終了時に時に`dragend`
+ * イベントをそれぞれ自身および対象オブジェクト両方で発火する
+ * 
+ * @example
+ * const target = new phina.display.Sprite("player");
+ * const draggable = new phina.accessory.Draggable().attachTo(target);
+ * draggable.on("dragend", ()=> {
+ *   if (!isValidatePosition(target)) draggable.back()
+ * })
+ * 
+ * @example
+ * // Activate by getter
+ * const el = new phina.app.Element();
+ * el.draggable;
+ * 
  */
 export class Draggable extends Accessory {
 
   /**
    * @constructor
+   * 
    * @param {DraggableTarget} [target]
+   * targetを受け取るが、それだけでは有効化されないことに注意
+   * 同時に有効化する場合はattachToを使って付与する
    */
   constructor(target) {
     super(target);
@@ -41,9 +68,13 @@ export class Draggable extends Accessory {
      */
     this._enable;
 
+    /**
+     * ドラッグ開始位置、処理毎に更新される
+     * @type {Vector2}
+     */
     this.initialPosition = new Vector2(0, 0);
-    var self = this;
 
+    var self = this;
     this.on('attached',
     /** @this {Draggable} */
     function() {
@@ -87,8 +118,14 @@ export class Draggable extends Accessory {
   }
 
   /**
-   * @param {number} time
-   * @param {import("../util/tween").TweenEasingType} [easing='easeOutElastic']
+   * ドラッグ開始位置にターゲットを戻す
+   * パラメータ指定することでtweenerアニメーションを使って戻すことも可能
+   * 
+   * 終了時に`backend`イベントを発火
+   * 
+   * @param {number} [time] アニメーション時間（ミリ秒）。無指定の場合は即座に戻す
+   * @param {import("../util/tween").TweenEasingType} [easing='easeOutElastic'] アニメーション種類
+   * @returns {void}
    */
   back(time, easing) {
     if (time) {
@@ -115,6 +152,7 @@ export class Draggable extends Accessory {
   }
 
   /**
+   * @private ※未使用のため
    * @returns {void}
    */
   enable() {
@@ -122,6 +160,8 @@ export class Draggable extends Accessory {
   }
 
   /**
+   * 全てのインスタンスでドラッグを無効化する
+   * 
    * @returns {void}
    */
   static lock() {
@@ -129,6 +169,8 @@ export class Draggable extends Accessory {
   }
 
   /**
+   * 全てのインスタンスでドラッグ無効化を解除
+   * 
    * @returns {void}
    */
   static unlock() {
@@ -137,6 +179,10 @@ export class Draggable extends Accessory {
 
 }
 
+/**
+ * @private
+ * @type {boolean}
+ */
 Draggable._lock = false;
 
 // Element側で定義
