@@ -15,8 +15,9 @@ import {Ticker} from "../util/ticker";
 
 /**
  * @class phina.app.BaseApp
- * ベースとなるアプリケーションクラス
  * _extends phina.util.EventDispatcher
+ * 
+ * アプリケーションクラスの基底クラス
  */
 export class BaseApp extends EventDispatcher {
 
@@ -26,22 +27,47 @@ export class BaseApp extends EventDispatcher {
   constructor() {
     super();
 
-    /** @type {SceneTypeUnion[]} */
+    /**
+     * シーンのスタック
+     * @private
+     * @type {SceneTypeUnion[]}
+     */
     this._scenes = [new Scene()];
+
+    /**
+     * シーンのインデックス値
+     * アクティブ中のシーン管理に使用
+     * @private
+     * @type {number}
+     */
     this._sceneIndex = 0;
 
-    this.updater = new Updater(this);
-    this.interactive = new Interactive(this);
-    
     /**
-     * 有効状態かどうか
+     * 更新処理が有効な状態かどうか
      * @type {boolean}
      */
     this.awake = true;
+
+    /** @type {Updater} */
+    this.updater = new Updater(this);
+
+    /** @type {Interactive} */
+    this.interactive = new Interactive(this);
+
+    /** @type {Ticker} */
     this.ticker = new Ticker();
+    
+    /**
+     * tickerによって毎フレーム実行されるアプリ内部処理
+     * @private
+     * @type {import("../util/eventdispatcher").PhinaEventHandler | null}
+     */
+    this._loopCaller;
   }
 
   /**
+   * アプリケーションを開始
+   * 
    * @returns {this}
    */
   run() {
@@ -58,6 +84,7 @@ export class BaseApp extends EventDispatcher {
 
   /**
    * アプリケーションを完全停止
+   * 
    * @returns {this}
    */
   kill() {
@@ -67,6 +94,8 @@ export class BaseApp extends EventDispatcher {
   }
 
   /**
+   * 指定したシーンに切り替える
+   * 
    * @param {SceneTypeUnion} scene
    * @returns {this}
    */
@@ -88,6 +117,14 @@ export class BaseApp extends EventDispatcher {
   }
 
   /**
+   * 指定したsceneに遷移する
+   * 
+   * replaceSceneとは違い、遷移前のシーンは停止して保持し続ける。
+   * そのため、ポーズやオブション画面などの一時的なシーンでの使用に最適
+   * 
+   * 具体的にはシーンスタックにシーンを追加しつつ、
+   * インデックス値を進めることでシーン遷移する
+   * 
    * @param {Scene} scene
    * @returns {this}
    */
@@ -113,7 +150,12 @@ export class BaseApp extends EventDispatcher {
   }
 
   /**
-   * シーンをポップする(ポーズやオブション画面などで使用)
+   * 現在のシーンを抜け、直前のシーンに戻る
+   * ポーズやオブション画面など、一時的なシーンを抜ける際に使用
+   * 
+   * pushScene同様、シーンスタックの操作によって
+   * アクティブなシーンを切り替える
+   * 
    * @returns {Scene}
    */
   popScene() {
@@ -130,7 +172,6 @@ export class BaseApp extends EventDispatcher {
 
     this.flare('poped');
 
-    //
     this.currentScene.flare('resume', {
       app: this,
       prevScene: scene,
@@ -140,7 +181,9 @@ export class BaseApp extends EventDispatcher {
   }
 
   /**
-   * シーンのupdateを実行するようにする
+   * アプリケーションの再開
+   * 更新処理の実行を再開する
+   * 
    * @returns {this}
    */
   start() {
@@ -150,7 +193,9 @@ export class BaseApp extends EventDispatcher {
   }
 
   /**
-   * シーンのupdateを実行しないようにする
+   * アプリケーションの一時停止
+   * 更新処理を実行しないようにする
+   * 
    * @returns {this}
    */
   stop() {
@@ -160,8 +205,12 @@ export class BaseApp extends EventDispatcher {
   }
 
   /**
-   * stats.js( https://github.com/mrdoob/stats.js/ )を実行し、パフォーマンスモニターを表示する  
-   * stats.jsがまだ読み込まれていない場合、cdnjsからr14版スクリプトを読み込む
+   * stats.js( https://github.com/mrdoob/stats.js/ )を実行し、
+   * パフォーマンスモニターを表示する
+   * 
+   * stats.jsがグローバルで読み込まれていない場合、
+   * cdnjsからr14版スクリプトを読み込む
+   * 
    * @returns {this}
    */
   enableStats() {
@@ -183,8 +232,12 @@ export class BaseApp extends EventDispatcher {
   }
 
   /**
-   * dat.GUI( https://github.com/dataarts/dat.gui )を初期化し、そのインスタンスをコールバック関数に渡して実行  
-   * dat.GUIがまだ読み込まれていない場合、cdnjsからv0.5.1版スクリプトを読み込む
+   * dat.GUI( https://github.com/dataarts/dat.gui )を初期化し、
+   * そのインスタンスをコールバック関数に渡して実行
+   * 
+   * dat.GUIがグローバルで読み込まれていない場合、
+   * cdnjsからv0.5.1版スクリプトを読み込む
+   * 
    * @param {(datGUIObject?: any) => any} callback
    * @returns {this}
    */
@@ -210,6 +263,7 @@ export class BaseApp extends EventDispatcher {
   /**
    * @private
    * ループ処理関数
+   * 
    * @returns {void}
    */
   _loop() {
@@ -224,6 +278,7 @@ export class BaseApp extends EventDispatcher {
   /**
    * @private
    * 更新処理関数
+   * 
    * @returns {void}
    */
   _update() {
@@ -240,6 +295,7 @@ export class BaseApp extends EventDispatcher {
 
   /**
    * 更新用仮想関数
+   * 
    * @virtual
    * @returns {any}
    */
@@ -247,13 +303,14 @@ export class BaseApp extends EventDispatcher {
 
   /**
    * 描画用仮想関数
+   * 
    * @virtual
    * @returns {any}
    */
   _draw() {}
 
   /**
-   * 現在描画しているシーン
+   * 現在アクティブ中のシーン
    */
   get currentScene()   { return this._scenes[this._sceneIndex]; }
   set currentScene(v)  { this._scenes[this._sceneIndex] = v; }
@@ -265,14 +322,14 @@ export class BaseApp extends EventDispatcher {
   set rootScene(v)  { this._scenes[0] = v; }
 
   /**
-   * 経過フレームを取得（設定も可能）
+   * 経過フレーム数
    */
   get frame() { return this.ticker.frame; }
   set frame(v) { this.ticker.frame = v; }
 
   /**
    * Frame per second  
-   * 秒間の更新処理数
+   * 秒間の更新および描画処理回数
    */
   get fps() { return this.ticker.fps; }
   set fps(v) { this.ticker.fps = v; }
@@ -283,18 +340,17 @@ export class BaseApp extends EventDispatcher {
   get deltaTime() { return this.ticker.deltaTime; }
 
   /**
-   * 開始処理からの経過時間
+   * アプリケーション開始からの経過時間
    */
   get elapsedTime() { return this.ticker.elapsedTime; }
 
   /**
-   * 現在の時間（最後の更新処理時のUNIXタイムスタンプ）
+   * 現在の時間（最後の更新時のUNIXタイムスタンプ）
    */
   get currentTime() { return this.ticker.currentTime; }
 
   /**
-   * アプリ開始時間（開始処理時のUNIXタイムスタンプ）
+   * アプリケーション開始時間（UNIXタイムスタンプ）
    */
   get startTime() { return this.ticker.startTime; }
-
 }
