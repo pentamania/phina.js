@@ -37,10 +37,10 @@ export class Element extends EventDispatcher {
     super();
 
     /**
-     * @type {ElementBasedObject}
+     * @type {ElementBasedObject | null}
      * 親要素
      */
-    this.parent = null
+    this.parent = null;
 
     /**
      * @type {ElementBasedObject[]}
@@ -56,9 +56,9 @@ export class Element extends EventDispatcher {
 
     /**
      * @type {boolean}
-     * クリック処理用フラグ
+     * 要素クリック管理用フラグ
      */
-    this._clicked = undefined;
+    this._clicked = false;
 
     /**
      * @type {import('../accessory/accessory').Accessory[]}
