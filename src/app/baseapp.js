@@ -156,13 +156,16 @@ export class BaseApp extends EventDispatcher {
    * pushScene同様、シーンスタックの操作によって
    * アクティブなシーンを切り替える
    * 
-   * @returns {Scene}
+   * @returns {Scene | void} 抜けたSceneオブジェクト、処理できなかった場合は何も返さない
    */
   popScene() {
     this.flare('pop');
     this.flare('changescene');
 
-    var scene = this._scenes.pop();
+    // Keep rootScene
+    if (this._scenes.length <= 1) return;
+
+    var scene = /** @type {Scene} */(this._scenes.pop());
     --this._sceneIndex;
 
     scene.flare('exit', {
