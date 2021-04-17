@@ -89,7 +89,7 @@ export class BaseApp extends EventDispatcher {
    */
   kill() {
     this.ticker.stop();
-    this.ticker.untick(this._loopCaller);
+    if (this._loopCaller) this.ticker.untick(this._loopCaller);
     return this;
   }
 
@@ -103,7 +103,6 @@ export class BaseApp extends EventDispatcher {
     this.flare('replace');
     this.flare('changescene');
 
-    var e = null;
     if (this.currentScene) {
       this.currentScene.app = null;
     }
