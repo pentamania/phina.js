@@ -128,7 +128,8 @@ export class FrameAnimation extends Accessory {
    */
   gotoAndPlay(name, keep) {
     keep = (keep !== undefined) ? keep : true;
-    if (keep && name === this.currentAnimationName
+    if (keep && this.currentAnimation
+             && name === this.currentAnimationName
              && this.currentFrameIndex < this.currentAnimation.frames.length
              && !this.paused) {
       return this;
@@ -169,18 +170,18 @@ export class FrameAnimation extends Accessory {
    * @returns {void}
    */
   _updateFrame() {
+    if (!this.currentAnimation) return;
+
     var anim = this.currentAnimation;
-    if (anim) {
-      if (this.currentFrameIndex >= anim.frames.length) {
-        if (anim.next) {
-          this.gotoAndPlay(anim.next);
-          return ;
-        }
-        else {
-          this.paused = true;
-          this.finished = true;
-          return ;
-        }
+    if (this.currentFrameIndex >= anim.frames.length) {
+      if (anim.next) {
+        this.gotoAndPlay(anim.next);
+        return ;
+      }
+      else {
+        this.paused = true;
+        this.finished = true;
+        return ;
       }
     }
 
