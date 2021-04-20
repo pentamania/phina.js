@@ -98,8 +98,9 @@ export class Accessory extends EventDispatcher {
    * @returns {void}
    */
   remove() {
+    if (!this.target) return;
     this.target.detach(this);
-    this.target = null;
+    this.target = undefined;
   }
 
 }
