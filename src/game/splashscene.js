@@ -4,9 +4,7 @@ import { Sprite } from "../display/sprite";
 
 /**
  * @typedef {Object} SplashSceneOptionExtend
- * @property {string} imageURL 表示する画像URL
- * 
- * @typedef {import("../display/displayscene").DisplaySceneOptions & SplashSceneOptionExtend} SplashSceneOptions
+ * @property {string} [imageURL] 表示するスプラッシュ画像パス
  */
 
 /**
@@ -16,7 +14,7 @@ import { Sprite } from "../display/sprite";
 export class SplashScene extends DisplayScene {
 
   /**
-   * @param {SplashSceneOptions} [options]
+   * @param {import("../display/displayscene").DisplaySceneOptions} [options]
    */
   constructor(options) {
     var defaults = SplashScene.defaults;
@@ -55,7 +53,7 @@ export class SplashScene extends DisplayScene {
 
 }
 
-/** @type {SplashSceneOptions} */
+/** @type {import("../display/displayscene").DisplaySceneOptions & SplashSceneOptionExtend} */
 SplashScene.defaults = {
   imageURL: 'http://cdn.rawgit.com/phi-jp/phina.js/develop/logo.png',
 };
