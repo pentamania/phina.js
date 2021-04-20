@@ -55,7 +55,7 @@ export class Accessory extends EventDispatcher {
    * @returns {this}
    */
   setTarget(target) {
-    if (this.target === target) return ;
+    if (this.target === target) return this;
 
     this.target = target;
     return this;
