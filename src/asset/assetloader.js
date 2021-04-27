@@ -10,9 +10,11 @@ import { Font } from "./font";
 import { File } from "./file";
 
 /**
+ * assetKeyのvalueは通常はstring（パス文字列）
+ * ただしパース済みjsonなどの特殊な形式も受け付けるため、any型としている
  * @typedef {{
  *   [assetType: string]: {
- *     [assetKey: string]: string
+ *     [assetKey: string]: any
  *   }
  * }} AssetLoaderLoadParam
  */
