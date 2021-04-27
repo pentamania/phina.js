@@ -233,7 +233,7 @@ GamepadManager.isAvailable = (function() {
  * （https://developer.mozilla.org/en-US/docs/Web/API/Gamepad）
  * 混同回避のためクラス名を変更
  */
-class PhinaGamepad {
+export class PhinaGamepad {
 
   /**
    * @param {number} [index=0]

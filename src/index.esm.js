@@ -35,7 +35,7 @@ export * from "./input/input";
 export * from "./input/keyboard";
 export * from "./input/mouse";
 export * from "./input/touch";
-export * from "./input/gamepad";
+export { GamepadManager, PhinaGamepad as Gamepad } from "./input/gamepad";
 export * from "./input/accelerometer";
 
 export * from "./app/updater";
