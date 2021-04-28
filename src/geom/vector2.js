@@ -15,7 +15,7 @@ import { format } from "../core/string";
  * # 2次元ベクトルクラス
  * 2次元のベクトルや座標を表すクラスです。
  * 
- * ### Example
+ * @example
  * v = phina.geom.Vector2(3, 4);
  *
  */
@@ -44,12 +44,12 @@ export class Vector2 {
    * @method clone
    * this のコピーを生成して返します。
    *
-   * ### Example
-   *     v = phina.geom.Vector2(3, 4);
-   *     v2 = v.clone();
-   *     v2.x == v.x; // => true
+   * @example
+   * v = phina.geom.Vector2(3, 4);
+   * v2 = v.clone();
+   * v2.x == v.x; // => true
    *
-   * @return {Object} 生成したベクトル
+   * @returns {Vector2} 生成したベクトル
    */
   clone() {
     return new Vector2(this.x, this.y);
@@ -59,10 +59,10 @@ export class Vector2 {
    * @method equals
    * this の各要素がすべて other と等しいかどうかを返します。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(3, 4);
-   *     v2 = phina.geom.Vector2(5, 6);
-   *     v1.equals(v2); // => false
+   * @example
+   * v1 = phina.geom.Vector2(3, 4);
+   * v2 = phina.geom.Vector2(5, 6);
+   * v1.equals(v2); // => false
    *
    * @param {PrimitiveVector2} v 比較する対象のベクトル
    * @return {Boolean} 等しいかどうか
@@ -73,13 +73,13 @@ export class Vector2 {
 
   /**
    * @method set
-   * @chainable
    * this の各要素の値を再設定します。
    *
-   * ### Example
-   *     v = phina.geom.Vector2(3, 4);
-   *     v.set(5, 6);
+   * @example
+   * v = phina.geom.Vector2(3, 4);
+   * v.set(5, 6);
    *
+   * @chainable
    * @param {Number} x ベクトルの x 座標
    * @param {Number} y ベクトルの y 座標
    */
@@ -94,10 +94,10 @@ export class Vector2 {
    * @chainable
    * this に other を加えます。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(3, 4);
-   *     v2 = phina.geom.Vector2(5, 6);
-   *     v1.add(v2); // => phina.geom.Vector(8, 10)
+   * @example
+   * v1 = phina.geom.Vector2(3, 4);
+   * v2 = phina.geom.Vector2(5, 6);
+   * v1.add(v2); // => phina.geom.Vector(8, 10)
    *
    * @param {PrimitiveVector2} v ベクトル
    */
@@ -114,10 +114,10 @@ export class Vector2 {
    *
    * ベクトルが座標を表す場合は、指定した座標から自分自身へと向かうベクトルが得られます。
    * 
-   * ### Example
-   *     v1 = phina.geom.Vector2(3, 4);
-   *     v2 = phina.geom.Vector2(1, 5);
-   *     v1.sub(v2); // => phina.geom.Vector(2, -1)
+   * @example
+   * v1 = phina.geom.Vector2(3, 4);
+   * v2 = phina.geom.Vector2(1, 5);
+   * v1.sub(v2); // => phina.geom.Vector(2, -1)
    *
    * @param {PrimitiveVector2} v ベクトル
    */
@@ -132,9 +132,9 @@ export class Vector2 {
    * @chainable
    * this の各要素に数値 n を乗じます。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(3, 4);
-   *     v1.mul(3) // => phina.geom.Vector(9, 12)
+   * @example
+   * v1 = phina.geom.Vector2(3, 4);
+   * v1.mul(3) // => phina.geom.Vector(9, 12)
    *
    * @param {Number} n 乗じる値
    */
@@ -149,9 +149,9 @@ export class Vector2 {
    * @chainable
    * this の各要素を数値 n で割ります。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(8, 16);
-   *     v1.div(2) // => phina.geom.Vector(4, 8)
+   * @example
+   * v1 = phina.geom.Vector2(8, 16);
+   * v1.div(2) // => phina.geom.Vector(4, 8)
    *
    * @param {Number} n 割る値
    */
@@ -169,9 +169,9 @@ export class Vector2 {
    *
    * this と同じ大きさで方向が逆のベクトルが得られます。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(3, -4);
-   *     v1.negate() // => phina.geom.Vector(-3, 4)
+   * @example
+   * v1 = phina.geom.Vector2(3, -4);
+   * v1.negate() // => phina.geom.Vector(-3, 4)
    *
    */
   negate() {
@@ -187,10 +187,10 @@ export class Vector2 {
    *
    * 投影ベクトルを求めたり、類似度の計算に利用することができます。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(3, 4);
-   *     v2 = phina.geom.Vector2(-2, 2);
-   *     v1.dot(v2) // => 2
+   * @example
+   * v1 = phina.geom.Vector2(3, 4);
+   * v2 = phina.geom.Vector2(-2, 2);
+   * v1.dot(v2) // => 2
    *
    * @param {PrimitiveVector2} v ベクトル
    * @return {Number} 内積
@@ -206,10 +206,10 @@ export class Vector2 {
    * 2次元ベクトルでの外積はベクトルでなく数値を返すことに注意してください。
    * other より this 時計回りにあるときは正の値になり、反時計回りにあるときは負の値になります。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(3, 4);
-   *     v2 = phina.geom.Vector2(3, 1);
-   *     v1.cross(v2) // => -8
+   * @example
+   * v1 = phina.geom.Vector2(3, 4);
+   * v2 = phina.geom.Vector2(3, 1);
+   * v1.cross(v2) // => -8
    *
    * @param {PrimitiveVector2} v ベクトル
    * @return {Number} 外積
@@ -224,9 +224,9 @@ export class Vector2 {
    *
    * (memo) magnitude って名前の方が良いかも. 検討中.
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(3, 4);
-   *     v1.length(); // => 5
+   * @example
+   * v1 = phina.geom.Vector2(3, 4);
+   * v1.length(); // => 5
    *
    * @return {Number} ベクトルの大きさ
    */
@@ -240,9 +240,9 @@ export class Vector2 {
    *
    * C# の名前を引用（or lengthSquare or lengthSqrt）
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(3, 4);
-   *     v1.lengthSquared(); // => 25
+   * @example
+   * v1 = phina.geom.Vector2(3, 4);
+   * v1.lengthSquared(); // => 25
    *
    * @return {Number} ベクトルの大きさの自乗
    */
@@ -254,10 +254,10 @@ export class Vector2 {
    * @method distance
    * this と other を座標とみなしたときの2点間の距離を返します。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(1, 2);
-   *     v2 = phina.geom.Vector2(4, 6);
-   *     v1.distance(v2); // => 5
+   * @example
+   * v1 = phina.geom.Vector2(1, 2);
+   * v2 = phina.geom.Vector2(4, 6);
+   * v1.distance(v2); // => 5
    *
    * @param {PrimitiveVector2} v 座標を表すベクトル
    * @return {Number} 2点間の距離
@@ -270,10 +270,10 @@ export class Vector2 {
    * @method distanceSquared
    * this と other を座標とみなしたときの2点間の距離の自乗を返します。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(1, 2);
-   *     v2 = phina.geom.Vector2(4, 6);
-   *     v1.distanceSquared(v2); // => 25
+   * @example
+   * v1 = phina.geom.Vector2(1, 2);
+   * v2 = phina.geom.Vector2(4, 6);
+   * v1.distanceSquared(v2); // => 25
    *
    * @param {PrimitiveVector2} v 座標を表すベクトル
    * @return {Number} 2点間の距離の自乗
@@ -287,8 +287,8 @@ export class Vector2 {
    * @chainable
    * 自身を角度が min から max の範囲（度単位）で大きさが len のランダムなベクトルに変換して返します。
    *
-   * ### Example
-   *     phina.geom.Vector2().random(90, 180, 1); // => phina.geom.Vector2(-0.5, 0.866) など
+   * @example
+   * phina.geom.Vector2().random(90, 180, 1); // => phina.geom.Vector2(-0.5, 0.866) など
    *
    * @param {Number} [min=0] 角度（度単位）の下限値
    * @param {Number} [max=360] 角度（度単位）の上限値
@@ -311,9 +311,9 @@ export class Vector2 {
    * @chainable
    * this を正規化します。すなわち、this と同じ方向で大きさが1のベクトルを返します。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(3, 4);
-   *     v1.normalize(); // => phina.geom.Vector2(0.6, 0.8)
+   * @example
+   * v1 = phina.geom.Vector2(3, 4);
+   * v1.normalize(); // => phina.geom.Vector2(0.6, 0.8)
    *
    * @returns {this}
    */
@@ -326,9 +326,9 @@ export class Vector2 {
    * @method toString
    * this を JSON 形式で表現した文字列を返します。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(3, 4);
-   *     v1.toString(); // => "{x:3, y:4}"
+   * @example
+   * v1 = phina.geom.Vector2(3, 4);
+   * v1.toString(); // => "{x:3, y:4}"
    *
    * @return {String} JSON 文字列
    */
@@ -341,9 +341,9 @@ export class Vector2 {
    * @method getDirection
    * this のおおよその方向を示した文字列を返します。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(3, 4);
-   *     v1.getDirection(); // => "up"
+   * @example
+   * v1 = phina.geom.Vector2(3, 4);
+   * v1.getDirection(); // => "up"
    *
    * @return {String} 方向を表す文字列（"up", "right", "down", "left"）
    */
@@ -366,9 +366,9 @@ export class Vector2 {
    * @method toAngle
    * this と x 軸との角度（ラジアン単位）を返します。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(-2, 0);
-   *     v1.toAngle(); // => 3.14159
+   * @example
+   * v1 = phina.geom.Vector2(-2, 0);
+   * v1.toAngle(); // => 3.14159
    *
    * @return {Number} ベクトルの角度（ラジアン単位）
    */
@@ -382,8 +382,8 @@ export class Vector2 {
    * @chainable
    * 角度（ラジアン単位）と大きさを指定してベクトルを設定します。
    *
-   * ### Example
-   *     phina.geom.Vector2().fromAngle(Math.PI/4, 2); // => phina.geom.Vector2(1.4142, 1.4142)
+   * @example
+   * phina.geom.Vector2().fromAngle(Math.PI/4, 2); // => phina.geom.Vector2(1.4142, 1.4142)
    *
    * @param {Number} rad 角度（ラジアン単位）
    * @param {Number} [len=1] 大きさ
@@ -401,9 +401,9 @@ export class Vector2 {
    * @method toDegree
    * this と x 軸との角度（度単位）を返します。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(-2, 2);
-   *     v1.toAngle(); // => 135
+   * @example
+   * v1 = phina.geom.Vector2(-2, 2);
+   * v1.toAngle(); // => 135
    *
    * @return {Number} ベクトルの角度（度単位）
    */
@@ -417,8 +417,8 @@ export class Vector2 {
    * @chainable
    * 角度（度単位）と大きさを指定してベクトルを設定します。
    *
-   * ### Example
-   *     phina.geom.Vector2().fromDegree(60, 2); // => phina.geom.Vector2(1, 1.732)
+   * @example
+   * phina.geom.Vector2().fromDegree(60, 2); // => phina.geom.Vector2(1, 1.732)
    *
    * @param {Number} deg 角度（度単位）
    * @param {Number} [len=1] 大きさ
@@ -434,9 +434,9 @@ export class Vector2 {
    * @chainable
    * this を回転します。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(3, 1);
-   *     v1.rotate(Math.PI/2); // => phina.geom.Vector2(-1, 3);
+   * @example
+   * v1 = phina.geom.Vector2(3, 1);
+   * v1.rotate(Math.PI/2); // => phina.geom.Vector2(-1, 3);
    *
    * @param {Number} rad 角度（ラジアン単位）
    * @param {PrimitiveVector2} [center=Vector2(0, 0)] 回転の中心座標
@@ -459,10 +459,10 @@ export class Vector2 {
    * @static
    * v1 と v2 の各要素に対し、より小さい方を要素とする新しいベクトルを生成して返します。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(3, 1);
-   *     v2 = phina.geom.Vector2(-3, 2);
-   *     phina.geom.Vector2.min(v1, v2); // phina.geom.Vector2(-3, 1);
+   * @example
+   * v1 = phina.geom.Vector2(3, 1);
+   * v2 = phina.geom.Vector2(-3, 2);
+   * phina.geom.Vector2.min(v1, v2); // phina.geom.Vector2(-3, 1);
    *
    * @param {PrimitiveVector2} a ベクトル
    * @param {PrimitiveVector2} b ベクトル
@@ -480,10 +480,10 @@ export class Vector2 {
    * @static
    * 2次元ベクトル v1 と v2 の各要素に対し、より大きい方を要素とする新しいベクトルを生成して返します。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(3, 1);
-   *     v2 = phina.geom.Vector2(-3, 2);
-   *     phina.geom.Vector2.max(v1, v2); // phina.geom.Vector2(3, 2);
+   * @example
+   * v1 = phina.geom.Vector2(3, 1);
+   * v2 = phina.geom.Vector2(-3, 2);
+   * phina.geom.Vector2.max(v1, v2); // phina.geom.Vector2(3, 2);
    *
    * @param {PrimitiveVector2} a ベクトル
    * @param {PrimitiveVector2} b ベクトル
@@ -501,10 +501,10 @@ export class Vector2 {
    * @static
    * v1 に v2 を加算した新しいベクトルを生成して返します。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(3, 1);
-   *     v2 = phina.geom.Vector2(-3, 2);
-   *     phina.geom.Vector2.add(v1, v2); // phina.geom.Vector2(0, 3);
+   * @example
+   * v1 = phina.geom.Vector2(3, 1);
+   * v2 = phina.geom.Vector2(-3, 2);
+   * phina.geom.Vector2.add(v1, v2); // phina.geom.Vector2(0, 3);
    *
    * @param {PrimitiveVector2} lhs ベクトル
    * @param {PrimitiveVector2} rhs ベクトル
@@ -521,10 +521,10 @@ export class Vector2 {
    *
    * ベクトルが座標を表す場合、2つ目の座標から1つ目の座標へと向かうベクトルが得られます。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(3, 1);
-   *     v2 = phina.geom.Vector2(-3, 2);
-   *     phina.geom.Vector2.sub(v1, v2); // phina.geom.Vector2(6, -1);
+   * @example
+   * v1 = phina.geom.Vector2(3, 1);
+   * v2 = phina.geom.Vector2(-3, 2);
+   * phina.geom.Vector2.sub(v1, v2); // phina.geom.Vector2(6, -1);
    *
    * @param {PrimitiveVector2} lhs ベクトル
    * @param {PrimitiveVector2} rhs ベクトル
@@ -539,9 +539,9 @@ export class Vector2 {
    * @static
    * 2次元ベクトル v の各要素に n を乗じた新しいベクトルを生成して返します。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(3, 1);
-   *     phina.geom.Vector2.mul(v1, 2); // phina.geom.Vector2(6, 2)
+   * @example
+   * v1 = phina.geom.Vector2(3, 1);
+   * phina.geom.Vector2.mul(v1, 2); // phina.geom.Vector2(6, 2)
    *
    * @param {PrimitiveVector2} v ベクトル
    * @param {Number} n 乗じる値
@@ -556,9 +556,9 @@ export class Vector2 {
    * @static
    * 2次元ベクトル v の各要素を n で割った新しいベクトルを生成して返します。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(3, 1);
-   *     phina.geom.Vector2.div(v1, 2); // phina.geom.Vector2(1.5, 0.5)
+   * @example
+   * v1 = phina.geom.Vector2(3, 1);
+   * phina.geom.Vector2.div(v1, 2); // phina.geom.Vector2(1.5, 0.5)
    *
    * @param {PrimitiveVector2} v ベクトル
    * @param {Number} n 割る値
@@ -573,9 +573,9 @@ export class Vector2 {
    * @static
    * 2次元ベクトル v を反転した新しいベクトルを生成して返します。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(3, 1);
-   *     phina.geom.Vector2.negate(); // phina.geom.Vector2(-3, -1)
+   * @example
+   * v1 = phina.geom.Vector2(3, 1);
+   * phina.geom.Vector2.negate(); // phina.geom.Vector2(-3, -1)
    *
    * @param {PrimitiveVector2} v ベクトル
    * @return {Vector2} 反転したベクトル
@@ -589,10 +589,10 @@ export class Vector2 {
    * @static
    * 2次元ベクトル v1 と v2 の内積を返します。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(3, 4);
-   *     v2 = phina.geom.Vector2(-2, 2);
-   *     phina.geom.Vector2.dot(v1, v2) // => 2
+   * @example
+   * v1 = phina.geom.Vector2(3, 4);
+   * v2 = phina.geom.Vector2(-2, 2);
+   * phina.geom.Vector2.dot(v1, v2) // => 2
    *
    * @param {PrimitiveVector2} lhs ベクトル
    * @param {PrimitiveVector2} rhs ベクトル
@@ -610,10 +610,10 @@ export class Vector2 {
    * 2次元ベクトルでの外積はベクトルでなく数値を返すことに注意してください。
    * 1つ目のベクトルが2つ目のベクトルより時計回りにあるときは正の値になり、反時計回りにあるときは負の値になります。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(3, 4);
-   *     v2 = phina.geom.Vector2(3, 1);
-   *     phina.geom.Vector2.cross(v1, v2); // => -8
+   * @example
+   * v1 = phina.geom.Vector2(3, 4);
+   * v2 = phina.geom.Vector2(3, 1);
+   * phina.geom.Vector2.cross(v1, v2); // => -8
    *
    * @param {PrimitiveVector2} lhs ベクトル
    * @param {PrimitiveVector2} rhs ベクトル
@@ -628,10 +628,10 @@ export class Vector2 {
    * @static
    * v1 と v2 を座標とみなしたときの2点間の距離を返します。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(1, 2);
-   *     v2 = phina.geom.Vector2(4, 6);
-   *     phina.geom.Vector2.distance(v1, v2); // => 5
+   * @example
+   * v1 = phina.geom.Vector2(1, 2);
+   * v2 = phina.geom.Vector2(4, 6);
+   * phina.geom.Vector2.distance(v1, v2); // => 5
    *
    * @param {PrimitiveVector2} lhs 座標を表すベクトル
    * @param {PrimitiveVector2} rhs 座標を表すベクトル
@@ -646,10 +646,10 @@ export class Vector2 {
    * @static
    * v1 と v2 を座標とみなしたときの2点間の距離の自乗を返します。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(1, 2);
-   *     v2 = phina.geom.Vector2(4, 6);
-   *     phina.geom.Vector2.distanceSquared(v1, v2); // => 25
+   * @example
+   * v1 = phina.geom.Vector2(1, 2);
+   * v2 = phina.geom.Vector2(4, 6);
+   * phina.geom.Vector2.distanceSquared(v1, v2); // => 25
    *
    * @param {PrimitiveVector2} lhs 座標を表すベクトル
    * @param {PrimitiveVector2} rhs 座標を表すベクトル
@@ -664,10 +664,10 @@ export class Vector2 {
    * @static
    * v1 と v2 を座標とみなしたときの2点間のマンハッタン距離（軸に平行に進むときの最短距離）を返します。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(1, 2);
-   *     v2 = phina.geom.Vector2(4, 6);
-   *     phina.geom.Vector2.manhattanDistance(v1, v2); // => 7
+   * @example
+   * v1 = phina.geom.Vector2(1, 2);
+   * v2 = phina.geom.Vector2(4, 6);
+   * phina.geom.Vector2.manhattanDistance(v1, v2); // => 7
    *
    * @param {PrimitiveVector2} lhs 座標を表すベクトル
    * @param {PrimitiveVector2} rhs 座標を表すベクトル
@@ -682,10 +682,10 @@ export class Vector2 {
    * @static
    * v1 と v2 を座標とみなしたときの、v2 から v1 に向かうベクトルに対する法線ベクトルを返します。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(1, 2);
-   *     v2 = phina.geom.Vector2(4, 6);
-   *     phina.geom.Vector2.normal(v1, v2); // => phina.geom.Vector2(4, -3)
+   * @example
+   * v1 = phina.geom.Vector2(1, 2);
+   * v2 = phina.geom.Vector2(4, 6);
+   * phina.geom.Vector2.normal(v1, v2); // => phina.geom.Vector2(4, -3)
    *
    * @param {PrimitiveVector2} a 座標を表すベクトル
    * @param {PrimitiveVector2} b 座標を表すベクトル
@@ -704,10 +704,10 @@ export class Vector2 {
    *
    * 壁の向きは法線ベクトル normal によって表します。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(4, 3);
-   *     normal = phina.geom.Vector2(-1, 1);
-   *     phina.geom.Vector2.reflect(v1, normal); // => phina.geom.Vector2(2, 5)
+   * @example
+   * v1 = phina.geom.Vector2(4, 3);
+   * normal = phina.geom.Vector2(-1, 1);
+   * phina.geom.Vector2.reflect(v1, normal); // => phina.geom.Vector2(2, 5)
    *
    * @param {PrimitiveVector2} v 入射ベクトル
    * @param {PrimitiveVector2} normal 壁の法線ベクトル
@@ -727,10 +727,10 @@ export class Vector2 {
    *
    * 壁の向きは法線ベクトル normal によって表します。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(4, 3);
-   *     normal = phina.geom.Vector2(-1, 1);
-   *     phina.geom.Vector2.wall(v1, normal); // => phina.geom.Vector2(3, 4)
+   * @example
+   * v1 = phina.geom.Vector2(4, 3);
+   * normal = phina.geom.Vector2(-1, 1);
+   * phina.geom.Vector2.wall(v1, normal); // => phina.geom.Vector2(3, 4)
    *
    * @param {PrimitiveVector2} v 入射ベクトル
    * @param {PrimitiveVector2} normal 壁の法線ベクトル
@@ -749,12 +749,12 @@ export class Vector2 {
    * v1 と v2 を媒介変数 t で線形補間します。
    * t=0.5 で v1 と v2 の中間ベクトルを求めることができます。
    *
-   * ### Example
-   *     v1 = phina.geom.Vector2(1, 2);
-   *     v2 = phina.geom.Vector2(4, 6);
-   *     phina.geom.Vector2.lerp(v1, v2, 0.5); // => (2.5, 4)
-   *     phina.geom.Vector2.lerp(v1, v2, 0); // => (1, 2)
-   *     phina.geom.Vector2.lerp(v1, v2, 1); // => (4, 6)
+   * @example
+   * v1 = phina.geom.Vector2(1, 2);
+   * v2 = phina.geom.Vector2(4, 6);
+   * phina.geom.Vector2.lerp(v1, v2, 0.5); // => (2.5, 4)
+   * phina.geom.Vector2.lerp(v1, v2, 0); // => (1, 2)
+   * phina.geom.Vector2.lerp(v1, v2, 1); // => (4, 6)
    * 
    * @param {PrimitiveVector2} a ベクトル
    * @param {PrimitiveVector2} b ベクトル
@@ -784,8 +784,8 @@ export class Vector2 {
    * @static
    * 角度が min から max の範囲（度単位）で大きさが len のランダムなベクトルを生成して返します。
    *
-   * ### Example
-   *     phina.geom.Vector2.random(90, 180, 1); // => phina.geom.Vector2(-0.5, 0.866) など
+   * @example
+   * phina.geom.Vector2.random(90, 180, 1); // => phina.geom.Vector2(-0.5, 0.866) など
    *
    * @param {Number} [min=0] 角度（度単位）の下限値
    * @param {Number} [max=360] 角度（度単位）の上限値
