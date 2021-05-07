@@ -31,10 +31,10 @@ export class Scene extends PhinaElement {
 
     /**
      * Appクラス参照
-     * @type {SceneAppAppliable | undefined}
+     * @type {SceneAppAppliable?}
      */
-    this.app = undefined
-    
+    this.app;
+
     /**
      * 次のシーンを表すラベル
      * @type {SceneLabel}
