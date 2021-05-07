@@ -15,6 +15,20 @@ import { Shape } from "../display/shape";
 /**
  * @class phina.ui.Gauge
  * _extends phina.display.Shape
+ * 
+ * @example
+ * const lifeGauge = new Gauge({
+ *   fill: "gray", // Gauge background color
+ *   gaugeColor: "red", // Gauge main color
+ *   stroke: "black" // Gauge frame color
+ *   maxValue: 200,
+ *   animation: true,
+ * })
+ * 
+ * if (playerDamaged) {
+ *   lifeGauge.value -= 10
+ * }
+ * 
  */
 export class Gauge extends Shape {
 
@@ -38,6 +52,9 @@ export class Gauge extends Shape {
      */
     this.maxValue = options.maxValue;
 
+    /**
+     * @type {import("../graphics/canvas").CanvasStyle} ゲージの色
+     */
     this.gaugeColor = options.gaugeColor;
     
     /**
