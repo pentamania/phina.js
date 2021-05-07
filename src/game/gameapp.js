@@ -66,10 +66,10 @@ export class GameApp extends CanvasApp {
    * @param {GameAppOptions & DefaultSceneOptions} [options]
    */
   constructor(options) {
-    options = $safe.call(options || {}, {
+    options = /** @type {GameAppOptions} */($safe.call(options || {}, {
     // options = (options || {}).$safe({
       startLabel: 'title',
-    });
+    }));
     super(options);
 
     /** @type {any} dat.GUIインスタンス */
