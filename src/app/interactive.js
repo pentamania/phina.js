@@ -4,7 +4,7 @@ import {erase, clear} from "../core/array"
 /**
  * Interactiveクラスのappとして必要なプロパティ
  * @typedef {{
- *   on: (type: string, listener: function) => any
+ *   on: typeof import('../util/eventdispatcher').EventDispatcher.prototype.on
  *   domElement?: HTMLCanvasElement
  *   pointer?: import('../display/domapp').Pointer
  *   pointers?: import('../display/domapp').Pointer[]
