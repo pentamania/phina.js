@@ -27,9 +27,30 @@ export class Matrix33 {
    *     mat1.m00 + mat2.m00; // => 2
    *     mat1.m01 - mat2.m01; // => 2
    *
-   * @param {...Number} m00, m01,... 各要素の値
+   * @param {...number} m00, m01,... 各要素の値
    */
   constructor() {
+    /** @type {number} */
+    this.m00;
+    /** @type {number} */
+    this.m01;
+    /** @type {number} */
+    this.m02;
+
+    /** @type {number} */
+    this.m10;
+    /** @type {number} */
+    this.m11;
+    /** @type {number} */
+    this.m12;
+
+    /** @type {number} */
+    this.m20;
+    /** @type {number} */
+    this.m21;
+    /** @type {number} */
+    this.m22;
+
     if (arguments.length >= 9) {
       this.set.apply(this, arguments);
     }
