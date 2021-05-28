@@ -29,7 +29,7 @@ export class BaseApp extends EventDispatcher {
 
     /**
      * シーンのスタック
-     * @private
+     * @protected
      * @type {SceneTypeUnion[]}
      */
     this._scenes = [new Scene()];
@@ -37,7 +37,7 @@ export class BaseApp extends EventDispatcher {
     /**
      * シーンのインデックス値
      * アクティブ中のシーン管理に使用
-     * @private
+     * @protected
      * @type {number}
      */
     this._sceneIndex = 0;
@@ -263,7 +263,7 @@ export class BaseApp extends EventDispatcher {
   }
 
   /**
-   * @private
+   * @protected
    * ループ処理関数
    * 
    * @returns {void}
@@ -278,7 +278,7 @@ export class BaseApp extends EventDispatcher {
   }
 
   /**
-   * @private
+   * @protected
    * 更新処理関数
    * 
    * @returns {void}
