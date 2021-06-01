@@ -14,6 +14,13 @@ import {Ticker} from "../util/ticker";
  */
 
 /**
+ * @typedef {{ 
+ *   app: BaseApp
+ *   prevScene: Scene
+ * }} SceneResumeEventData
+ */
+
+/**
  * @class phina.app.BaseApp
  * _extends phina.util.EventDispatcher
  * 
@@ -174,10 +181,13 @@ export class BaseApp extends EventDispatcher {
 
     this.flare('poped');
 
-    this.currentScene.flare('resume', {
-      app: this,
-      prevScene: scene,
-    });
+    this.currentScene.flare(
+      'resume', 
+      /** @type {SceneResumeEventData} */({
+        app: this,
+        prevScene: scene,
+      })
+    );
 
     return scene;
   }

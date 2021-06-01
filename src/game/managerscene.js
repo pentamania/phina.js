@@ -226,7 +226,7 @@ export class ManagerScene extends Scene {
    * {@link BaseApp#popScene} の際にresumeイベント経由で実行され、
    * 対応する次のシーンに移行する
    * 
-   * @param {{ prevScene: { nextLabel: import("../app/scene").SceneLabel; nextArguments: any; }; }} e
+   * @param {import("../app/baseapp").SceneResumeEventData} e
    * @returns {void}
    */
   onnext(e) {
