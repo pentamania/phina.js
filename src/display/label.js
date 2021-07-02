@@ -4,7 +4,7 @@ import { format } from "../core/string";
 
 /**
  * @typedef {{
- *   text?: string
+ *   text?: any
  *   fontSize?: number
  *   fontWeight?: string | number
  *   fontFamily?: string
@@ -37,7 +37,7 @@ export class Label extends Shape {
 
     super(options);
 
-    /** @type {string|number} */
+    /** @type {any} */
     this._text
 
     this.text = options.text;
@@ -111,10 +111,6 @@ export class Label extends Shape {
     }, this);
   }
 
-  /**
-   * text
-   * @returns {string|number}
-   */
   get text() { return this._text; }
   set text(v) {
     this._text = v;
