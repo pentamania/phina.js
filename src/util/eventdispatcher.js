@@ -141,6 +141,7 @@ export class EventDispatcher {
    fire(e) {
     e.target = this;
     var oldEventName = 'on' + e.type;
+    // @ts-ignore
     if (this[oldEventName]) this[oldEventName](e);
 
     var listeners = this._listeners[e.type];
@@ -177,9 +178,10 @@ export class EventDispatcher {
    * @returns {this}
   */
   flare(type, param) {
+    /** @type {{type: string, [key:string]: any}} */
     var e = {type:type};
     if (param) {
-      forIn.call(param, function(key, val) {
+      forIn.call(param, function(/** @type {string | number} */ key, /** @type {any} */ val) {
       // param.forIn(function(key, val) {
         e[key] = val;
       });
@@ -213,6 +215,8 @@ export class EventDispatcher {
     var self = this;
 
     var func = function() {
+      // TODO: Fix arguments TS error somehow
+      // @ts-ignore
       var result = listener.apply(self, arguments);
       self.off(type, func);
       return result;
@@ -242,6 +246,7 @@ export class EventDispatcher {
    * @return {boolean} 指定したイベントのイベントリスナが登録されているかどうか
    */
   has(type) {
+    // @ts-ignore
     return (this._listeners[type] !== undefined && this._listeners[type].length !== 0) || !!this['on' + type];
   }
 
@@ -266,6 +271,7 @@ export class EventDispatcher {
    */
   clearEventListener(type) {
     var oldEventName = 'on' + type;
+    // @ts-ignore
     if (this[oldEventName]) delete this[oldEventName];
     this._listeners[type] = [];
     return this;
@@ -276,10 +282,14 @@ export class EventDispatcher {
  * 従来のclearメソッドも追加定義
  * サブクラス（Tweenerクラス等）でclearがオーバーライドされる場合、clearListenersを使用する
  */
-$method.call(EventDispatcher.prototype, "clear", function(type) {
-  // deprecatedメッセージ表示？
-  return this.clearEventListener(type);
-});
+$method.call(EventDispatcher.prototype, "clear",
+  /** @this EventDispatcher */
+  function(/** @type {string} */ type) {
+    // deprecatedメッセージ表示？
+    return this.clearEventListener(type);
+  }
+);
+
 
 /**
  * @method addEventListener
@@ -312,8 +322,13 @@ const methodMap = {
   dispatchEvent: 'fire',
   dispatchEventByType: 'flare',
 };
-// methodMap.forIn(function(old, name) {
+
+// TODO: Add to class as method
+// @ts-ignore
 forIn.call(methodMap, function(old, name) {
-  // EventDispatcher.prototype.$method(old, phina.util.EventDispatcher.prototype[name]);
+// methodMap.forIn(function(old, name) {
+
+  // @ts-ignore
   $method.call(EventDispatcher.prototype, old, EventDispatcher.prototype[name]);
+  // EventDispatcher.prototype.$method(old, phina.util.EventDispatcher.prototype[name]);
 });
