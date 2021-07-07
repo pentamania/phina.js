@@ -3,7 +3,7 @@ import { EventDispatcher } from "../util/eventdispatcher"
 /**
  * Accessoryのtargetプロパティとして最低限かどうか
  * @typedef {{
- *   detach: (accessor: Accessory)=> any
+ *   detach: typeof import('../app/element').Element.prototype.detach
  *   [k: string]: any
  * }} AccessoryTarget
  */
@@ -11,7 +11,7 @@ import { EventDispatcher } from "../util/eventdispatcher"
 /**
  * Accessoryアタッチ可能オブジェクト
  * @typedef {{
- *   attach: (accessor: Accessory)=> any
+ *   attach: typeof import('../app/element').Element.prototype.attach
  * } & AccessoryTarget } AccessoryAttachable
  */
 
