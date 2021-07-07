@@ -30,6 +30,8 @@ export class Accessory extends EventDispatcher {
 
     /**
      * 操作対象
+     * 
+     * @public
      * @type {AccessoryTarget | undefined}
      */
     this.target = target;
@@ -43,7 +45,7 @@ export class Accessory extends EventDispatcher {
    * 主にサブクラスで拡張してAccessoryとしての特徴づけを行う
    * 
    * @virtual
-   * @protected
+   * @public
    * @param {*} _app Appクラスインスタンス
    */
   update(_app) {}
@@ -51,6 +53,10 @@ export class Accessory extends EventDispatcher {
   /**
    * 操作対象を設定
    * 
+   * このメソッド単体ではtarget経由の自動更新は行われない。
+   * 同時に自動更新もさせたい場合は {@link Accessory.attachTo} を使用のこと
+   * 
+   * @public
    * @param {AccessoryTarget} target
    * @returns {this}
    */
@@ -64,6 +70,7 @@ export class Accessory extends EventDispatcher {
   /**
    * アタッチ対象を返す
    * 
+   * @public
    * @returns {AccessoryTarget | undefined}
    */
   getTarget() {
@@ -73,6 +80,7 @@ export class Accessory extends EventDispatcher {
   /**
    * アタッチ対象が存在するかどうか
    * 
+   * @public
    * @returns {boolean}
    */
   isAttached() {
@@ -82,6 +90,7 @@ export class Accessory extends EventDispatcher {
   /**
    * 対象に自身をアタッチさせる
    * 
+   * @public
    * @template {AccessoryAttachable} T
    * @param {T} element
    * @returns {this}
@@ -95,6 +104,7 @@ export class Accessory extends EventDispatcher {
   /**
    * targetに自身へのアタッチを外させ、target参照を切る
    * 
+   * @public
    * @returns {void}
    */
   remove() {
