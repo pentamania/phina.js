@@ -15,22 +15,47 @@ import { Support } from "../util/support";
 export class Canvas {
 
   /**
-   * @param {string | HTMLCanvasElement} [canvas] ベースとなるcanvas要素。文字列で指定するときは`#phina`のようにセレクタ形式にする。指定しなかった場合は新規作成される
+   * @param {string | HTMLCanvasElement} [canvasOrDomString]
+   * ベースとなるcanvas要素
+   * 文字列で指定するときは`#phina`のようにCSSセレクター形式で行う
+   * 指定しなかった場合は新規作成される
    */
-  constructor(canvas) {
-    /** @type HTMLCanvasElement */
+  constructor(canvasOrDomString) {
+    /**
+     * @type {HTMLCanvasElement}
+     */
     this.canvas;
-    if (typeof canvas === 'string') {
-      this.canvas = document.querySelector(canvas);
+
+    /**
+     * @type {HTMLCanvasElement}
+     */
+    this.domElement;
+
+    /**
+     * @type {CanvasRenderingContext2D}
+     */
+    this.context;
+
+    if (typeof canvasOrDomString === 'string') {
+      /** @type {HTMLCanvasElement|null} */
+      var canvasSelected = document.querySelector(canvasOrDomString);
+      if (!canvasSelected) {
+        // TODO エラー文チェック、あるいはより適切な対応
+        throw new Error(`[phina.js]: Cannot find selector "${canvasOrDomString}"`);
+      }
+      this.canvas = canvasSelected;
     } else {
-      this.canvas = canvas || document.createElement('canvas');
+      this.canvas = canvasOrDomString || document.createElement('canvas');
     }
 
-    /** @type HTMLCanvasElement */
     this.domElement = this.canvas;
 
-    /** @type CanvasRenderingContext2D */
-    this.context = this.canvas.getContext('2d');
+    var ctx = this.canvas.getContext('2d');
+    if (!ctx) {
+      // TODO エラー文チェック、あるいはより適切な対応
+      throw new Error(`[phina.js]: Fail getting 2d-context from the inner canvas`);
+    }
+    this.context = ctx;
     this.context.lineCap = 'round';
     this.context.lineJoin = 'round';
   }
