@@ -25,7 +25,7 @@ import { Draggable } from "../accessory/draggable";
 /**
  * @class phina.app.Element
  * _extends phina.util.EventDispatcher
- * # 主に要素の親子関係を扱うクラス
+ * 
  * 主に親子関係等を定義するクラスです。
  */
 export class Element extends EventDispatcher {
@@ -37,47 +37,63 @@ export class Element extends EventDispatcher {
     super();
 
     /**
-     * @type {ElementBasedObject | null}
      * 親要素
+     * 
+     * @public
+     * @type {ElementBasedObject | null}
      */
     this.parent = null;
 
     /**
-     * @type {ElementBasedObject[]}
      * 子要素配列
+     * 
+     * @public
+     * @type {ElementBasedObject[]}
      */
     this.children = [];
 
     /**
+     * UpdaterやInteractiveクラスによる更新を有効にするかどうか
+     * 
+     * falseにすると通常毎フレーム実行される
+     * 更新処理やインタラクション判定処理が行われなくなる
+     * 
+     * @public
      * @type {boolean}
-     * 有効かどうか
      */
     this.awake = true;
 
     /**
+     * 要素クリック管理用フラグ（ライブラリ内部処理用）
+     * 
      * @type {boolean}
-     * 要素クリック管理用フラグ
      */
     this._clicked = false;
 
     /**
-     * @type {import('../accessory/accessory').Accessory[]}
-     * Accessory配列
-     * attachメソッドによって初期化
+     * アタッチされたAccessoryの配列
+     * {@link Element.attach} メソッドによって初期化
+     * 
+     * @public
+     * @type {import('../accessory/accessory').Accessory[] | undefined}
      */
     this.accessories = undefined;
 
     /**
-     * @private
-     * @type {Tweener}
      * 内部Tweenerクラス
-     * tweenerアクセサによって初期化
+     * {@link Element.tweener} getterにアクセスすることで初期化
+     * 
+     * @private
+     * @type {Tweener | undefined}
      */
     this._tweener = undefined;
 
     /**
+     * 内部Draggableクラス
+     * {@link Element.draggable} getterにアクセスすることで初期化
+     * 
      * @private
-     * @type {Draggable}
+     * @type {Draggable | undefined}
      */
     this._draggable = undefined;
   }
@@ -86,7 +102,10 @@ export class Element extends EventDispatcher {
    * @method addChild
    * 自身に子要素を追加します。
    *
-   * 自身を子要素として引数で指定した要素に追加するには {@link #addChildTo} を使用してください。
+   * 自身を子要素として引数で指定した要素に追加するには
+   * {@link Element.addChildTo} を使用してください。
+   * 
+   * また追加後、子要素側で`added`イベントが発火する
    *
    * @template {Elementizable} T
    * @param {T} child 追加する子要素
@@ -110,7 +129,7 @@ export class Element extends EventDispatcher {
    * 自身に子要素を追加するには {@link #addChild} を使用してください。
    *
    * @template {Elementizable} T
-   * @param {T} parent 自身を子要素として追加する要素
+   * @param {T} parent 自身を子要素として追加する親要素
    * @returns {this}
    */
   addChildTo(parent) {
@@ -155,6 +174,8 @@ export class Element extends EventDispatcher {
    * @todo
    * @method getChildByName
    * 指定した名前の子要素を返します。（未実装）
+   * 
+   * @param {*} name
    */
   getChildByName(name) {
     // TODO:
@@ -198,9 +219,9 @@ export class Element extends EventDispatcher {
 
   /**
    * @method removeChild
-   * @chainable
    * 指定した要素を自身の子要素から削除します。
    *
+   * @chainable
    * @template {Elementizable} T
    * @param {T} child 要素
    * @returns {this}
@@ -233,9 +254,10 @@ export class Element extends EventDispatcher {
 
   /**
    * @method isAwake
-   * 自身が有効かどうかを返します。
+   * 更新が有効な状態かどうかを返す。
+   * 詳細は {@link Element.awake} を参照
    *
-   * @return {Boolean} 有効かどうか
+   * @returns {Boolean}
    */
   isAwake() {
     return this.awake;
@@ -243,7 +265,9 @@ export class Element extends EventDispatcher {
 
   /**
    * @method wakeUp
-   * 自身を有効にします。
+   * 更新有効状態にする。
+   * 詳細は {@link Element.awake} を参照
+   * 
    * @returns {this}
    */
   wakeUp() {
@@ -254,6 +278,7 @@ export class Element extends EventDispatcher {
   /**
    * @method sleep
    * 自身を無効にします。
+   * 
    * @returns {this}
    */
   sleep() {
@@ -262,8 +287,9 @@ export class Element extends EventDispatcher {
   }
 
   /**
-   * @virtual
    * 更新用仮想関数
+   * 
+   * @virtual
    * @param {import("../game/gameapp").AppUnion} [_app] アプリケーションクラス
    * @returns {any}
    */
@@ -273,17 +299,20 @@ export class Element extends EventDispatcher {
    * @method fromJSON
    * JSON 形式を使って自身に子要素を追加することができます。
    *
-   * ### Example
-   *      this.fromJSON({
-   *        "children": {
-   *          "label": {                  //キー名が追加する子要素の名前になる
-   *            "className": "Label",     //クラス
-   *            "arguments": ['hello!'],  //初期化時の引数
-   *            "x":320,                  //その他プロパティ
-   *            "y":480,
-   *          },
-   *        },
-   *      });
+   * @example
+   * var el = new Element();
+   * el.fromJSON({
+   *   "children": {
+   *     "label": {                  //キー名が追加する子要素の名前になる
+   *       "className": "Label",     //クラス
+   *       "arguments": ['hello!'],  //初期化時の引数
+   *       "x":320,                  //その他プロパティ
+   *       "y":480,
+   *     },
+   *   },
+   * });
+   * console.log(el.label) // Labelインスタンスを返す
+   * console.log(el.label.x) // => 320
    * 
    * @typedef {{
    *   children?: fromJSONData
@@ -387,6 +416,7 @@ export class Element extends EventDispatcher {
 
   /**
    * accessoryを付与する
+   * 
    * @param  {import('../accessory/accessory').Accessory} accessory Accessory継承クラス
    * @return {this}
    */
@@ -409,6 +439,7 @@ export class Element extends EventDispatcher {
 
   /**
    * accessoryを削除
+   * 
    * @param  {import('../accessory/accessory').Accessory} accessory Accessory継承クラス
    * @return {this}
    */
