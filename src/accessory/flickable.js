@@ -19,7 +19,7 @@ export class Flickable extends Accessory {
 
   /**
    * @constructor
-   * @param {FlickableTarget} target
+   * @param {FlickableTarget} [target]
    */
   constructor(target) {
     super(target);
