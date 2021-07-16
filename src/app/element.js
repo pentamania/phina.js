@@ -217,7 +217,10 @@ export class Element extends EventDispatcher {
   /**
    * @method remove
    * 自身を親要素の子要素から削除します。
-   * @returns {this}
+   * 
+   * @returns {this | void}
+   * 処理が滞りなく完了した場合、自身を返却する.  
+   * 親要素が存在せず、処理が実行されなかった場合、何も返却しない
    */
   remove() {
     if (!this.parent) return ;
