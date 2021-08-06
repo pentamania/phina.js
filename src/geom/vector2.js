@@ -422,6 +422,38 @@ phina.namespace(function() {
       return this.fromAngle(deg.toRadian(), len);
     },
 
+    /*
+     * @method pointingAngle
+     * 指定したベクトルと成す角度（ラジアン単位）を計算します
+     * 
+     * ### Example
+     *     v1 = phina.geom.Vector2(2, 1);
+     *     v2 = phina.geom.Vector2(2, 3);
+     *     console.log(v1.pointingAngle(v2)); // 1.5707... = Math.PI/2
+     * 
+     * @param {phina.geom.Vector2} v ベクトル
+     * @return {Number}
+     */
+    pointingAngle: function(v) {
+      return phina.geom.Vector2.pointingAngle(this, v)
+    },
+
+    /*
+     * @method pointingDegree
+     * 指定したベクトルと成す角度（度単位）を計算します
+     * 
+     * ### Example
+     *     v1 = phina.geom.Vector2(2, 1);
+     *     v2 = phina.geom.Vector2(2, 3);
+     *     console.log(v1.pointingDegree(v2)); // 90
+     *
+     * @param {phina.geom.Vector2} v ベクトル
+     * @return {Number}
+     */
+    pointingDegree: function(v) {
+      return phina.geom.Vector2.pointingDegree(this, v)
+    },
+
     /**
      * @method rotate
      * @chainable
@@ -674,6 +706,42 @@ phina.namespace(function() {
         return Math.abs(lhs.x-rhs.x) + Math.abs(lhs.y-rhs.y);
       },
       
+      /*
+       * @method pointingAngle
+       * @static
+       * 2点間の成す角度（ラジアン単位）を計算します
+       * 
+       * ### Example
+       *     v1 = phina.geom.Vector2(2, 1);
+       *     v2 = phina.geom.Vector2(2, 3);
+       *     console.log(phina.geom.Vector2.pointingAngle(v1, v2)); // 1.5707... = Math.PI/2
+       *
+       * @param {phina.geom.Vector2} lhs ベクトル
+       * @param {phina.geom.Vector2} rhs ベクトル
+       * @return {Number}
+       */
+      pointingAngle: function(lhs, rhs) {
+        return Math.atan2(rhs.y - lhs.y, rhs.x - lhs.x);
+      },
+
+      /*
+       * @method pointingDegree
+       * @static
+       * 2点間の成す角度（度単位）を計算します
+       * 
+       * ### Example
+       *     v1 = phina.geom.Vector2(2, 1);
+       *     v2 = phina.geom.Vector2(2, 3);
+       *     console.log(phina.geom.Vector2.pointingDegree(v1, v2)); // 90
+       *
+       * @param {phina.geom.Vector2} lhs ベクトル
+       * @param {phina.geom.Vector2} rhs ベクトル
+       * @return {Number}
+       */
+      pointingDegree: function(lhs, rhs) {
+        return phina.geom.Vector2.pointingAngle(lhs, rhs) * Math.RAD_TO_DEG;
+      },
+
       /**
        * @method normal
        * @static
