@@ -101,10 +101,3 @@ export class Physical extends Accessory  {
     return this;
   }
 }
-
-// phina.app.Element.prototype.getter('physical', function() {
-//   if (!this._physical) {
-//     this._physical = phina.accessory.Physical().attachTo(this);
-//   }
-//   return this._physical;
-// });

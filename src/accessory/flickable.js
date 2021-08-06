@@ -155,11 +155,3 @@ export class Flickable extends Accessory {
   }
 
 }
-
-// TODO: Element側で呼ぶ？
-// phina.app.Element.prototype.getter('flickable', function() {
-//   if (!this._flickable) {
-//     this._flickable = phina.accessory.Flickable().attachTo(this);
-//   }
-//   return this._flickable;
-// });

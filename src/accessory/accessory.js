@@ -114,31 +114,3 @@ export class Accessory extends EventDispatcher {
   }
 
 }
-
-// Element側で拡張
-// phina.app.Element.prototype.$method('attach', function(accessory) {
-//   if (!this.accessories) {
-//     this.accessories = [];
-//     this.on('enterframe', function(e) {
-//       this.accessories.each(function(accessory) {
-//         accessory.update && accessory.update(e.app);
-//       });
-//     });
-//   }
-
-//   this.accessories.push(accessory);
-//   accessory.setTarget(this);
-//   accessory.flare('attached');
-
-//   return this;
-// });
-
-// phina.app.Element.prototype.$method('detach', function(accessory) {
-//   if (this.accessories) {
-//     this.accessories.erase(accessory);
-//     accessory.setTarget(null);
-//     accessory.flare('detached');
-//   }
-
-//   return this;
-// });
