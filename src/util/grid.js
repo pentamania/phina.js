@@ -1,65 +1,85 @@
+/**
+ * @typedef {{
+ *  width?: number;
+ *  columns?: number;
+ *  loop?: boolean;
+ *  offset?: number;
+ * }} GridOptions
+ */
 
-;(function() {
+/**
+ * @class phina.util.Grid
+ */
+export class Grid {
 
   /**
-   * @class phina.util.Grid
-   * tick management class
+   * @constructor
+   * @param {GridOptions | number} _optionsOrWidth
+   * @param {number} [_col]
+   * @param {boolean} [_loop]
+   * @param {number} [_offset]
    */
-  phina.define('phina.util.Grid', {
+  constructor(_optionsOrWidth, _col, _loop, _offset) {
+    var width, columns, loop, offset;
+    if (typeof arguments[0] === 'object') {
+      /** @type {GridOptions} */
+      var param = arguments[0];
+      width = param.width || 640;
+      columns = param.columns || 12;
+      loop = param.loop || false;
+      offset = param.offset || 0;
+    }
+    else {
+      width   = arguments[0] || 640;
+      columns = arguments[1] || 12;
+      loop    = arguments[2] || false;
+      offset = arguments[3] || 0;
+    }
 
-    /** 幅 */
-    width: 640,
-    /** 列数 */
-    columns: 12,
-    /** ループ */
-    loop: false,
-    /** オフセット値 */
-    offset: 0,
+    /** @type {number} 幅 */
+    this.width = width;
 
-    /**
-     * @constructor
-     */
-    init: function() {
-      if (typeof arguments[0] === 'object') {
-        var param = arguments[0];
-        var width = param.width || 640;
-        var columns = param.columns || 12;
-        var loop = param.loop || false;
-        var offset = param.offset || 0;
-      }
-      else {
-        var width   = arguments[0] || 640;
-        var columns = arguments[1] || 12;
-        var loop    = arguments[2] || false;
-        var offset = arguments[3] || 0;
-      }
+    /** @type {number} 列数 */
+    this.columns = columns;
 
-      this.width = width;
-      this.columns = columns;
-      this.loop = loop;
-      this.offset = offset;
-      this.unitWidth = this.width/this.columns;
-    },
+    /** @type {boolean} span指定時にループするかどうか */
+    this.loop = loop;
 
-    // スパン指定で値を取得(負数もok)
-    span: function(index) {
-      if (this.loop) {
-        index += this.columns;
-        index %= this.columns;
-      }
-      return this.unitWidth * index + this.offset;
-    },
+    /** @type {number} オフセット値 */
+    this.offset = offset;
 
-    //
-    unit: function() {
-      return this.unitWidth;
-    },
+    /** @type {number} グリッド単位値 */
+    this.unitWidth = this.width/this.columns;
+  }
 
-    center: function(offset) {
-      var index = offset || 0;
-      return (this.width/2) + (this.unitWidth * index);
-    },
+  /**
+   * スパン指定で値を取得(負数もok)
+   * @param {number} index
+   * @returns {number}
+   */
+  span(index) {
+    if (this.loop) {
+      index += this.columns;
+      index %= this.columns;
+    }
+    return this.unitWidth * index + this.offset;
+  }
 
-  });
+  /**
+   * グリッド単位を返す
+   * @returns {number}
+   */
+  unit() {
+    return this.unitWidth;
+  }
 
-})();
+  /**
+   * @param {number} [offset] 中心からのずれを単位数で指定
+   * @returns {number}
+   */
+  center(offset) {
+    var index = offset || 0;
+    return (this.width/2) + (this.unitWidth * index);
+  }
+
+}

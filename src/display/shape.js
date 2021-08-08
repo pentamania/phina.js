@@ -1,567 +1,738 @@
+import { AssetManager } from "../asset/assetmanager";
+import { $safe, $watch } from "../core/object";
+import { Vector2 } from "../geom/vector2";
+import { PlainElement } from "./plainelement";
 
-phina.namespace(function() {
+/**
+ * Shapeクラスオプション
+ * @typedef {{
+ *   padding?: number,
+ *   backgroundColor?: import('../graphics/canvas').CanvasStyle,
+ *   fill?: import('../graphics/canvas').CanvasStyle | false,
+ *   stroke?: import('../graphics/canvas').CanvasStyle | false,
+ *   strokeWidth?: number,
+ *   lineCap?: CanvasLineCap,
+ *   lineJoin?: CanvasLineJoin,
+ *   shadow?: string | false,
+ *   shadowBlur?: number,
+ * } & import('../display/displayelement').DisplayElementOptions } ShapeOptions
+ */
+
+/**
+ * @class phina.display.Shape
+ * _extends phina.display.PlainElement
+ */
+export class Shape extends PlainElement {
 
   /**
-   * @class phina.display.Shape
-   * @extends phina.display.PlainElement
+   * @param {ShapeOptions} [options]
    */
-  var Shape = phina.define('phina.display.Shape', {
-    superClass: 'phina.display.PlainElement',
+  constructor(options) {
+    // options = ({}).$safe(options || {}, phina.display.Shape.defaults);
+    options = $safe.call({}, options||{}, Shape.defaults)
 
-    init: function(options) {
-      options = ({}).$safe(options || {}, phina.display.Shape.defaults);
+    super(options);
 
-      this.superInit(options);
+    this.padding = options.padding;
 
-      this.padding = options.padding;
+    this.backgroundColor = options.backgroundColor;
+    this.fill = options.fill;
+    this.stroke = options.stroke;
+    this.strokeWidth = options.strokeWidth;
+    this.lineCap = options.lineCap;
+    this.lineJoin = options.lineJoin;
 
-      this.backgroundColor = options.backgroundColor;
-      this.fill = options.fill;
-      this.stroke = options.stroke;
-      this.strokeWidth = options.strokeWidth;
-      this.lineCap = options.lineCap;
-      this.lineJoin = options.lineJoin;
+    this.shadow = options.shadow;
+    this.shadowBlur = options.shadowBlur;
 
-      this.shadow = options.shadow;
-      this.shadowBlur = options.shadowBlur;
+    this.watchDraw = true;
+    this._dirtyDraw = true;
 
-      this.watchDraw = true;
-      this._dirtyDraw = true;
+    /** @this Shape */
+    var checkRender = function() {
+      // render
+      if (this.watchDraw && this._dirtyDraw === true) {
+        this.render(this.canvas);
+        this._dirtyDraw = false;
+      }
+    };
 
-      var checkRender = function() {
-        // render
-        if (this.watchDraw && this._dirtyDraw === true) {
-          this.render(this.canvas);
-          this._dirtyDraw = false;
-        }
-      };
+    this.on('enterframe', checkRender);
+    this.on('added', checkRender);
+  }
 
-      this.on('enterframe', checkRender);
-      this.on('added', checkRender);
-    },
+  calcCanvasWidth() {
+    return this.width + this.padding*2;
+  }
 
-    calcCanvasWidth: function() {
-      return this.width + this.padding*2;
-    },
+  calcCanvasHeight() {
+    return this.height + this.padding*2;
+  }
 
-    calcCanvasHeight: function() {
-      return this.height + this.padding*2;
-    },
+  calcCanvasSize () {
+    return {
+      width: this.calcCanvasWidth(),
+      height: this.calcCanvasHeight(),
+    };
+  }
 
-    calcCanvasSize: function () {
-      return {
-        width: this.calcCanvasWidth(),
-        height: this.calcCanvasHeight(),
-      };
-    },
+  isStrokable() {
+    return this.stroke && 0 < this.strokeWidth;
+  }
 
-    isStrokable: function() {
-      return this.stroke && 0 < this.strokeWidth;
-    },
+  /**
+   * @virtual
+   * @param  {import('../graphics/canvas').Canvas} _canvas 
+   * @returns {any}
+   */
+  prerender(_canvas) {
 
-    prerender: function(canvas) {
+  }
 
-    },
-    postrender: function(canvas) {
+  /**
+   * @virtual
+   * @param  {import('../graphics/canvas').Canvas} _canvas 
+   * @returns {any}
+   */
+  postrender(_canvas) {
 
-    },
-    renderFill: function(canvas) {
-      canvas.fill();
-    },
-    renderStroke: function(canvas) {
-      canvas.stroke();
-    },
+  }
 
-    render: function(canvas) {
-      var context = canvas.context;
-      // リサイズ
-      var size = this.calcCanvasSize();
-      canvas.setSize(size.width, size.height);
-      // クリアカラー
-      canvas.clearColor(this.backgroundColor);
-      // 中心に座標を移動
-      canvas.transformCenter();
+  /**
+   * @param  {import('../graphics/canvas').Canvas} canvas 
+   * @returns {void}
+   */
+  renderFill(canvas) {
+    canvas.fill();
+  }
 
-      // 描画前処理
-      this.prerender(this.canvas);
+  /**
+   * @param {import('../graphics/canvas').Canvas} canvas 
+   * @returns {void}
+   */
+  renderStroke(canvas) {
+    canvas.stroke();
+  }
 
-      // ストローク描画
-      if (this.isStrokable()) {
-        context.strokeStyle = this.stroke;
-        context.lineWidth = this.strokeWidth;
-        context.lineCap = this.lineCap;
-        context.lineJoin = this.lineJoin;
+  /**
+   * @param {import('../graphics/canvas').Canvas} canvas 
+   * @returns {this}
+   */
+  render(canvas) {
+    var context = canvas.context;
+    // リサイズ
+    var size = this.calcCanvasSize();
+    canvas.setSize(size.width, size.height);
+    // クリアカラー
+    canvas.clearColor(this.backgroundColor);
+    // 中心に座標を移動
+    canvas.transformCenter();
+
+    // 描画前処理
+    this.prerender(this.canvas);
+
+    // ストローク描画
+    if (this.isStrokable()) {
+      context.strokeStyle = /** @type {import('../graphics/canvas').CanvasStyle} */(this.stroke);
+      context.lineWidth = this.strokeWidth;
+      context.lineCap = this.lineCap;
+      context.lineJoin = this.lineJoin;
+      context.shadowBlur = 0;
+      this.renderStroke(canvas);
+    }
+
+    // 塗りつぶし描画
+    if (this.fill) {
+      context.fillStyle = this.fill;
+
+      // shadow の on/off
+      if (this.shadow) {
+        context.shadowColor = this.shadow;
+        context.shadowBlur = this.shadowBlur;
+      }
+      else {
         context.shadowBlur = 0;
-        this.renderStroke(canvas);
       }
 
-      // 塗りつぶし描画
-      if (this.fill) {
-        context.fillStyle = this.fill;
+      this.renderFill(canvas);
+    }
 
-        // shadow の on/off
-        if (this.shadow) {
-          context.shadowColor = this.shadow;
-          context.shadowBlur = this.shadowBlur;
-        }
-        else {
-          context.shadowBlur = 0;
-        }
+    // 描画後処理
+    this.postrender(this.canvas);
 
-        this.renderFill(canvas);
+    return this;
+  }
+
+  /**
+   * 自身のrender済みcanvasを返します
+   *
+   * @example
+   * var trishapeTex = new TriangleShape({
+   *   stroke: "black",
+   * }).getTexture();
+   * 
+   * // alternative
+   * // var trishapeTex = TriangleShape.prototype.getTexture({
+   * //   stroke: "black",
+   * // });
+   * 
+   * const sprite = new Sprite(trishapeTex).addChildTo(this)
+   *
+   * @param {ShapeOptions} [options]
+   * 指定するとconstructorから新たにインスタンスを生成し、
+   * そのrender済みcanvasを返します
+   * @param {string} [registerKey]
+   * AssetManagerにテクスチャ（image）として登録する場合のキー
+   * @returns {import("../graphics/canvas").Canvas | null}
+   */
+  getTexture(options, registerKey) {
+    var shape = this;
+    if (options) {
+      shape = this.constructor(options);
+    }
+    return Shape.getTexture(shape, registerKey);
+  }
+
+  /**
+   * 指定プロパティを監視し、変更があったらダーティフラグを立てて再描画を促す
+   * @param {string} key
+   * @returns {void}
+   */
+  static watchRenderProperty(key) {
+    // this.prototype.$watch(key, function(newVal, oldVal) {
+    $watch.call(this.prototype, key, function(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this._dirtyDraw = true;
       }
-
-      // 描画後処理
-      this.postrender(this.canvas);
-
-      return this;
-    },
-
-    /**
-     * 自身のrender済みcanvasを返します
-     *
-     * @example
-     * var trishapeTex = phina.display.TriangleShape({
-     *   stroke: "black",
-     * }).getTexture();
-     * // alternative style
-     * // var trishapeTex = phina.display.TriangleShape.prototype.getTexture({
-     * //   stroke: "black",
-     * // });
-     * phina.display.Sprite(trishapeTex)
-     *.addChildTo(this)
-     *
-     * @param  {Object} [options] - 指定するとconstructorから新たにインスタンスを生成し、そのrender済みcanvasを返します
-     * @param  {String} [registerKey] - AssetManagerに登録する場合のkey名
-     * @return {phina.graphics.Canvas|null}
-     */
-    getTexture: function(options, registerKey) {
-      var shape = this;
-      if (options) {
-        shape = this.constructor(options);
-      }
-      return phina.display.Shape.getTexture(shape, options, registerKey);
-    },
-
-    _static: {
-      watchRenderProperty: function(key) {
-        this.prototype.$watch(key, function(newVal, oldVal) {
-          if (newVal !== oldVal) {
-            this._dirtyDraw = true;
-          }
-        });
-      },
-      watchRenderProperties: function(keys) {
-        var watchRenderProperty = this.watchRenderProperty || Shape.watchRenderProperty;
-        keys.each(function(key) {
-          watchRenderProperty.call(this, key);
-        }, this);
-      },
-
-      /**
-       * 指定したShapeサブクラスインスタンスのrender済みcanvasを取得します
-       *
-       * @example
-       * var rectShapeTex = phina.display.Shape.getTexture("phina.display.RectangleShape", {
-       *   fill: "yellow",
-       * });
-       * Sprite(rectTex)
-       * .addChildTo(this)
-       *
-       * @param  {phina.display.Shape|String} shape - Shapeサブクラスのインスタンスもしくはそのパス文字列
-       * @param  {Object} [options] - インスタンス化の際にわたすオプション
-       * @param  {String} [registerKey] - AssetManagerに登録する場合のkey名
-       * @return {phina.graphics.Canvas}
-       */
-      getTexture: function(shape, options, registerKey) {
-        if (typeof shape === "string") {
-          var ClassFunc = phina.using(shape); // TODO: 存在しなかったときの動作？
-          shape = ClassFunc(options);
-        }
-        if (!shape instanceof phina.display.Shape) {
-          console.warn("[phina warn]: 指定クラスがphina.display.Shapeのサブクラスではありません");
-        }
-
-        // 一旦描画
-        shape.render(shape.canvas);
-
-        // AssetManagerに登録
-        if (registerKey != null) phina.asset.AssetManager.set('image', registerKey, shape.canvas);
-
-        return shape.canvas;
-      },
-      defaults: {
-        width: 64,
-        height: 64,
-        padding: 8,
-
-        backgroundColor: '#aaa',
-        fill: '#00a',
-        stroke: '#aaa',
-        strokeWidth: 4,
-        lineCap: 'round',
-        lineJoin: 'round',
-
-        shadow: false,
-        shadowBlur: 4,
-      },
-    },
-
-    _defined: function() {
-      this.watchRenderProperties([
-        'width',
-        'height',
-        'radius',
-        'padding',
-        'backgroundColor',
-        'fill',
-        'stroke',
-        'strokeWidth',
-        'lineCap',
-        'lineJoin',
-        'shadow',
-        'shadowBlur',
-      ]);
-    },
-  });
-
-});
-
-phina.namespace(function() {
-  /**
-   * @class phina.display.RectangleShape
-   * @extends phina.display.Shape
-   */
-  phina.define('phina.display.RectangleShape', {
-    superClass: 'phina.display.Shape',
-    init: function(options) {
-      options = ({}).$safe(options || {}, phina.display.RectangleShape.defaults);
-
-      this.superInit(options);
-
-      this.cornerRadius = options.cornerRadius;
-    },
-
-    prerender: function(canvas) {
-      canvas.roundRect(-this.width/2, -this.height/2, this.width, this.height, this.cornerRadius);
-    },
-
-    _defined: function() {
-      phina.display.Shape.watchRenderProperty.call(this, 'cornerRadius');
-    },
-
-    _static: {
-      defaults: {
-        backgroundColor: 'transparent',
-        fill: 'blue',
-        stroke: '#aaa',
-        strokeWidth: 4,
-
-        cornerRadius: 0,
-      },
-    }
-  });
-});
-
-phina.namespace(function() {
+    });
+  }
 
   /**
-   * @class phina.display.CircleShape
-   * @extends phina.display.Shape
+   * Shape.watchRenderPropertyをまとめて行う
+   * @param {string[]} keys
+   * @returns {void}
    */
-  phina.define('phina.display.CircleShape', {
-    superClass: 'phina.display.Shape',
+  static watchRenderProperties(keys) {
+    var watchRenderProperty = this.watchRenderProperty || Shape.watchRenderProperty;
+    keys.forEach(function(key) {
+      watchRenderProperty.call(this, key);
+    }, this);
+  }
 
-    init: function(options) {
-      options = ({}).$safe(options || {}, phina.display.CircleShape.defaults);
-
-      this.superInit(options);
-
-      this.setBoundingType('circle');
-    },
-
-    prerender: function(canvas) {
-      canvas.circle(0, 0, this.radius);
-    },
-
-    _static: {
-      defaults: {
-        backgroundColor: 'transparent',
-        fill: 'red',
-        stroke: '#aaa',
-        strokeWidth: 4,
-        radius: 32,
-      },
-    }
-  });
-});
-
-phina.namespace(function() {
   /**
-   * @class phina.display.TriangleShape
-   * @extends phina.display.Shape
+   * 指定したshapeインスタンスに、内部canvasレンダリングを実行させる
+   * 
+   * @param {Shape} shape 
+   * @param {string} [registerKey] AssetManagerにテクスチャ（image）として登録する場合のキー
+   * @returns {import("../graphics/canvas").Canvas}
    */
-  phina.define('phina.display.TriangleShape', {
-    superClass: 'phina.display.Shape',
+  static getTexture(shape, registerKey) {
+    // TODO?: global展開されたクラスを探してインスタンス化する
+    // if (typeof shape === "string") {
+    //   var ClassFunc = phina.using(shape);
+    //   shape = ClassFunc(options);
+    // }
 
-    init: function(options) {
-      options = ({}).$safe(options || {}, phina.display.TriangleShape.defaults);
+    shape.render(shape.canvas);
 
-      this.superInit(options);
+    // AssetManagerに登録
+    if (registerKey != null) AssetManager.set('image', registerKey, shape.canvas);
 
-      this.setBoundingType('circle');
-    },
+    return shape.canvas;
+  }
+}
 
-    prerender: function(canvas) {
-      canvas.polygon(0, 0, this.radius, 3);
-    },
+/**
+ * @type {ShapeOptions}
+ * @static
+ */
+Shape.defaults = {
+  width: 64,
+  height: 64,
+  padding: 8,
 
-    _static: {
-      defaults: {
-        backgroundColor: 'transparent',
-        fill: 'green',
-        stroke: '#aaa',
-        strokeWidth: 4,
+  backgroundColor: '#aaa',
+  fill: '#00a',
+  stroke: '#aaa',
+  strokeWidth: 4,
+  lineCap: 'round',
+  lineJoin: 'round',
 
-        radius: 32,
-      },
-    }
-  });
+  shadow: false,
+  shadowBlur: 4,
+}
 
-});
+// _defined
+Shape.watchRenderProperties([
+  'width',
+  'height',
+  'radius',
+  'padding',
+  'backgroundColor',
+  'fill',
+  'stroke',
+  'strokeWidth',
+  'lineCap',
+  'lineJoin',
+  'shadow',
+  'shadowBlur',
+]);
 
-phina.namespace(function() {
+
+/**
+ * @typedef {{
+ *   cornerRadius?: number
+ * } & ShapeOptions } RectangleShapeOptions
+ */
+
   /**
-   * @class phina.display.StarShape
-   * @extends phina.display.Shape
-   */
-  phina.define('phina.display.StarShape', {
-    superClass: 'phina.display.Shape',
-    init: function(options) {
-      options = ({}).$safe(options || {}, phina.display.StarShape.defaults);
+ * @class phina.display.RectangleShape
+ * _extends phina.display.Shape
+ * 矩形描画クラス
+ */
+export class RectangleShape extends Shape {
 
-      this.superInit(options);
-
-      this.setBoundingType('circle');
-      this.sides = options.sides;
-      this.sideIndent = options.sideIndent;
-    },
-
-    prerender: function(canvas) {
-      canvas.star(0, 0, this.radius, this.sides, this.sideIndent);
-    },
-
-    _defined: function() {
-      phina.display.Shape.watchRenderProperty.call(this, 'sides');
-      phina.display.Shape.watchRenderProperty.call(this, 'sideIndent');
-    },
-
-    _static: {
-      defaults: {
-        backgroundColor: 'transparent',
-        fill: 'yellow',
-        stroke: '#aaa',
-        strokeWidth: 4,
-
-        radius: 32,
-        sides: 5,
-        sideIndent: 0.38,
-      },
-    }
-  });
-
-});
-
-phina.namespace(function() {
   /**
-   * @class phina.display.PolygonShape
-   * @extends phina.display.Shape
+   * @param {RectangleShapeOptions} [options]
    */
-  phina.define('phina.display.PolygonShape', {
-    superClass: 'phina.display.Shape',
-    init: function(options) {
-      options = ({}).$safe(options || {}, phina.display.PolygonShape.defaults);
+  constructor(options) {
+    // options = ({}).$safe(options || {}, phina.display.RectangleShape.defaults);
+    options = $safe.call({}, options||{}, RectangleShape.defaults)
 
-      this.superInit(options);
+    super(options);
 
-      this.setBoundingType('circle');
-      this.sides = options.sides;
-    },
+    this.cornerRadius = options.cornerRadius;
+  }
 
-    prerender: function(canvas) {
-      canvas.polygon(0, 0, this.radius, this.sides);
-    },
-
-    _defined: function() {
-      phina.display.Shape.watchRenderProperty.call(this, 'sides');
-    },
-
-    _static: {
-      defaults: {
-        backgroundColor: 'transparent',
-        fill: 'cyan',
-        stroke: '#aaa',
-        strokeWidth: 4,
-
-        radius: 32,
-        sides: 5,
-      },
-    }
-  });
-
-});
-
-
-phina.namespace(function() {
   /**
-   * @class phina.display.HeartShape
-   * @extends phina.display.Shape
+   * @param  {import('../graphics/canvas').Canvas} canvas 
    */
-  phina.define('phina.display.HeartShape', {
-    superClass: 'phina.display.Shape',
-    init: function(options) {
-      options = ({}).$safe(options || {}, phina.display.HeartShape.defaults);
+  prerender(canvas) {
+    canvas.roundRect(-this.width/2, -this.height/2, this.width, this.height, this.cornerRadius);
+  }
 
-      this.superInit(options);
+}
 
-      this.setBoundingType('circle');
-      this.cornerAngle = options.cornerAngle;
-    },
+/**
+ * @type {RectangleShapeOptions}
+ * @static
+ */
+RectangleShape.defaults = {
+  backgroundColor: 'transparent',
+  fill: 'blue',
+  stroke: '#aaa',
+  strokeWidth: 4,
+  cornerRadius: 0,
+}
 
-    prerender: function(canvas) {
-      canvas.heart(0, 0, this.radius, this.cornerAngle);
-    },
+// _defined
+Shape.watchRenderProperty.call(RectangleShape, 'cornerRadius');
 
-    _defined: function() {
-      phina.display.Shape.watchRenderProperty.call(this, 'cornerAngle');
-    },
 
-    _static: {
-      defaults: {
-        backgroundColor: 'transparent',
-        fill: 'pink',
-        stroke: '#aaa',
-        strokeWidth: 4,
+/**
+ * @typedef {{
+ *   radius?: number
+ * } & ShapeOptions } CircleShapeOptions
+ */
 
-        radius: 32,
-        cornerAngle: 45,
-      },
-    }
-  });
+/**
+ * @class phina.display.CircleShape
+ * _extends phina.display.Shape
+ */
+export class CircleShape extends Shape {
 
-});
-
-phina.namespace(function () {
   /**
-   * @class phina.display.PathShape
-   * @extends phina.display.Shape
+   * @param {CircleShapeOptions} [options]
    */
-  var PathShape = phina.define('phina.display.PathShape', {
-    superClass: 'phina.display.Shape',
-    paths: null,
+  constructor(options) {
+    // options = ({}).$safe(options || {}, phina.display.CircleShape.defaults);
+    options = $safe.call({}, options||{}, CircleShape.defaults)
 
-    init: function (options) {
-      options = ({}).$safe(options || {}, phina.display.PathShape.defaults);
+    super(options);
 
-      this.superInit(options);
-      this.paths = options.paths || [];
-      this.lineJoin = options.lineJoin;
-      this.lineCap = options.lineCap;
-    },
+    this.setBoundingType('circle');
+  }
 
-    setPaths: function (paths) {
-      this.paths = paths;
-      this._dirtyDraw = true;
-      return this;
-    },
+  /**
+   * @param  {import('../graphics/canvas').Canvas} canvas 
+   */
+  prerender(canvas) {
+    canvas.circle(0, 0, this.radius);
+  }
 
-    clear: function () {
-      this.paths.length = 0;
-      this._dirtyDraw = true;
-      return this;
-    },
+}
 
-    addPaths: function (paths) {
-      [].push.apply(this.paths, paths);
-      this._dirtyDraw = true;
-      return this;
-    },
+/**
+ * @type {CircleShapeOptions}
+ * @static
+ */
+CircleShape.defaults = {
+  backgroundColor: 'transparent',
+  fill: 'red',
+  stroke: '#aaa',
+  strokeWidth: 4,
+  radius: 32,
+}
 
-    addPath: function (x, y) {
-      this.paths.push(phina.geom.Vector2(x, y));
-      this._dirtyDraw = true;
-      return this;
-    },
 
-    getPath: function (i) {
-      return this.paths[i];
-    },
+/**
+ * @class phina.display.TriangleShape
+ * _extends phina.display.Shape
+ */
+export class TriangleShape extends Shape {
 
-    getPaths: function () {
-      return this.paths;
-    },
+  /**
+   * @param {CircleShapeOptions} [options]
+   */
+  constructor(options) {
+    // options = ({}).$safe(options || {}, phina.display.TriangleShape.defaults);
+    options = $safe.call({}, options||{}, TriangleShape.defaults)
 
-    changePath: function (i, x, y) {
-      this.paths[i].set(x, y);
-      this._dirtyDraw = true;
-      return this;
-    },
+    super(options);
 
-    calcCanvasSize: function () {
-      var paths = this.paths;
-      if (paths.length === 0) {
-        return {
-          width: this.padding * 2,
-          height:this.padding * 2,
-        };
-      }
-      var maxX = -Infinity;
-      var maxY = -Infinity;
-      var minX = Infinity;
-      var minY = Infinity;
+    this.setBoundingType('circle');
+  }
 
-      for (var i = 0, len = paths.length; i < len; ++i) {
-        var path = paths[i];
-        if (maxX < path.x) { maxX = path.x; }
-        if (minX > path.x) { minX = path.x; }
-        if (maxY < path.y) { maxY = path.y; }
-        if (minY > path.y) { minY = path.y; }
-      }
+  /**
+   * @param  {import('../graphics/canvas').Canvas} canvas 
+   */
+  prerender(canvas) {
+    canvas.polygon(0, 0, this.radius, 3);
+  }
+
+}
+
+/**
+ * @type {CircleShapeOptions}
+ * @static
+ */
+TriangleShape.defaults = {
+  backgroundColor: 'transparent',
+  fill: 'green',
+  stroke: '#aaa',
+  strokeWidth: 4,
+
+  radius: 32,
+}
+
+
+/**
+ * @typedef {{
+ *   sides?: number,
+ * } & CircleShapeOptions } PolygonShapeOptions
+ */
+/**
+ * @typedef {{
+ *   sideIndent?: number,
+ * } & PolygonShapeOptions } StarShapeOptions
+ */
+
+/**
+ * @class phina.display.StarShape
+ * _extends phina.display.Shape
+ */
+export class StarShape extends Shape {
+
+  /**
+   * @param {StarShapeOptions} [options] 
+   */
+  constructor(options) {
+    // options = ({}).$safe(options || {}, phina.display.StarShape.defaults);
+    options = $safe.call({}, options||{}, StarShape.defaults)
+
+    super(options);
+
+    this.setBoundingType('circle');
+    this.sides = options.sides;
+    this.sideIndent = options.sideIndent;
+  }
+
+  /**
+   * @param  {import('../graphics/canvas').Canvas} canvas 
+   */
+  prerender(canvas) {
+    canvas.star(0, 0, this.radius, this.sides, this.sideIndent);
+  }
+
+}
+
+/**
+ * @type {StarShapeOptions}
+ * @static
+ */
+StarShape.defaults = {
+  backgroundColor: 'transparent',
+  fill: 'yellow',
+  stroke: '#aaa',
+  strokeWidth: 4,
+
+  radius: 32,
+  sides: 5,
+  sideIndent: 0.38,
+}
+
+// _defined
+Shape.watchRenderProperty.call(StarShape, 'sides');
+Shape.watchRenderProperty.call(StarShape, 'sideIndent');
+
+
+/**
+ * @class phina.display.PolygonShape
+ * _extends phina.display.Shape
+ */
+export class PolygonShape extends Shape {
+
+  /**
+   * @param {PolygonShapeOptions} [options] 
+   */
+  constructor(options) {
+    // options = ({}).$safe(options || {}, phina.display.PolygonShape.defaults);
+    options = $safe.call({}, options||{}, PolygonShape.defaults)
+
+    super(options);
+
+    this.setBoundingType('circle');
+    this.sides = options.sides;
+  }
+
+  /**
+   * @param  {import('../graphics/canvas').Canvas} canvas 
+   */
+  prerender(canvas) {
+    canvas.polygon(0, 0, this.radius, this.sides);
+  }
+
+}
+
+/**
+ * @type {PolygonShapeOptions}
+ * @static
+ */
+PolygonShape.defaults = {
+  backgroundColor: 'transparent',
+  fill: 'cyan',
+  stroke: '#aaa',
+  strokeWidth: 4,
+
+  radius: 32,
+  sides: 5,
+}
+
+// defined
+Shape.watchRenderProperty.call(PolygonShape, 'sides');
+
+
+/**
+ * @typedef {{
+ *   cornerAngle?: number,
+ * } & CircleShapeOptions } HeartShapeOptions
+ */
+
+/**
+ * @class phina.display.HeartShape
+ * _extends phina.display.Shape
+ */
+export class HeartShape extends Shape {
+
+  /**
+   * @param {HeartShapeOptions} [options]
+   */
+  constructor(options) {
+    // options = ({}).$safe(options || {}, phina.display.HeartShape.defaults);
+    options = $safe.call({}, options||{}, HeartShape.defaults)
+
+    super(options);
+
+    this.setBoundingType('circle');
+    this.cornerAngle = options.cornerAngle;
+  }
+
+  /**
+   * @param  {import('../graphics/canvas').Canvas} canvas 
+   */
+  prerender(canvas) {
+    canvas.heart(0, 0, this.radius, this.cornerAngle);
+  }
+
+}
+
+/**
+ * @type {HeartShapeOptions}
+ * @static
+ */
+HeartShape.defaults = {
+  backgroundColor: 'transparent',
+  fill: 'pink',
+  stroke: '#aaa',
+  strokeWidth: 4,
+
+  radius: 32,
+  cornerAngle: 45,
+}
+
+// defined
+Shape.watchRenderProperty.call(HeartShape, 'cornerAngle');
+
+
+/**
+ * @typedef {{
+ *   paths?: Vector2[]
+ * } & ShapeOptions } PathShapeOptions
+ */
+
+/**
+ * @class phina.display.PathShape
+ * _extends phina.display.Shape
+ */
+export class PathShape extends Shape {
+  // paths: null,
+
+  /**
+   * @param {PathShapeOptions} [options]
+   */
+  constructor(options) {
+    // options = ({}).$safe(options || {}, phina.display.PathShape.defaults);
+    options = $safe.call({}, options||{}, PathShape.defaults)
+
+    super(options);
+    this.paths = options.paths || [];
+    this.lineJoin = options.lineJoin;
+    this.lineCap = options.lineCap;
+  }
+
+  /**
+   * @param {Vector2[]} paths
+   * @returns {this}
+   */
+  setPaths (paths) {
+    this.paths = paths;
+    this._dirtyDraw = true;
+    return this;
+  }
+
+  /**
+   * @returns {this}
+   */
+  clear () {
+    this.paths.length = 0;
+    this._dirtyDraw = true;
+    return this;
+  }
+
+  /**
+   * @param {Vector2[]} paths 
+   * @returns {this}
+   */
+  addPaths (paths) {
+    [].push.apply(this.paths, paths);
+    this._dirtyDraw = true;
+    return this;
+  }
+
+  /**
+   * @param {number} x
+   * @param {number} y
+   * @returns {this}
+   */
+  addPath (x, y) {
+    this.paths.push(new Vector2(x, y));
+    this._dirtyDraw = true;
+    return this;
+  }
+
+  /**
+   * @param {string | number} i
+   * @returns {Vector2}
+   */
+  getPath (i) {
+    return this.paths[i];
+  }
+
+  /**
+   * @returns {Vector2[]} paths 
+   */
+  getPaths () {
+    return this.paths;
+  }
+
+  /**
+   * @param {string | number} i
+   * @param {number} x
+   * @param {number} y
+   */
+  changePath (i, x, y) {
+    this.paths[i].set(x, y);
+    this._dirtyDraw = true;
+    return this;
+  }
+
+  /**
+   * @returns {{width: number, height: number}}
+   */
+  calcCanvasSize () {
+    var paths = this.paths;
+    if (paths.length === 0) {
       return {
-        width: Math.max(Math.abs(maxX), Math.abs(minX)) * 2 + this.padding * 2,
-        height: Math.max(Math.abs(maxY), Math.abs(minY)) * 2 + this.padding * 2,
+        width: this.padding * 2,
+        height:this.padding * 2,
       };
-    },
-
-    calcCanvasWidth: function () {
-      return this.calcCanvasSize().width;
-    },
-
-    calcCanvasHeight: function () {
-      return this.calcCanvasSize().height;
-    },
-
-    prerender: function (canvas) {
-      var paths = this.paths;
-      if (paths.length > 1) {
-        var c = canvas.context;
-        var p = paths[0];
-        c.beginPath();
-        c.moveTo(p.x, p.y);
-        for (var i = 1, len = paths.length; i < len; ++i) {
-          p = paths[i];
-          c.lineTo(p.x, p.y);
-        }
-      }
-    },
-
-    _static: {
-      defaults: {
-        fill: false,
-        backgroundColor: 'transparent',
-      },
     }
+    var maxX = -Infinity;
+    var maxY = -Infinity;
+    var minX = Infinity;
+    var minY = Infinity;
 
-  });
+    for (var i = 0, len = paths.length; i < len; ++i) {
+      var path = paths[i];
+      if (maxX < path.x) { maxX = path.x; }
+      if (minX > path.x) { minX = path.x; }
+      if (maxY < path.y) { maxY = path.y; }
+      if (minY > path.y) { minY = path.y; }
+    }
+    return {
+      width: Math.max(Math.abs(maxX), Math.abs(minX)) * 2 + this.padding * 2,
+      height: Math.max(Math.abs(maxY), Math.abs(minY)) * 2 + this.padding * 2,
+    };
+  }
 
-});
+  /**
+   * @returns {number}
+   */
+  calcCanvasWidth () {
+    return this.calcCanvasSize().width;
+  }
+
+  /**
+   * @returns {number}
+   */
+  calcCanvasHeight () {
+    return this.calcCanvasSize().height;
+  }
+
+  /**
+   * @param  {import('../graphics/canvas').Canvas} canvas 
+   */
+  prerender (canvas) {
+    var paths = this.paths;
+    if (paths.length > 1) {
+      var c = canvas.context;
+      var p = paths[0];
+      c.beginPath();
+      c.moveTo(p.x, p.y);
+      for (var i = 1, len = paths.length; i < len; ++i) {
+        p = paths[i];
+        c.lineTo(p.x, p.y);
+      }
+    }
+  }
+
+}
+
+/**
+ * @type {PathShapeOptions}
+ * @static
+ */
+PathShape.defaults = {
+  fill: false,
+  backgroundColor: 'transparent',
+}

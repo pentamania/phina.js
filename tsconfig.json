@@ -1,0 +1,18 @@
+{
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "src/box2d",
+    "src/graphics/canvasrecorder.js",
+    "src/dirty.js",
+  ],
+  "compilerOptions": {
+    "target": "es2015", // 想定動作環境：とりあえず最新とする
+    "allowJs": true, // JSファイルを読み込み対象とするように指定
+    "declaration": true, // 型定義（d.ts）ファイルを出力
+    "emitDeclarationOnly": true, // 型定義ファイルの出力だけを行う
+    "declarationDir": "./types", // 型定義ファイルの出力先
+    "checkJs": true, // JSファイルも型チェック対象とする
+  },
+}

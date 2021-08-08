@@ -1,51 +1,59 @@
-/*
- *
+import { DisplayScene } from "../display/displayscene";
+import { Texture } from "../asset/texture";
+import { Sprite } from "../display/sprite";
+
+/**
+ * @typedef {Object} SplashSceneOptionExtend
+ * @property {string} [imageURL] 表示するスプラッシュ画像パス
  */
 
-
-phina.namespace(function() {
+/**
+ * @class phina.game.SplashScene
+ * _extends phina.display.DisplayScene
+ */
+export class SplashScene extends DisplayScene {
 
   /**
-   * @class phina.game.SplashScene
-   * @extends phina.display.DisplayScene
+   * @param {import("../display/displayscene").DisplaySceneOptions} [options]
    */
-  phina.define('phina.game.SplashScene', {
-    superClass: 'phina.display.DisplayScene',
+  constructor(options) {
+    var defaults = SplashScene.defaults;
+    super(options);
 
-    init: function(options) {
-      var defaults = phina.game.SplashScene.defaults;
-      this.superInit(options);
+    var texture = new Texture();
+    texture.load(defaults.imageURL).then(
+    /** @this SplashScene */
+    function() {
+      this._init();
+    }.bind(this));
+    this.texture = texture;
+  }
 
-      var texture = phina.asset.Texture();
-      texture.load(defaults.imageURL).then(function() {
-        this._init();
-      }.bind(this));
-      this.texture = texture;
-    },
+  /**
+   * @private
+   * 初期化関数
+   */
+  _init() {
+    this.sprite = new Sprite(this.texture).addChildTo(this);
 
-    _init: function() {
-      this.sprite = phina.display.Sprite(this.texture).addChildTo(this);
+    this.sprite.setPosition(this.gridX.center(), this.gridY.center());
+    this.sprite.alpha = 0;
 
-      this.sprite.setPosition(this.gridX.center(), this.gridY.center());
-      this.sprite.alpha = 0;
+    this.sprite.tweener
+      .clear()
+      .to({alpha:1}, 500, 'easeOutCubic')
+      .wait(1000)
+      .to({alpha:0}, 500, 'easeOutCubic')
+      .wait(250)
+      .call(function() {
+        this.exit();
+      }, this)
+      ;
+  }
 
-      this.sprite.tweener
-        .clear()
-        .to({alpha:1}, 500, 'easeOutCubic')
-        .wait(1000)
-        .to({alpha:0}, 500, 'easeOutCubic')
-        .wait(250)
-        .call(function() {
-          this.exit();
-        }, this)
-        ;
-    },
+}
 
-    _static: {
-      defaults: {
-        imageURL: 'http://cdn.rawgit.com/phi-jp/phina.js/develop/logo.png',
-      },
-    },
-  });
-
-});
+/** @type {import("../display/displayscene").DisplaySceneOptions & SplashSceneOptionExtend} */
+SplashScene.defaults = {
+  imageURL: 'http://cdn.rawgit.com/phi-jp/phina.js/develop/logo.png',
+};

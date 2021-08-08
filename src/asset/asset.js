@@ -1,47 +1,67 @@
+import { EventDispatcher } from "../util/eventdispatcher"
+import { Flow } from "../util/flow"
 
-phina.namespace(function() {
+/** @typedef {string | import("./file").FileAssetLoadParam | any} AssetSrc 基本的には文字列だがAsset種類によって変わる */
+
+/**
+ * @class phina.asset.Asset
+ * _extends phina.util.EventDispatcher
+ */
+export class Asset extends EventDispatcher {
+
+  // serverError: false,
+  // notFound: false,
+  // loadError: false,
 
   /**
-   * @class phina.asset.Asset
-   * @extends phina.util.EventDispatcher
+   * @constructor
    */
-  phina.define('phina.asset.Asset', {
-    superClass: "phina.util.EventDispatcher",
+  constructor() {
+    super();
 
-    serverError: false,
-    notFound: false,
-    loadError: false,
+    this.loaded = false;
+    this.serverError = false
+    this.notFound = false
+    this.loadError = false
 
-    /**
-     * @constructor
-     */
-    init: function(src) {
-      this.superInit();
+    /** @type {AssetSrc} */
+    this.src = undefined
+  }
 
-      this.loaded = false;
-    },
+  /**
+   * @param {AssetSrc} src
+   * @returns {Flow}
+   */
+  load(src) {
+    this.src = src;
+    return new Flow(this._load.bind(this));
+  }
 
-    load: function(src) {
-      this.src = src;
-      return phina.util.Flow(this._load.bind(this));
-    },
+  /**
+   * ロード済みかどうか
+   * @returns {boolean}
+   */
+  isLoaded() {
+    return this.loaded;
+  }
 
-    isLoaded: function() {
-      return this.loaded;
-    },
+  /**
+   * アセット種類に応じてサブクラスでオーバーライド
+   * @protected
+   * @param {(...args: any) => any} resolve
+   */
+  _load(resolve) {
+    var self = this;
+    setTimeout(function() {
+      self.loaded = true;
+      resolve();
+    }, 100);
+  }
 
-    _load: function(resolve) {
-      var self = this;
-      setTimeout(function() {
-        self.loaded = true;
-        resolve();
-      }, 100);
-    },
+  /**
+   * @virtual
+   * ロード失敗時にダミーをセットする
+   */
+  loadDummy() { }
 
-    // ロード失敗時にダミーをセットする
-    loadDummy: function() { },
-
-  });
-
-});
-
+}

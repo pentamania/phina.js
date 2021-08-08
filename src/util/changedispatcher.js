@@ -1,3 +1,5 @@
+import { forIn, accessor } from "../core/object";
+import { EventDispatcher } from "./eventdispatcher";
 
 
 // 監視オブジェクト
@@ -11,52 +13,53 @@
 //  middleman(仲立人)
 
 
-phina.namespace(function() {
+/**
+ * @class phina.util.ChangeDispatcher
+ * _extends phina.util.EventDispatcher
+ */
+export class ChangeDispatcher extends EventDispatcher {
+
+  constructor() {
+    super();
+
+    this._observe = true;
+  }
 
   /**
-   * @class phina.util.ChangeDispatcher
-   * @extends phina.util.EventDispatcher
+   * @param {string} key
+   * @param {any} defaultValue
    */
-  phina.define('phina.util.ChangeDispatcher', {
-    superClass: 'phina.util.EventDispatcher',
+  register(key, defaultValue) {
+    if (arguments.length === 1) {
+      var obj = arguments[0];
+      forIn.call(obj, function(key, value) {
+      // obj.forIn(function(key, value) {
+        this.register(key, value);
+      }, this);
+    }
+    else {
+      var tempKey = '__' + key;
+      this[tempKey] = defaultValue;
+      accessor.call(this, key, {
+      // this.accessor(key, {
+        get: function() {
+          return this[tempKey];
+        },
+        set: function(v) {
+          this[tempKey] = v;
+          if (this._observe) {
+            this.flare('change');
+          }
+        },
+      });
+    }
+    return this;
+  }
 
-    init: function() {
-      this.superInit();
-
-      this._observe = true;
-    },
-
-    register: function(key, defaultValue) {
-      if (arguments.length === 1) {
-        var obj = arguments[0];
-        obj.forIn(function(key, value) {
-          this.register(key, value);
-        }, this);
-      }
-      else {
-        var tempKey = '__' + key;
-        this[tempKey] = defaultValue;
-        this.accessor(key, {
-          get: function() {
-            return this[tempKey];
-          },
-          set: function(v) {
-            this[tempKey] = v;
-            if (this._observe) {
-              this.flare('change');
-            }
-          },
-        });
-      }
-      return this;
-    },
-
-    observe: function() {
-      this._observe = true;
-    },
-    unobserve: function() {
-      this._observe = false;
-    },
-  });
-
-});
+  observe() {
+    this._observe = true;
+  }
+  unobserve() {
+    this._observe = false;
+  }
+}

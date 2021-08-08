@@ -1,89 +1,130 @@
+import { $safe } from "../core/object";
+import { Object2D } from "../app/object2d";
 
-phina.namespace(function() {
+/**
+ * @typedef {{
+ *   alpha?: number,
+ *   visible?: boolean,
+ * } & import("../app/object2d").Object2DOptions} DisplayElementOptions
+ */
+
+/**
+ * globalCompositeOperation(https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalCompositeOperation) のtypeと同じ
+ * @typedef { 'source-over' | 'source-in' | 'source-out' | 'source-atop' | 'destination-over' | 'destination-in' | 'destination-out' | 'destination-atop' | 'lighter' | 'copy' | 'xor' | 'multiply' | 'screen' | 'overlay' | 'darken' | 'lighten' | 'color-dodge' | 'color-burn' | 'hard-light' | 'soft-light' | 'difference' | 'exclusion' | 'hue' | 'saturation' | 'color' | 'luminosity'} BlendMode
+ */
+
+/**
+ * @class phina.display.DisplayElement
+ * _extends phina.app.Object2D
+ */
+export class DisplayElement extends Object2D {
 
   /**
-   * @class phina.display.DisplayElement
-   * @extends phina.app.Object2D
+   * @param {DisplayElementOptions} [options] 
    */
-  phina.define('phina.display.DisplayElement', {
-    superClass: 'phina.app.Object2D',
-
-    /** 表示フラグ */
-    visible: true,
-    /** アルファ */
-    alpha: 1.0,
-    /** ブレンドモード */
-    blendMode: "source-over",
-
-    /** 子供を 自分のCanvasRenderer で描画するか */
-    renderChildBySelf: false,
-
-    init: function(options) {
-      options = ({}).$safe(options || {}, phina.display.DisplayElement.defaults);
-
-      this.superInit(options);
-      this.alpha = options.alpha;
-      this.visible = options.visible;
-      this._worldAlpha = 1.0;
-    },
+  constructor(options) {
+    options = $safe.call({}, options||{}, DisplayElement.defaults)
+    // options = ({}).$safe(options || {}, phina.display.DisplayElement.defaults);
+    super(options);
 
     /**
-     * アルファ値をセット
+     * 表示フラグ
+     * @type {boolean}
      */
-    setAlpha: function(alpha) {
-      this.alpha = alpha;
-      return this;
-    },
+    this.visible = (options.visible != null) ? options.visible : true;
 
     /**
-     * 表示/非表示をセット
+     * アルファ値
+     * @type {number}
      */
-    setVisible: function(flag) {
-      this.visible = flag;
-      return this;
-    },
+    this.alpha = (options.alpha != null) ? options.alpha : 1.0;
 
     /**
-     * 表示
+     * ブレンドモード
+     * @type {BlendMode}
      */
-    show: function() {
-      this.visible = true;
-      return this;
-    },
+    this.blendMode = "source-over";
 
     /**
-     * 非表示
+     * 子供を 自分のCanvasRenderer で描画するか
+     * @type {boolean}
      */
-    hide: function() {
-      this.visible = false;
-      return this;
-    },
+    this.renderChildBySelf = false;
+
+    /** @type {DisplayElement} 型アサーション */
+    this.parent;
 
     /**
-     * @private
+     * グローバルアルファ内部値
+     * @type {number}
      */
-    _calcWorldAlpha: function() {
-      if (this.alpha < 0) {
-        this._worldAlpha = 0;
-        return;
-      }
-      if (!this.parent) {
-        this._worldAlpha = this.alpha;
-        return ;
-      }
-      else {
-        var worldAlpha = (this.parent._worldAlpha !== undefined) ? this.parent._worldAlpha : 1.0;
-        // alpha
-        this._worldAlpha = worldAlpha * this.alpha;
-      }
-    },
+    this._worldAlpha = 1.0;
+  }
 
-    _static: {
-      defaults: {
-        alpha: 1.0,
-        visible: true,
-      },
+  /**
+   * アルファ値をセット
+   * @param {number} alpha
+   * @returns {this}
+   */
+  setAlpha(alpha) {
+    this.alpha = alpha;
+    return this;
+  }
+
+  /**
+   * 表示/非表示をセット
+   * @param {boolean} flag
+   * @returns {this}
+   */
+  setVisible(flag) {
+    this.visible = flag;
+    return this;
+  }
+
+  /**
+   * 表示
+   * @returns {this}
+   */
+  show() {
+    this.visible = true;
+    return this;
+  }
+
+  /**
+   * 非表示
+   * @returns {this}
+   */
+  hide() {
+    this.visible = false;
+    return this;
+  }
+
+  /**
+   * グローバルアルファ値の再計算
+   * @returns {void}
+   */
+  _calcWorldAlpha() {
+    if (this.alpha < 0) {
+      this._worldAlpha = 0;
+      return;
     }
-  });
-});
+    if (!this.parent) {
+      this._worldAlpha = this.alpha;
+      return ;
+    }
+    else {
+      var worldAlpha = (this.parent._worldAlpha !== undefined) ? this.parent._worldAlpha : 1.0;
+      // alpha
+      this._worldAlpha = worldAlpha * this.alpha;
+    }
+  }
 
+}
+
+/**
+ * @type {DisplayElementOptions}
+ */
+DisplayElement.defaults = {
+  alpha: 1.0,
+  visible: true,
+};

@@ -1,186 +1,201 @@
+// import { first, last, clear } from "../core/array"
+import { clamp } from "../core/math"
+import { EventDispatcher } from "../util/eventdispatcher"
+import { Vector2 } from "../geom/vector2"
 
-;(function() {
+/**
+ * @class phina.input.Input
+ * _extends phina.util.EventDispatcher
+ */
+export class Input extends EventDispatcher {
+
   /**
-   * @class phina.input.Input
-   * @extends phina.util.EventDispatcher
+   * @constructor
+   * @param {HTMLCanvasElement | HTMLDocument} domElement KeyBoardサブクラスではHTMLDocument、それ以外のサブクラスではHTMLCanvasElement
    */
-  phina.define('phina.input.Input', {
+  constructor(domElement) {
+    super();
 
-    superClass: 'phina.util.EventDispatcher',
+    this.domElement = domElement || window.document;
 
-    /** domElement */
-    domElement: null,
+    this.position = new Vector2(0, 0);
+    this.startPosition = new Vector2(0, 0);
+    this.deltaPosition = new Vector2(0, 0);
+    this.prevPosition = new Vector2(0, 0);
+    this._tempPosition = new Vector2(0, 0);
 
+    this.maxCacheNum = Input.defaults.maxCacheNum;
+    this.minDistance = Input.defaults.minDistance;
+    this.maxDistance = Input.defaults.maxDistance;
+    this.cachePositions = [];
+    this.flickVelocity = new Vector2(0, 0);
+
+    this.flags = 0;
+    
     /**
-     * @constructor
+     * KeyBoardクラス拡張時の型エラー対策のためunion型とするが、本クラスではnumberとして使用
+     * @type {number | {[k: string]: number}}
      */
-    init: function(domElement) {
-      this.superInit();
-      
-      this.domElement = domElement || window.document;
+    this.last
+  }
 
-      this.position = phina.geom.Vector2(0, 0);
-      this.startPosition = phina.geom.Vector2(0, 0);
-      this.deltaPosition = phina.geom.Vector2(0, 0);
-      this.prevPosition = phina.geom.Vector2(0, 0);
-      this._tempPosition = phina.geom.Vector2(0, 0);
+  /**
+   * 更新
+   * @returns {void}
+   */
+  update() {
+    this.last = this.now;
+    this.now = this.flags;
+    this.start = (this.now ^ this.last) & this.now;
+    this.end   = (this.now ^ this.last) & this.last;
 
-      this.maxCacheNum = phina.input.Input.defaults.maxCacheNum;
-      this.minDistance = phina.input.Input.defaults.minDistance;
-      this.maxDistance = phina.input.Input.defaults.maxDistance;
-      this.cachePositions = [];
-      this.flickVelocity = phina.geom.Vector2(0, 0);
+    // 変化値を更新
+    this.deltaPosition.x = this._tempPosition.x - this.position.x;
+    this.deltaPosition.y = this._tempPosition.y - this.position.y;
 
-      this.flags = 0;
-    },
+    if (this.deltaPosition.x === 0 && this.deltaPosition.y === 0) {
+      this._moveFlag = false;
+    }
+    else {
+      this._moveFlag = true;
+    }
 
-    update: function() {
-      this.last = this.now;
-      this.now = this.flags;
-      this.start = (this.now ^ this.last) & this.now;
-      this.end   = (this.now ^ this.last) & this.last;
+    if (this.start) {
+      this.startPosition.set(this.position.x, this.position.y);
+    }
 
-      // 変化値を更新
-      this.deltaPosition.x = this._tempPosition.x - this.position.x;
-      this.deltaPosition.y = this._tempPosition.y - this.position.y;
+    // 前回の座標を更新
+    this.prevPosition.set(this.position.x, this.position.y);
 
-      if (this.deltaPosition.x === 0 && this.deltaPosition.y === 0) {
-        this._moveFlag = false;
-      }
-      else {
-        this._moveFlag = true;
-      }
+    // 現在の位置を更新
+    this.position.set(this._tempPosition.x, this._tempPosition.y);
 
-      if (this.start) {
-        this.startPosition.set(this.position.x, this.position.y);
-      }
+    if (this.cachePositions.length > this.maxCacheNum) {
+      this.cachePositions.shift();
+    }
+    this.cachePositions.push(this.position.clone());
+  }
 
-      // 前回の座標を更新
-      this.prevPosition.set(this.position.x, this.position.y);
+  /**
+   * @param {number} x
+   * @param {number} y
+   * @param {number} [flag=1] デフォルトは1(true)
+   * @returns {void}
+   */
+  _start(x, y, flag) {
+    flag = (flag !== undefined) ? flag : 1;
+    // console.log('start', x, y);
+    this._move(x, y);
 
-      // 現在の位置を更新
-      this.position.set(this._tempPosition.x, this._tempPosition.y);
+    this.flags |= flag;
 
-      if (this.cachePositions.length > this.maxCacheNum) {
-        this.cachePositions.shift();
-      }
-      this.cachePositions.push(this.position.clone());
-    },
+    x = this._tempPosition.x;
+    y = this._tempPosition.y;
+    this.position.set(x, y);
+    this.prevPosition.set(x, y);
 
-    _start: function(x, y, flag) {
-      flag = (flag !== undefined) ? flag : 1;
-      this._move(x, y);
+    this.flickVelocity.set(0, 0);
+    // this.cachePositions.clear();
+    this.cachePositions.length = 0;
+  }
 
-      this.flags |= flag;
+  /**
+   * @param {number} [flag=1]
+   * @returns {void}
+   */
+  _end(flag) {
+    flag = (flag !== undefined) ? flag : 1;
+    this.flags &= ~(flag);
 
-      var x = this._tempPosition.x;
-      var y = this._tempPosition.y;
-      this.position.set(x, y);
-      this.prevPosition.set(x, y);
+    if (this.cachePositions.length < 2) return;
 
-      this.flickVelocity.set(0, 0);
-      this.cachePositions.clear();
-    },
+    // var first = this.cachePositions.first;
+    // var last = this.cachePositions.last;
+    var first = this.cachePositions[0];
+    var last = this.cachePositions[this.cachePositions.length-1];
 
-    _end: function(flag) {
-      flag = (flag !== undefined) ? flag : 1;
-      this.flags &= ~(flag);
+    var v = Vector2.sub(last, first);
 
-      if (this.cachePositions.length < 2) return;
+    var len = v.length();
 
-      var first = this.cachePositions.first;
-      var last = this.cachePositions.last;
+    if (len > this.minDistance) {
+      // var normalLen = len.clamp(this.minDistance, this.maxDistance);
+      var normalLen = clamp(len, this.minDistance, this.maxDistance);
+      v.div(len).mul(normalLen);
+      this.flickVelocity.set(v.x, v.y);
+    }
 
-      var v = phina.geom.Vector2.sub(last, first);
+    // this.cachePositions.clear();
+    this.cachePositions.length = 0;
+  }
 
-      var len = v.length();
+  /**
+   * スケールを考慮して位置を移動
+   * @param {number} x
+   * @param {number} y
+   * @returns {void}
+   */
+  _move(x, y) {
+    this._tempPosition.x = x;
+    this._tempPosition.y = y;
 
-      if (len > this.minDistance) {
-        var normalLen = len.clamp(this.minDistance, this.maxDistance);
-        v.div(len).mul(normalLen);
-        this.flickVelocity.set(v.x, v.y);
-      }
+    // adjust scale
+    var elm = /** @type {HTMLCanvasElement} */(this.domElement);
+    var rect = elm.getBoundingClientRect();
+    if (rect.width) {
+      this._tempPosition.x *= elm.width / rect.width;
+    }
+    if (rect.height) {
+      this._tempPosition.y *= elm.height / rect.height;
+    }
+  }
 
-      this.cachePositions.clear();
-    },
+  /**
+   * @property    x
+   * x座標値
+   */
+  get x() { return this.position.x; }
+  set x(v) { this.position.x = v; }
 
-    // スケールを考慮
-    _move: function(x, y) {
-      this._tempPosition.x = x;
-      this._tempPosition.y = y;
+  /**
+   * @property    y
+   * y座標値
+   */
+  get y() { return this.position.y; }
+  set y(v) { this.position.y = v; }
 
-      // adjust scale
-      var elm = this.domElement;
-      var rect = elm.getBoundingClientRect();
-      if (rect.width) {
-        this._tempPosition.x *= elm.width / rect.width;
-      }
-      if (rect.height) {
-        this._tempPosition.y *= elm.height / rect.height;
-      }
-    },
+  /**
+   * @property    dx
+   * dx値
+   */
+  get dx() { return this.deltaPosition.x; }
+  set dx(v) { this.deltaPosition.x = v; }
 
-    _accessor: {
-      /**
-       * @property    x
-       * x座標値
-       */
-      x: {
-        "get": function()   { return this.position.x; },
-        "set": function(v)  { this.position.x = v; }
-      },
-      /**
-       * @property    y
-       * y座標値
-       */
-      y: {
-        "get": function()   { return this.position.y; },
-        "set": function(v)  { this.position.y = v; }
-      },
-      /**
-       * @property    dx
-       * dx値
-       */
-      dx: {
-        "get": function()   { return this.deltaPosition.x; },
-        "set": function(v)  { this.deltaPosition.x = v; }
-      },
-      /**
-       * @property    dy
-       * dy値
-       */
-      dy: {
-        "get": function()   { return this.deltaPosition.y; },
-        "set": function(v)  { this.deltaPosition.y = v; }
-      },
+  /**
+   * @property    dy
+   * dy値
+   */
+  get dy() { return this.deltaPosition.y; }
+  set dy(v) { this.deltaPosition.y = v; }
 
-      /**
-       * @property    fx
-       * fx値
-       */
-      fx: {
-        "get": function()   { return this.flickVelocity.x; },
-        "set": function(v)  { this.flickVelocity.x = v; }
-      },
-      /**
-       * @property    fy
-       * fy値
-       */
-      fy: {
-        "get": function()   { return this.flickVelocity.y; },
-        "set": function(v)  { this.flickVelocity.y = v; }
-      },
+  /**
+   * @property    fx
+   * fx値
+   */
+  get fx() { return this.flickVelocity.x; }
+  set fx(v) { this.flickVelocity.x = v; }
 
-    },
+  /**
+   * @property    fy
+   * fy値
+   */
+  get fy() { return this.flickVelocity.y; }
+  set fy(v) { this.flickVelocity.y = v; }
 
-    _static: {
-      defaults: {
-        maxCacheNum: 3,
-        minDistance: 10,
-        maxDistance: 100,
-      },
-    },
-  });
+}
 
-
-})();
+Input.defaults = {
+  maxCacheNum: 3,
+  minDistance: 10,
+  maxDistance: 100,
+}

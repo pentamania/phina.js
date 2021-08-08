@@ -1,253 +1,284 @@
-phina.namespace(function() {
+import { $safe } from "../core/object"
+import { clamp } from "../core/math"
+import { Shape } from "../display/shape";
+
+/**
+ * @typedef {{
+ *   value?: number
+ *   maxValue?: number
+ *   gaugeColor?: import("../graphics/canvas").CanvasStyle
+ *   animation?: boolean
+ *   cornerRadius?: number
+ * } & import('../display/shape').ShapeOptions } GaugeOptions
+ */
+
+/**
+ * @class phina.ui.Gauge
+ * _extends phina.display.Shape
+ * 
+ * @example
+ * const lifeGauge = new Gauge({
+ *   fill: "gray", // Gauge background color
+ *   gaugeColor: "red", // Gauge main color
+ *   stroke: "black" // Gauge frame color
+ *   maxValue: 200,
+ *   animation: true,
+ * })
+ * 
+ * if (playerDamaged) {
+ *   lifeGauge.value -= 10
+ * }
+ * 
+ */
+export class Gauge extends Shape {
 
   /**
-   * @class phina.ui.Gauge
-   * @extends phina.display.Shape
+   * @param {GaugeOptions} [options] 
    */
-  phina.define('phina.ui.Gauge', {
-    superClass: 'phina.display.Shape',
-
-    init: function(options) {
-      options = ({}).$safe(options || {}, phina.ui.Gauge.defaults);
-      this.superInit(options);
-
-      this._value = (options.value !== undefined) ? options.value : options.maxValue;
-      this.maxValue = options.maxValue;
-      this.gaugeColor = options.gaugeColor;
-      this.cornerRadius = options.cornerRadius;
-
-      this.visualValue = (options.value !== undefined) ? options.value : options.maxValue;
-      this.animation = options.animation;
-      this.animationTime = 1*1000;
-    },
+  constructor(options) {
+    options = $safe.call({}, options || {}, Gauge.defaults);
+    // options = ({}).$safe(options || {}, phina.ui.Gauge.defaults);
+    
+    super(options);
 
     /**
-     * 満タンかをチェック
+     * @private
+     * @type {number}
      */
-    isFull: function() {
-      return this.value === this.maxValue;
-    },
+    this._value = (options.value !== undefined) ? options.value : options.maxValue;
 
     /**
-     * 空っぽかをチェック
+     * @type {number} 最大値
      */
-    isEmpty: function() {
-      return this.value === 0;
-    },
+    this.maxValue = options.maxValue;
 
-    setValue: function(value) {
-      value = Math.clamp(value, 0, this.maxValue);
+    /**
+     * @type {import("../graphics/canvas").CanvasStyle} ゲージの色
+     */
+    this.gaugeColor = options.gaugeColor;
+    
+    /**
+     * @type {number} 最大値
+     */
+    this.cornerRadius = options.cornerRadius;
 
-      // end when now value equal value of argument
-      if (this.value === value) return ;
+    /**
+     * @type {number} 見た目の値
+     */
+    this.visualValue = (options.value !== undefined) ? options.value : options.maxValue;
 
-      // fire value change event
-      this.flare('change');
+    /**
+     * @type {boolean} アニメーションさせるかどうか
+     */
+    this.animation = options.animation;
 
-      this._value = value;
+    /**
+     * @type {number} アニメーション完了時間をミリ秒指定
+     * @default 1000
+     */
+    this.animationTime = 1*1000;
+  }
 
-      if (this.animation) {
-        var range = Math.abs(this.visualValue-value);
-        var time = (range/this.maxValue)*this.animationTime;
+  /**
+   * 満タンかをチェック
+   * @returns {boolean}
+   */
+  isFull() {
+    return this.value === this.maxValue;
+  }
 
-        this.tweener.ontween = function() {
-          this._dirtyDraw = true;
-        }.bind(this);
-        this.tweener
-          .clear()
-          .to({'visualValue': value}, time)
-          .call(function() {
-            this.flare('changed');
-            if (this.isEmpty()) {
-              this.flare('empty');
-            }
-            else if (this.isFull()) {
-              this.flare('full');
-            }
-          }, this);
-      }
-      else {
-        this.visualValue = value;
-        this.flare('changed');
-        if (this.isEmpty()) {
-          this.flare('empty');
-        }
-        else if (this.isFull()) {
-          this.flare('full');
-        }
-      }
-    },
+  /**
+   * 空っぽかをチェック
+   * @returns {boolean}
+   */
+  isEmpty() {
+    return this.value === 0;
+  }
 
-    getRate: function() {
-      var rate = this.visualValue/this.maxValue;
-      return rate;
-    },
+  /**
+   * @param {number} value
+   * @returns {void}
+   */
+  setValue(value) {
+    value = clamp(value, 0, this.maxValue);
+    // value = Math.clamp(value, 0, this.maxValue);
 
-    prerender: function(canvas) {
-      canvas.roundRect(-this.width/2, -this.height/2, this.width, this.height, this.cornerRadius);
-    },
+    // end when now value equal value of argument
+    if (this.value === value) return ;
 
-    postrender: function(canvas) {
-      var rate = this.getRate();
-      canvas.context.fillStyle = this.gaugeColor;
-      canvas.context.save();
-      canvas.context.clip();
-      canvas.fillRect(-this.width/2, -this.height/2, this.width*rate, this.height);
-      canvas.context.restore();
-    },
+    // fire value change event
+    this.flare('change');
 
-    _accessor: {
-      value: {
-        get: function() {
-          return this._value;
-        },
-        set: function(v) {
-          this.setValue(v);
-        },
-      },
-    },
+    this._value = value;
 
-    _defined: function() {
-      phina.display.Shape.watchRenderProperty.call(this, 'value');
-      phina.display.Shape.watchRenderProperty.call(this, 'maxValue');
-      phina.display.Shape.watchRenderProperty.call(this, 'gaugeColor');
-      phina.display.Shape.watchRenderProperty.call(this, 'cornerRadius');
-    },
+    if (this.animation) {
+      var range = Math.abs(this.visualValue-value);
+      var time = (range/this.maxValue)*this.animationTime;
 
-    _static: {
-      defaults: {
-        width: 256,
-        height: 32,
-        backgroundColor: 'transparent',
-        fill: 'white',
-        stroke: '#aaa',
-        strokeWidth: 4,
-        maxValue: 100,
-        gaugeColor: '#44f',
-        cornerRadius: 0,
-        animation: true
-      },
+      // @ts-ignore
+      this.tweener.ontween = function() {
+        this._dirtyDraw = true;
+      }.bind(this);
+      this.tweener
+        .clear()
+        .to({'visualValue': value}, time)
+        .call(function() {
+          this.flare('changed');
+          if (this.isEmpty()) {
+            this.flare('empty');
+          }
+          else if (this.isFull()) {
+            this.flare('full');
+          }
+        }, this);
     }
-  });
-
-});
-
-
-phina.namespace(function() {
-
-  /**
-   * @class phina.ui.CircleGauge
-   * @extends phina.ui.Gauge
-   */
-  phina.define('phina.ui.CircleGauge', {
-    superClass: 'phina.ui.Gauge',
-
-    init: function(options) {
-      options = (options || {}).$safe({
-        backgroundColor: 'transparent',
-        fill: '#aaa',
-        stroke: '#222',
-
-        radius: 64,
-        anticlockwise: true,
-        showPercentage: false, // TODO
-      });
-
-      this.superInit(options);
-
-      this.setBoundingType('circle');
-
-      this.radius = options.radius;
-      this.anticlockwise = options.anticlockwise;
-      this.showPercentage = options.showPercentage;
-    },
-
-    prerender: function(canvas) {
-      var rate = this.getRate();
-      var end = (Math.PI*2)*rate;
-      this.startAngle = 0;
-      this.endAngle = end;
-
-      this.canvas.rotate(-Math.PI*0.5);
-      if (this.anticlockwise) this.canvas.scale(1, -1);
-    },
-
-    renderFill: function(canvas) {
-      canvas.fillPie(0, 0, this.radius, this.startAngle, this.endAngle);
-    },
-
-    renderStroke: function(canvas) {
-      canvas.strokeArc(0, 0, this.radius, this.startAngle, this.endAngle);
-    },
-
-    postrender: function() {
-      // if (this.showPercentage) {
-      //   // TODO:
-      //   var left = Math.max(0, this.limit-this.time);
-      //   this.label.text = Math.ceil(left/1000)+'';
-      // }
-    },
-
-  });
-
-
-
-});
-
-
-phina.namespace(function() {
-
-  /**
-   * @classs phina.ui.RingGauge
-   * @extends phina.ui.CircleGauge
-   *
-   */
-  phina.define('phina.ui.RingGauge', {
-    superClass: 'phina.ui.CircleGauge',
-
-    init: function(options) {
-      options = ({}).$safe(options, {
-        gaugeBackgroundColor: '#aaa',
-        gaugeColor: '#26EE71',
-        gaugeWidth: 12,
-        anticlockwise: false,
-      });
-
-      this.superInit(options);
-
-      this.stroke = true; // 必ずrenderStrokeさせる
-      this.fill = false; // 塗りはさせない
-      this.gaugeWidth = options.gaugeWidth;
-      this.gaugeBackgroundColor = options.gaugeBackgroundColor;
-      this.gaugeBackgroundWidth = (options.gaugeBackgroundWidth != null)
-        ? options.gaugeBackgroundWidth
-        : this.gaugeWidth* 1.5;
-    },
-
-    renderFill: function(canvas) {},
-
-    renderStroke: function(canvas) {
-      var ctx = canvas.context;
-      var radius = this.radius - this.gaugeBackgroundWidth/2;
-
-      // 背景部
-      if (this.gaugeBackgroundWidth && this.gaugeBackgroundColor) {
-        ctx.lineWidth = this.gaugeBackgroundWidth;
-        ctx.strokeStyle = this.gaugeBackgroundColor;
-        canvas.strokeCircle(0, 0, radius);
+    else {
+      this.visualValue = value;
+      this.flare('changed');
+      if (this.isEmpty()) {
+        this.flare('empty');
       }
+      else if (this.isFull()) {
+        this.flare('full');
+      }
+    }
+  }
 
-      // メインゲージ部
-      ctx.lineWidth = this.gaugeWidth;
-      ctx.strokeStyle = this.gaugeColor;
-      canvas.strokeArc(0, 0, radius, this.startAngle, this.endAngle);
-    },
+  /**
+   * 
+   * @returns {number}
+   */
+  getRate() {
+    var rate = this.visualValue/this.maxValue;
+    return rate;
+  }
 
-    _defined: function() {
-      phina.display.Shape.watchRenderProperty.call(this, 'gaugeBackgroundColor');
-      phina.display.Shape.watchRenderProperty.call(this, 'gaugeWidth');
-      phina.display.Shape.watchRenderProperty.call(this, 'gaugeBackgroundWidth');
-    },
-  });
+  /**
+   * @override
+   * @param {import('../graphics/canvas').Canvas} canvas 
+   */
+  prerender(canvas) {
+    canvas.roundRect(-this.width/2, -this.height/2, this.width, this.height, this.cornerRadius);
+  }
 
-});
+  /**
+   * @override
+   * @param {import('../graphics/canvas').Canvas} canvas 
+   */
+  postrender(canvas) {
+    var rate = this.getRate();
+    canvas.context.fillStyle = this.gaugeColor;
+    canvas.context.save();
+    canvas.context.clip();
+    canvas.fillRect(-this.width/2, -this.height/2, this.width*rate, this.height);
+    canvas.context.restore();
+  }
+
+  get value() {
+    return this._value;
+  }
+  set value(v) {
+    this.setValue(v);
+  }
+
+}
+
+/**
+ * @type {GaugeOptions}
+ * @static
+ */
+Gauge.defaults = {
+  width: 256,
+  height: 32,
+  backgroundColor: 'transparent',
+  fill: 'white',
+  stroke: '#aaa',
+  strokeWidth: 4,
+  maxValue: 100,
+  gaugeColor: '#44f',
+  cornerRadius: 0,
+  animation: true
+}
+
+// defined
+Shape.watchRenderProperty.call(Gauge, 'value');
+Shape.watchRenderProperty.call(Gauge, 'maxValue');
+Shape.watchRenderProperty.call(Gauge, 'gaugeColor');
+Shape.watchRenderProperty.call(Gauge, 'cornerRadius');
+
+/**
+ * @typedef {{
+ *   anticlockwise?: boolean
+ *   showPercentage?: boolean
+ * } & GaugeOptions } CircleGaugeOptions
+ */
+
+/**
+ * @class phina.ui.CircleGauge
+ * _extends phina.ui.Gauge
+ */
+export class CircleGauge extends Gauge {
+
+  /**
+   * @param {CircleGaugeOptions} [options] 
+   */
+  constructor(options) {
+    options = $safe.call(options || {}, {
+    // options = (options || {}).$safe({
+      backgroundColor: 'transparent',
+      fill: '#aaa',
+      stroke: '#222',
+
+      radius: 64,
+      anticlockwise: true,
+      showPercentage: false, // TODO
+    });
+
+    super(options);
+
+    this.setBoundingType('circle');
+
+    this.radius = options.radius;
+    this.anticlockwise = options.anticlockwise;
+    this.showPercentage = options.showPercentage;
+  }
+
+  /**
+   * @override
+   * @param {import('../graphics/canvas').Canvas} _canvas 
+   */
+  prerender(_canvas) {
+    var rate = this.getRate();
+    var end = (Math.PI*2)*rate;
+    this.startAngle = 0;
+    this.endAngle = end;
+
+    this.canvas.rotate(-Math.PI*0.5);
+    if (this.anticlockwise) this.canvas.scale(1, -1);
+  }
+
+  /**
+   * @override
+   * @param {import('../graphics/canvas').Canvas} canvas 
+   */
+  renderFill(canvas) {
+    canvas.fillPie(0, 0, this.radius, this.startAngle, this.endAngle);
+  }
+
+  /**
+   * @override
+   * @param {import('../graphics/canvas').Canvas} canvas 
+   */
+  renderStroke(canvas) {
+    canvas.strokeArc(0, 0, this.radius, this.startAngle, this.endAngle);
+  }
+
+  postrender() {
+    // if (this.showPercentage) {
+    //   // TODO:
+    //   var left = Math.max(0, this.limit-this.time);
+    //   this.label.text = Math.ceil(left/1000)+'';
+    // }
+  }
+
+}

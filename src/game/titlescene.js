@@ -1,77 +1,88 @@
-/*
- * TitleScene
+import { DisplayScene } from "../display/displayscene";
+import { Label } from "../display/label";
+import { $safe } from "../core/object";
+
+/**
+ * @typedef {Object} TitleSceneOptionExtend
+ * @property {string} [title] タイトル文字列
+ * @property {string} [message] 未使用
+ * @property {import("../graphics/canvas").CanvasStyle} [fontColor] タイトルラベルの色
+ * @property {string} [backgroundImage] 未使用
+ * @property {"touch"|""} [exitType] "touch"指定時に自動でタッチ遷移イベントを付与
+ * 
+ * @typedef {import("../display/displayscene").DisplaySceneOptions & TitleSceneOptionExtend} TitleSceneOptions
  */
 
-
-phina.namespace(function() {
+/**
+ * @class phina.game.TitleScene
+ * _extends phina.display.DisplayScene
+ */
+export class TitleScene extends DisplayScene {
 
   /**
-   * @class phina.game.TitleScene
-   * @extends phina.display.DisplayScene
+   * @constructor
+   * @param {TitleSceneOptions} [params]
    */
-  phina.define('phina.game.TitleScene', {
-    superClass: 'phina.display.DisplayScene',
-    /**
-     * @constructor
-     */
-    init: function(params) {
-      params = ({}).$safe(params, phina.game.TitleScene.defaults);
-      this.superInit(params);
+  constructor(params) {
+    params = $safe.call({}, params, TitleScene.defaults);
+    // params = ({}).$safe(params, phina.game.TitleScene.defaults);
+    super(params);
 
-      this.backgroundColor = params.backgroundColor;
+    this.backgroundColor = params.backgroundColor;
 
+    this.fromJSON({
+      children: {
+        titleLabel: {
+          className: Label,
+          // className: 'phina.display.Label',
+          arguments: {
+            text: params.title,
+            fill: params.fontColor,
+            stroke: false,
+            fontSize: 64,
+          },
+          x: this.gridX.center(),
+          y: this.gridY.span(4),
+        }
+      }
+    });
+
+    if (params.exitType === 'touch') {
       this.fromJSON({
         children: {
-          titleLabel: {
-            className: 'phina.display.Label',
+          touchLabel: {
+            className: Label,
+            // className: 'phina.display.Label',
             arguments: {
-              text: params.title,
+              text: "TOUCH START",
               fill: params.fontColor,
               stroke: false,
-              fontSize: 64,
+              fontSize: 32,
             },
             x: this.gridX.center(),
-            y: this.gridY.span(4),
-          }
-        }
+            y: this.gridY.span(12),
+          },
+        },
       });
 
-      if (params.exitType === 'touch') {
-        this.fromJSON({
-          children: {
-            touchLabel: {
-              className: 'phina.display.Label',
-              arguments: {
-                text: "TOUCH START",
-                fill: params.fontColor,
-                stroke: false,
-                fontSize: 32,
-              },
-              x: this.gridX.center(),
-              y: this.gridY.span(12),
-            },
-          },
-        });
+      this.on('pointend', function() {
+        this.exit();
+      });
+    }
+  }
 
-        this.on('pointend', function() {
-          this.exit();
-        });
-      }
-    },
+}
 
-    _static: {
-      defaults: {
-        title: 'phina.js games',
-        message: '',
+/**
+ * @type {TitleSceneOptions}
+ */
+TitleScene.defaults = {
+  title: 'phina.js games',
+  message: '',
 
-        fontColor: 'white',
-        backgroundColor: 'hsl(200, 80%, 64%)',
-        backgroundImage: '',
+  fontColor: 'white',
+  backgroundColor: 'hsl(200, 80%, 64%)',
+  backgroundImage: '',
 
-        exitType: 'touch',
-      },
-    },
-
-  });
-
-});
+  exitType: 'touch',
+}

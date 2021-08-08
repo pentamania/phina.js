@@ -1,173 +1,276 @@
-phina.namespace(function() {
+import { AssetManager } from "./assetmanager";
+
+/**
+ * @class phina.asset.SoundManager
+ * 全てのクラスメンバーがstaticな静的クラス
+ * サウンドの再生は基本これを使う
+ * 
+ * ### Ref
+ * - http://evolve.reintroducing.com/_source/classes/as3/SoundManager/SoundManager.html
+ * - https://github.com/nicklockwood/SoundManager
+ */
+export class SoundManager {
+  // volume: 0.8,
+  // musicVolume: 0.8,
+  // muteFlag: false,
+  // currentMusic: null,
 
   /**
-   * @class phina.asset.SoundManager
-   * ### Ref
-   * - http://evolve.reintroducing.com/_source/classes/as3/SoundManager/SoundManager.html
-   * - https://github.com/nicklockwood/SoundManager
+   * @private インスタンス化しない
    */
-  phina.define('phina.asset.SoundManager', {
-    _static: {
-      volume: 0.8,
-      musicVolume: 0.8,
-      muteFlag: false,
-      currentMusic: null,
+  constructor() {}
 
-      play: function(name, when, offset, duration) {
-        var sound = phina.asset.AssetManager.get('sound', name);
+  /**
+   * 音源を再生
+   * 
+   * @param {string} name 音源キー名
+   * @param {number} [when=0] 指定の秒数、再生を遅らせる
+   * @param {number} [offset=0] 音源のどの時間位置で再生するかを秒数指定
+   * @param {number} [duration] 再生時間を秒数指定
+   * @returns {import('../asset/sound').Sound}
+   */
+  static play(name, when, offset, duration) {
+    /** @type {import('../asset/sound').Sound} */
+    var sound = AssetManager.get('sound', name);
 
-        sound.volume = this.getVolume();
-        sound.play(when, offset, duration);
+    sound.volume = this.getVolume();
+    sound.play(when, offset, duration);
 
-        return sound;
-      },
+    return sound;
+  }
 
-      stop: function() {
-        // TODO: 
-      },
-      pause: function() {
-        // TODO: 
-      },
-      fade: function() {
-        // TODO: 
-      },
-      setVolume: function(volume) {
-        this.volume = volume;
-      },
-      getVolume: function() {
-        return this.volume;
-      },
+  /**
+   * @private 未実装のため
+   */
+  static stop() {
+    // TODO: 
+  }
 
-      /*
-       * ミュート
-       */
-      mute: function() {
-        this.muteFlag = true;
-        if (this.currentMusic) {
-          this.currentMusic.volume = 0;
+  /**
+   * @private 未実装のため
+   */
+  static pause() {
+    // TODO: 
+  }
+
+  /**
+   * @private 未実装のため
+   */
+  static fade() {
+    // TODO: 
+  }
+
+  /**
+   * 通常サウンド音量をセット
+   * 
+   * @param {number} volume
+   * @returns {void}
+   */
+  static setVolume(volume) {
+    this.volume = volume;
+  }
+
+  /**
+   * 通常サウンド音量を取得
+   * 
+   * @returns {number}
+   */
+  static getVolume() {
+    return this.volume;
+  }
+
+  /**
+   * ミュート
+   * 
+   * @returns {SoundManager}
+   */
+  static mute() {
+    this.muteFlag = true;
+    if (this.currentMusic) {
+      this.currentMusic.volume = 0;
+    }
+    return this;
+  }
+
+  /**
+   * ミュート解除
+   * 
+   * @returns {SoundManager}
+   */
+  static unmute() {
+    this.muteFlag = false;
+    if (this.currentMusic) {
+      this.currentMusic.volume = this.getVolumeMusic();
+    }
+    return this;
+  }
+
+  /**
+   * ミュート状態かどうか
+   * 
+   * @returns {boolean}
+   */
+  static isMute() {
+    return this.muteFlag;
+  }
+
+  /**
+   * 音楽系の音源を再生：ループの有無などを細かく調整可能
+   * 
+   * @param {string} name 音源キー名
+   * @param {number} [fadeTime] 指定時間をかけて音量フェードイン。単位はミリ秒
+   * @param {boolean} [loop] ループするかどうか。Default: true
+   * @param {number} [when=0] 指定の秒数、再生を遅らせる
+   * @param {number} [offset=0] 音源のどの時間位置で再生するかを秒数指定
+   * @param {number} [duration] 再生時間を秒数指定
+   * @returns {import('../asset/sound').Sound} 再生したSoundクラス
+   */
+  static playMusic(name, fadeTime, loop, when, offset, duration) {
+    loop = (loop !== undefined) ? loop : true;
+
+    if (this.currentMusic) {
+      this.stopMusic(fadeTime);
+    }
+
+    /** @type {import('../asset/sound').Sound} */
+    var music = AssetManager.get('sound', name);
+
+    music.setLoop(loop);
+    music.play(when, offset, duration);
+
+    if (fadeTime > 0) {
+      var count = 32;
+      var counter = 0;
+      var unitTime = fadeTime/count;
+      var volume = this.getVolumeMusic();
+
+      music.volume = 0;
+      var id = setInterval(function() {
+        counter += 1;
+        var rate = counter/count;
+        music.volume = rate*volume;
+
+        if (rate >= 1) {
+          clearInterval(id);
+          return false;
         }
-        return this;
-      },
-      /*
-       * ミュート解除
-       */
-      unmute: function() {
-        this.muteFlag = false;
-        if (this.currentMusic) {
-          this.currentMusic.volume = this.getVolumeMusic();
-        }
-        return this;
-      },
-      isMute: function() {
-        return this.muteFlag;
-      },
 
-      playMusic: function(name, fadeTime, loop, when, offset, duration) {
-        loop = (loop !== undefined) ? loop : true;
+        return true;
+      }, unitTime);
+    }
+    else {
+      music.volume = this.getVolumeMusic();
+    }
 
-        if (this.currentMusic) {
-          this.stopMusic(fadeTime);
-        }
+    this.currentMusic = music;
 
-        var music = phina.asset.AssetManager.get('sound', name);
+    return this.currentMusic;
+  }
 
-        music.setLoop(loop);
-        music.play(when, offset, duration);
+  /**
+   * 音楽を停止
+   * 
+   * @param {number} [fadeTime] 指定時間をかけて音量フェードアウト。単位はミリ秒
+   * @returns {void}
+   */
+  static stopMusic(fadeTime) {
+    if (!this.currentMusic) { return ; }
 
-        if (fadeTime > 0) {
-          var count = 32;
-          var counter = 0;
-          var unitTime = fadeTime/count;
-          var volume = this.getVolumeMusic();
+    var music = this.currentMusic;
+    this.currentMusic = null;
 
-          music.volume = 0;
-          var id = setInterval(function() {
-            counter += 1;
-            var rate = counter/count;
-            music.volume = rate*volume;
+    if (fadeTime > 0) {
+      var count = 32;
+      var counter = 0;
+      var unitTime = fadeTime/count;
+      var volume = this.getVolumeMusic();
 
-            if (rate >= 1) {
-              clearInterval(id);
-              return false;
-            }
+      music.volume = 0;
+      var id = setInterval(function() {
+        counter += 1;
+        var rate = counter/count;
+        music.volume = volume*(1-rate);
 
-            return true;
-          }, unitTime);
-        }
-        else {
-          music.volume = this.getVolumeMusic();
-        }
-
-        this.currentMusic = music;
-
-        return this.currentMusic;
-      },
-
-      stopMusic: function(fadeTime) {
-        if (!this.currentMusic) { return ; }
-
-        var music = this.currentMusic;
-        this.currentMusic = null;
-
-        if (fadeTime > 0) {
-          var count = 32;
-          var counter = 0;
-          var unitTime = fadeTime/count;
-          var volume = this.getVolumeMusic();
-
-          music.volume = 0;
-          var id = setInterval(function() {
-            counter += 1;
-            var rate = counter/count;
-            music.volume = volume*(1-rate);
-
-            if (rate >= 1) {
-              music.stop();
-              clearInterval(id);
-              return false;
-            }
-
-            return true;
-          }, unitTime);
-        }
-        else {
+        if (rate >= 1) {
           music.stop();
-        }
-      },
-
-      /*
-       * 音楽を一時停止
-       */
-      pauseMusic: function() {
-        if (!this.currentMusic) { return ; }
-        this.currentMusic.pause();
-      },
-      /*
-       * 音楽を再開
-       */
-      resumeMusic: function() {
-        if (!this.currentMusic) { return ; }
-        this.currentMusic.resume();
-      },
-      /*
-       * 音楽のボリュームを設定
-       */
-      setVolumeMusic: function(volume) {
-        this.musicVolume = volume;
-        if (this.currentMusic) {
-          this.currentMusic.volume = volume;
+          clearInterval(id);
+          return false;
         }
 
-        return this;
-      },
-      /*
-       * 音楽のボリュームを取得
-       */
-      getVolumeMusic: function() {
-        return this.musicVolume;
-      },
+        return true;
+      }, unitTime);
+    }
+    else {
+      music.stop();
+    }
+  }
 
-    },
-  });
+  /**
+   * 音楽を一時停止
+   * 
+   * @returns {void}
+   */
+  static pauseMusic() {
+    if (!this.currentMusic) { return ; }
+    this.currentMusic.pause();
+  }
 
-});
+  /**
+   * 音楽を再開
+   * 
+   * @returns {void}
+   */
+  static resumeMusic() {
+    if (!this.currentMusic) { return ; }
+    this.currentMusic.resume();
+  }
+
+  /**
+   * 音楽の音量を設定
+   * 
+   * @param {number} volume
+   * @returns {SoundManager}
+   */
+  static setVolumeMusic(volume) {
+    this.musicVolume = volume;
+    if (this.currentMusic) {
+      this.currentMusic.volume = volume;
+    }
+
+    return this;
+  }
+
+  /**
+   * 音楽の音量を取得
+   * 
+   * @returns {number}
+   */
+  static getVolumeMusic() {
+    return this.musicVolume;
+  }
+
+}
+
+/**
+ * 通常サウンド（SE）音量
+ * @type {number}
+ */
+SoundManager.volume = 0.8
+
+/**
+ * 音楽音量
+ * @type {number}
+ */
+SoundManager.musicVolume = 0.8
+
+/**
+ * ミュート状態
+ * @type {boolean}
+ */
+SoundManager.muteFlag = false
+
+/**
+ * 再生中の音楽音源
+ * @type {import('../asset/sound').Sound | null}
+ */
+SoundManager.currentMusic = null

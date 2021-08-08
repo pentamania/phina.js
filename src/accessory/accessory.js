@@ -1,71 +1,134 @@
+import { EventDispatcher } from "../util/eventdispatcher"
 
-phina.namespace(function() {
+/**
+ * Accessoryのtargetプロパティとして最低限かどうか
+ * @typedef {{
+ *   detach: (accessor: Accessory)=> any
+ *   [k: string]: any
+ * }} AccessoryTarget
+ */
+
+/**
+ * Accessoryアタッチ可能オブジェクト
+ * @typedef {{
+ *   attach: (accessor: Accessory)=> any
+ * } & AccessoryTarget } AccessoryAttachable
+ */
+
+/**
+ * @class phina.accessory.Accessory
+ * _extends phina.util.EventDispatcher
+ */
+export class Accessory extends EventDispatcher {
 
   /**
-   * @class phina.accessory.Accessory
-   * @extends phina.util.EventDispatcher
+   * @constructor
+   * @param {AccessoryTarget} [target]
    */
-  phina.define('phina.accessory.Accessory', {
-    superClass: 'phina.util.EventDispatcher',
+  constructor(target) {
+    super();
 
     /**
-     * @constructor
+     * 操作対象
+     * @type {AccessoryTarget | undefined}
      */
-    init: function(target) {
-      this.superInit();
+    this.target = target;
+  }
 
-      this.target = target;
-    },
-    setTarget: function(target) {
-      if (this.target === target) return ;
+  /**
+   * 更新関数
+   * アタッチしたtargetのenterframeイベントを経由して
+   * 毎フレーム実行される
+   * 
+   * 主にサブクラスで拡張してAccessoryとしての特徴づけを行う
+   * 
+   * @virtual
+   * @protected
+   * @param {*} _app Appクラスインスタンス
+   */
+  update(_app) {}
 
-      this.target = target;
-      return this;
-    },
-    getTarget: function() {
-      return this.target;
-    },
-    isAttached: function() {
-      return !!this.target;
-    },
-    attachTo: function(element) {
-      element.attach(this);
-      this.setTarget(element);
-      return this;
-    },
-    remove: function() {
-      this.target.detach(this);
-      this.target = null;
-    },
-  });
+  /**
+   * 操作対象を設定
+   * 
+   * @param {AccessoryTarget} target
+   * @returns {this}
+   */
+  setTarget(target) {
+    if (this.target === target) return this;
 
-  phina.app.Element.prototype.$method('attach', function(accessory) {
-    if (!this.accessories) {
-      this.accessories = [];
-      this.on('enterframe', function(e) {
-        this.accessories.each(function(accessory) {
-          accessory.update && accessory.update(e.app);
-        });
-      });
-    }
-
-    this.accessories.push(accessory);
-    accessory.setTarget(this);
-    accessory.flare('attached');
-
+    this.target = target;
     return this;
-  });
+  }
 
-  phina.app.Element.prototype.$method('detach', function(accessory) {
-    if (this.accessories) {
-      this.accessories.erase(accessory);
-      accessory.setTarget(null);
-      accessory.flare('detached');
-    }
+  /**
+   * アタッチ対象を返す
+   * 
+   * @returns {AccessoryTarget | undefined}
+   */
+  getTarget() {
+    return this.target;
+  }
 
+  /**
+   * アタッチ対象が存在するかどうか
+   * 
+   * @returns {boolean}
+   */
+  isAttached() {
+    return !!this.target;
+  }
+
+  /**
+   * 対象に自身をアタッチさせる
+   * 
+   * @template {AccessoryAttachable} T
+   * @param {T} element
+   * @returns {this}
+   */
+  attachTo(element) {
+    element.attach(this);
+    this.setTarget(element);
     return this;
-  });
+  }
 
-});
+  /**
+   * targetに自身へのアタッチを外させ、target参照を切る
+   * 
+   * @returns {void}
+   */
+  remove() {
+    if (!this.target) return;
+    this.target.detach(this);
+    this.target = undefined;
+  }
 
+}
 
+// Element側で拡張
+// phina.app.Element.prototype.$method('attach', function(accessory) {
+//   if (!this.accessories) {
+//     this.accessories = [];
+//     this.on('enterframe', function(e) {
+//       this.accessories.each(function(accessory) {
+//         accessory.update && accessory.update(e.app);
+//       });
+//     });
+//   }
+
+//   this.accessories.push(accessory);
+//   accessory.setTarget(this);
+//   accessory.flare('attached');
+
+//   return this;
+// });
+
+// phina.app.Element.prototype.$method('detach', function(accessory) {
+//   if (this.accessories) {
+//     this.accessories.erase(accessory);
+//     accessory.setTarget(null);
+//     accessory.flare('detached');
+//   }
+
+//   return this;
+// });
