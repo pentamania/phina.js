@@ -1,149 +1,230 @@
+import { AssetManager } from "../asset/assetmanager";
+import { Rect } from "../geom/rect";
+import { Vector2 } from "../geom/vector2";
+import { Canvas } from "../graphics/canvas";
+import { DisplayElement } from "./displayelement";
 
-phina.namespace(function() {
+/**
+ * @class phina.display.TiledSprite
+ * 
+ * 指定したテクスチャをタイル状に並べて表示する
+ * 背景スクロールなどに使用
+ */
+export class TiledSprite extends DisplayElement {
+  /**
+   * @param {Parameters<typeof TiledSprite.prototype.setImage>} params
+   */
+  constructor(params) {
+    super();
+
+    /**
+     * スプライト元画像（テクスチャ）。setImageで初期化
+     * @protected
+     * @type {import("./sprite").SpriteImage}
+     */
+    this._image = null;
+
+    /**
+     * タイル幅
+     * 
+     * @protected
+     * @type {number}
+     */
+    this._tileWidth = 0;
+
+    /**
+     * タイル高さ
+     * 
+     * @protected
+     * @type {number}
+     */
+    this._tileHeight = 0;
+
+    /**
+     * フレーム矩形
+     * 
+     * @type {Rect}
+     */
+    this.srcRect = new Rect();
+
+    /**
+     * タイル描画位置オフセット.
+     * スクロール表現などで使用
+     * 
+     * @type {Vector2}
+     */
+    this.offset = new Vector2(0, 0);
+
+    /**
+     * パターン元となるタイル画像を保持するためのCanvasクラス
+     * @private
+     * @type {Canvas}
+     */
+    this._tempCanvas = new Canvas();
+
+    /**
+     * タイル用CanvasPattern
+     * @protected
+     * @type {CanvasPattern}
+     */
+    this._canvasPattern = null;
+
+    this.setImage(...params);
+  }
 
   /**
-   * @class phina.display.TiledSprite
-   * @extends phina.display.DisplayElement
-   *
-   * @param {String | phina.asset.Texture | phina.graphics.Canvas} image
-   * @param {Number} [width]
-   * @param {Number} [height]
+   * 画像をセット
+   * 
+   * {@link Sprite.setImage} との違いはタイルサイズの保持処理があること
+   * 
+   * @public
+   * @param {string | import("./sprite").SpriteImage } image
+   * @param {number} [width]
+   * @param {number} [height]
+   * @returns {this}
    */
-  phina.define('phina.display.TiledSprite', {
-    superClass: phina.display.DisplayElement,
+  setImage(image, width, height) {
+    this._image =
+      typeof image === "string" ? AssetManager.get("image", image) : image;
+    this.width = this._image.domElement.width;
+    this.height = this._image.domElement.height;
 
-    init: function(image, width, height) {
-      this.superInit();
+    if (width) {
+      this.width = width;
+    }
+    if (height) {
+      this.height = height;
+    }
+    this._tileWidth = this.width;
+    this._tileHeight = this.height;
 
-      this._tileWidth = 0;
-      this._tileHeight = 0;
-      this.srcRect = phina.geom.Rect();
-      this.offset = phina.geom.Vector2(0, 0);
-      this._image = null;
-      this._tempCanvas = phina.graphics.Canvas();
-      this._canvasPattern = null;
+    this.frameIndex = 0; // this.setFrameIndex(0)
 
-      this.setImage(image, width, height);
-    },
+    return this;
+  }
 
-    /**
-     * 画像をセット
-     * @param {String | phina.asset.Texture | phina.graphics.Canvas} image
-     * @param {Number} [width]
-     * @param {Number} [height]
-     * @return {this}
-     */
-    setImage: function(image, width, height) {
-      if (typeof image === 'string') {
-        image = phina.asset.AssetManager.get('image', image);
-      }
-      this._image = image;
-      this.width = this._image.domElement.width;
-      this.height = this._image.domElement.height;
+  /**
+   * indexに応じてタイル化範囲をセット
+   * 
+   * {@link Sprite.setFrameIndex} との違いは
+   * - タイルサイズの設定
+   * - パターンの再レンダリング
+   * 処理があること
+   * 
+   * @public
+   * @param {number} index
+   * @param {number} [width] タイル幅
+   * @param {number} [height] タイル高さ
+   * @returns {this}
+   */
+  setFrameIndex(index, width, height) {
+    var tw = width || this._tileWidth || this._width;
+    var th = height || this._tileHeight || this._height;
+    var row = ~~(this.image.domElement.width / tw);
+    var col = ~~(this.image.domElement.height / th);
+    var maxIndex = row * col;
+    index = index % maxIndex;
 
-      if (width) { this.width = width; }
-      if (height) { this.height = height; }
-      this._tileWidth = this.width;
-      this._tileHeight = this.height;
+    var x = index % row;
+    var y = ~~(index / row);
+    this.srcRect.x = x * tw;
+    this.srcRect.y = y * th;
+    this.srcRect.width = tw;
+    this.srcRect.height = th;
 
-      this.frameIndex = 0; // runs setFrameIndex
+    this._frameIndex = index;
 
-      return this;
-    },
+    this._tileWidth = tw;
+    this._tileHeight = th;
+    this._renderPattern();
 
-    /**
-     * indexに応じてタイル化範囲をセット
-     * @param {Number} index
-     * @param {Number} [width] タイル幅
-     * @param {Number} [height] タイル高さ
-     * @return {this}
-     */
-    setFrameIndex: function(index, width, height) {
-      var tw  = width || this._tileWidth || this._width;
-      var th  = height || this._tileHeight || this._height;
-      var row = ~~(this.image.domElement.width / tw);
-      var col = ~~(this.image.domElement.height / th);
-      var maxIndex = row*col;
-      index = index%maxIndex;
+    return this;
+  }
 
-      var x = index%row;
-      var y = ~~(index/row);
-      this.srcRect.x = x*tw;
-      this.srcRect.y = y*th;
-      this.srcRect.width  = tw;
-      this.srcRect.height = th;
+  /**
+   * オフセット値を一括セット
+   * 
+   * @public
+   * @param {number} x
+   * @param {number} y
+   * @returns {this}
+   */
+  setOffset(x, y) {
+    this.offset.x = x;
+    this.offset.y = y;
+    return this;
+  }
 
-      this._frameIndex = index;
+  /**
+   * パターン元となるタイル画像を内部キャンバスに描画
+   * 
+   * @protected
+   * @returns {void}
+   */
+  _renderPattern() {
+    var tempCanvas = this._tempCanvas;
+    var image = this.image.domElement;
+    var srcRect = this.srcRect;
+    tempCanvas.clear().setSize(srcRect.width, srcRect.height);
+    tempCanvas.drawImage(
+      image,
+      srcRect.x,
+      srcRect.y,
+      srcRect.width,
+      srcRect.height,
+      0,
+      0,
+      srcRect.width,
+      srcRect.height
+    );
+    this._canvasPattern = tempCanvas.context.createPattern(
+      tempCanvas.canvas,
+      "repeat"
+    );
+  }
 
-      this._tileWidth = tw;
-      this._tileHeight = th;
-      this._renderPattern();
+  /**
+   * 描画処理
+   * アクティブなシーングラフに追加されているときはrendererによって毎フレーム実行される
+   * 
+   * @param {Canvas} canvas rendererのcanvas
+   * @returns {void}
+   */
+  draw(canvas) {
+    var context = canvas.context;
+    context.fillStyle = this._canvasPattern;
+    context.translate(
+      -this._width * this.originX - this.offset.x,
+      -this._height * this.originY - this.offset.y
+    );
+    context.fillRect(this.offset.x, this.offset.y, this._width, this._height);
+  }
 
-      return this;
-    },
+  get image() {
+    return this._image;
+  }
+  set image(v) {
+    this.setImage(v);
+  }
 
-    /**
-     * オフセット値を一括セット
-     * @param {Number} x
-     * @param {Number} y
-     * @return {this}
-     */
-    setOffset: function(x, y) {
-      this.offset.x = x;
-      this.offset.y = y;
-      return this;
-    },
+  get frameIndex() {
+    return this._frameIndex;
+  }
+  set frameIndex(idx) {
+    this.setFrameIndex(idx);
+  }
 
-    /**
-     * パターン元となるタイル画像を内部キャンバスに描画
-     * @return {void}
-     */
-    _renderPattern: function() {
-      var tempCanvas = this._tempCanvas;
-      var image = this.image.domElement;
-      var srcRect = this.srcRect;
-      tempCanvas.clear().setSize(srcRect.width, srcRect.height);
-      tempCanvas.drawImage(image,
-        srcRect.x, srcRect.y, srcRect.width, srcRect.height,
-        0, 0, srcRect.width, srcRect.height
-      );
-      this._canvasPattern = tempCanvas.context.createPattern(tempCanvas.canvas, 'repeat');
-    },
+  get offsetX() {
+    return this.offset.x;
+  }
+  set offsetX(v) {
+    this.offset.x = v;
+  }
 
-    /**
-     * 描画処理。rendererによって毎フレーム実行される
-     * @param {phina.graphics.Canvas} canvas rendererのcanvas
-     * @return {void}
-     */
-    draw: function(canvas) {
-      var context = canvas.context;
-      context.fillStyle = this._canvasPattern;
-      context.translate(
-        -this._width * this.originX - this.offset.x,
-        -this._height * this.originY - this.offset.y
-      );
-      context.fillRect(this.offset.x, this.offset.y, this._width, this._height);
-    },
-
-    _accessor: {
-      image: {
-        get: function() {return this._image;},
-        set: function(v) {this.setImage(v);}
-      },
-      frameIndex: {
-        get: function() {return this._frameIndex;},
-        set: function(idx) {this.setFrameIndex(idx);}
-      },
-      offsetX: {
-        get: function() {return this.offset.x;},
-        set: function(v) {this.offset.x = v;}
-      },
-      offsetY: {
-        get: function() {return this.offset.y;},
-        set: function(v) {this.offset.y = v;}
-      },
-    },
-
-  });
-
-});
+  get offsetY() {
+    return this.offset.y;
+  }
+  set offsetY(v) {
+    this.offset.y = v;
+  }
+}

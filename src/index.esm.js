@@ -56,6 +56,7 @@ export * from "./display/canvaslayer";
 export * from "./display/shape";
 export * from "./display/label";
 export * from "./display/iconlabel";
+export * from "./display/tiledsprite";
 
 export * from "./accessory/accessory";
 export * from "./accessory/tweener";
