@@ -7,6 +7,15 @@ var getFirst = function(array) { return first.get.call(array); }
 var getLast = function(array) { return last.get.call(array); }
 
 /**
+ * @typedef {(
+ *   pixel: Uint8ClampedArray,
+ *   index: number,
+ *   x: number, y: number,
+ *   imageData: ImageData
+ * )=> void} FilterFunc
+ */
+
+/**
  * @class phina.asset.Texture
  * _extends phina.asset.Asset
  */
@@ -113,7 +122,6 @@ export class Texture extends Asset {
   }
 
   /**
-   * @typedef {(pixel: Uint8ClampedArray, index: number, x: number, y: number, imageData: ImageData )=> void} FilterFunc
    * @param {FilterFunc | FilterFunc[]} filters
    * @returns {this}
    */

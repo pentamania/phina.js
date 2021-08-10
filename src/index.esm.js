@@ -74,6 +74,7 @@ export * from "./asset/font";
 export * from "./asset/script";
 export * from "./asset/sound";
 export * from "./asset/soundmanager";
+export * from "./asset/filter";
 
 export * from "./ui/button";
 export * from "./ui/gauge";

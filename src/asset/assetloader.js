@@ -8,6 +8,7 @@ import { Script } from "./script";
 import { SpriteSheet } from "./spritesheet";
 import { Font } from "./font";
 import { File } from "./file";
+import { Filter } from "./filter";
 
 /**
  * assetKeyのvalueは通常はstring（パス文字列）
@@ -175,5 +176,9 @@ AssetLoader.assetLoadFunctions = {
   text: function(key, path) {
     var text = new File();
     return text.load(path);
+  },
+  filter: function(key, func) {
+    var filter = new Filter()
+    return filter.load(func);
   }
 }
