@@ -1,6 +1,6 @@
-import phina from "../phina";
 import { Asset } from "./asset";
 import { Support } from "../util/support";
+import global from "../global";
 
 /**
  * @class Sound
@@ -377,7 +377,7 @@ export class Sound extends Asset {
 
     if (this.context) return this.context;
 
-    var g = phina.global;
+    var g = global;
     var context = null;
 
     if (g.AudioContext) {
@@ -408,7 +408,7 @@ export class Sound extends Asset {
       return;
     }
 
-    var doc = phina.global.document;
+    var doc = global.document;
     var unlockFunc = function() {
       var buf = context.createBuffer(1, 1, 22050);
       var src = context.createBufferSource();

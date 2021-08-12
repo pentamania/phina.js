@@ -1,6 +1,7 @@
 import { accessor, $extend, forIn } from "./core/object";
 import { clone, clear, last } from "./core/array";
 import { Sound } from "./asset/sound";
+import GLOBAL from "./global"
 
 /**
  * アクセサ拡張用オブジェクト
@@ -502,8 +503,6 @@ var phina = {
     return GLOBAL;
   },
 };
-
-var GLOBAL = phina.isNode() ? global : window;
 
 var doc = phina.global.document;
 if (phina.global.addEventListener && doc && doc.readyState !== "complete") {
