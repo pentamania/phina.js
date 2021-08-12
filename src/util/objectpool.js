@@ -1,111 +1,136 @@
-phina.namespace(function() {
+import { times } from "../core/number";
+import phina from "../phina";
+import { EventDispatcher } from "./eventdispatcher";
+
+/**
+ * Accessoryのtargetプロパティとして最低限かどうか
+ * @typedef {{
+ *   has: typeof import("../util/eventdispatcher").EventDispatcher.prototype.has
+ *   flare: typeof import("../util/eventdispatcher").EventDispatcher.prototype.flare
+ *   getParent: typeof import("../app/element").Element.prototype.getParent
+ *   [k: string]: any
+ * }} ObjectPoolable
+ */
+
+/**
+ * phina.util.ObjectPool
+ * オブジェクトプールクラス
+ * 後述の管理クラスを経由して使うのがおすすめ
+ */
+export class ObjectPool extends EventDispatcher {
+  constructor() {
+    super();
+
+    /** @type {ObjectPoolable[]} */
+    this._pool = [];
+  }
 
   /**
-   * phina.util.ObjectPool
-   * オブジェクトプールクラス
-   * 後述の管理クラスを経由して使うのがおすすめ
+   * プールへオブジェクトを追加する
+   * 
+   * @chainable
+   * @param {ObjectPoolable} obj
+   * @returns {this}
    */
-  phina.define('phina.util.ObjectPool', {
-    superClass: 'phina.util.EventDispatcher',
-
-    init: function() {
-      this.superInit();
-      this._pool = [];
-    },
-
-    /**
-     * @method  add
-     * @chainable
-     * プールへオブジェクトを追加する
-     * @param {T} obj getParentを持っていること
-     * @return {this}
-     */
-    add: function(obj) {
-      this._pool.push(obj);
-      return this;
-    },
-
-    /**
-     * @method  pick
-     * プール内から親を持ってない（addChildされてない）objを探す。
-     * 見つかったらコールバックで引数として返す。
-     *
-     * @param {function} [success] 取得成功時のコールバック
-     * @param {function} [failure] 取得失敗時のコールバック
-     * @return {T | null}
-     */
-    pick: function(success, failure) {
-      var foundObj = this._pool.find(function(obj) {
-        if (obj.getParent() == null) {
-          obj.has('picked') && obj.flare('picked');
-          success(obj);
-          return true;
-        }
-      });
-
-      /* not found */
-      if (!foundObj && failure) failure();
-      return foundObj;
-    },
-
-    _accessor: {
-      length: {
-        get: function() { return this._pool.length; }
-      },
-    },
-
-  });
-
+  add(obj) {
+    this._pool.push(obj);
+    return this;
+  }
 
   /**
-   * phina.util.ObjectPoolManager
-   * オブジェクトプール管理用シングルトンクラス
+   * プール内から親を持ってない（addChildされてない）objを探す。
+   * 見つかったらコールバックで引数として返す。
+   *
+   * @param {(obj: ObjectPoolable)=> any} [success]
+   * 取得成功時のコールバック
+   * @param {()=> any} [failure]
+   * 取得失敗時のコールバック
+   * @returns {ObjectPoolable | null}
    */
-  phina.define('phina.util.ObjectPoolManager', {
-    _static: {
+  pick(success, failure) {
+    var foundObj = this._pool.find(function (obj) {
+      if (obj.getParent() == null) {
+        obj.has("picked") && obj.flare("picked");
+        success(obj);
+        return true;
+      }
+    });
 
-      pools: {},
+    // Not found
+    if (!foundObj && failure) failure();
+    return foundObj;
+  }
 
-      /**
-       * @method setPool
-       * @static
-       * @param {string} key       プールを取得する際のキー名
-       * @param {Number} objectNum プールするオブジェクトの数
-       * @param {function|string} ObjClass  プールするオブジェクトクラス
-       * @param {Array} args      クラス引数
-       */
-      setPool: function(key, objectNum, ObjClass, args) {
-        var pool = phina.util.ObjectPool();
-        if (typeof ObjClass === 'string') {
-          ObjClass = phina.using(ObjClass);
-        }
-        if (!(typeof ObjClass === 'function')) {
-          console.error("[phina.js] Pooling ObjClass should be function or phina registered class string");
-        }
+  get length() {
+    return this._pool.length;
+  }
+}
 
-        objectNum.times(function() {
-          var instance = ObjClass.apply(null, args);
-          pool.add(instance);
-        });
+/**
+ * @class phina.util.ObjectPoolManager
+ * オブジェクトプール管理用シングルトンクラス
+ */
+export class ObjectPoolManager {
+  /** 全プール */
+  static pools = {};
 
-        this.pools[key] = pool;
-        return this;
-      },
+  /**
+   * @method setPool
+   * 
+   * @param {string} key プールを取得する際のキー名
+   * @param {number} objectNum プールするオブジェクトの数
+   * @param {string|(new (...args: any)=> any)} ObjClass プールするオブジェクトクラス
+   * @param {Array} args クラス引数
+   * @returns {ObjectPoolManager}
+   */
+  static setPool(key, objectNum, ObjClass, args) {
+    var pool = new ObjectPool();
 
-      getPool: function(key) {
-        return this.pools[key];
-      },
-
-      add: function(key, obj) {
-        return this.pools[key].add(obj);
-      },
-
-      pick: function(key, success, failure) {
-        return this.pools[key].pick(success, failure);
-      },
-
+    /** @type {(new (...args: any)=> any)} */
+    let ClassConstructor;
+    if (typeof ObjClass === "string") {
+      ClassConstructor = phina.using(ObjClass);
+    } else {
+      ClassConstructor = ObjClass;
+    }
+    if (!(typeof ClassConstructor === "function")) {
+      console.error(
+        "[phina.js] Pooling ObjClass should be function or phina registered class string"
+      );
     }
 
-  });
+    times.call(objectNum, function () {
+      var instance = ClassConstructor.apply(null, args);
+      pool.add(instance);
+    });
 
-});
+    this.pools[key] = pool;
+    return this;
+  }
+
+  /**
+   * @param {string | number} key
+   */
+  static getPool(key) {
+    return this.pools[key];
+  }
+
+  /**
+   * @param {string | number} key
+   * @param {ObjectPoolable} obj
+   */
+  static add(key, obj) {
+    return this.pools[key].add(obj);
+  }
+
+  /**
+   * @param {string | number} key
+   * @param {(obj: ObjectPoolable)=> any} [success]
+   * 取得成功時のコールバック
+   * @param {()=> any} [failure]
+   * 取得失敗時のコールバック
+   */
+  static pick(key, success, failure) {
+    return this.pools[key].pick(success, failure);
+  }
+}
