@@ -1,72 +1,87 @@
 # phina.js
 
-[![Join the chat at https://gitter.im/phi-jp/phina.js](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/phi-jp/phina.js?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 ![image](logo.png)
 
-phina.js is game library.
+Fork of phina.js by pentamania.
 
 ## Official
 
-http://phinajs.com
-
+https://phinajs.com
 
 ## Usage
 
-**Browser**
+### Install
 
-```html
-<script src='https://rawgit.com/phi-jp/phina.js/v0.1.2/build/phina.js'></script>
-<script>
-phina.main(function() {
-  console.log(phina.VERSION) // show version
-});
-</script>
+```bash
+npm i phina.js@npm:@pentamania/phina
 ```
 
-**Node.js**
+### Example
 
 ```js
-var phina = require('phina.js');
-console.log(phina.VERSION) // show version
+import {
+  phina,
+  GameApp,
+  DisplayScene,
+  TriangleShape,
+} from "../../../build/phina.esm.js";
+
+/**
+ * MainScene
+ */
+window.MainScene = class extends DisplayScene {
+  constructor(options) {
+    super(options);
+    const gx = this.gridX;
+    const gy = this.gridY;
+
+    this.player = new TriangleShape()
+      .setScale(2)
+      .setPosition(gx.center(), gy.center())
+      .addChildTo(this);
+  }
+
+  update(app) {
+    const p = app.pointer;
+    const kb = app.keyboard;
+    if (p.getPointingStart()) {
+      this.player.setPosition(p.x, p.y);
+    }
+    if (kb.getKeyDown("z")) {
+      this.exit({
+        score: 2000,
+      });
+    }
+  }
+};
+
+/* Main */
+phina.main(() => {
+  var app = new GameApp();
+  app.enableStats();
+  app.run();
+});
 ```
 
-**Runstant**
-
-[Getting started](http://goo.gl/xgyU6f)
-
-
-
-## for developer
+## Develop
 
 ### clone
 
 ```
-$git clone https://github.com/phi-jp/phina.js.git
-$cd phina.js
+$git clone https://github.com/pentamania/phina.js.git
 ```
 
-### setup
+### Setup
 
-```
-$npm install -g gulp
-$npm install
-```
+`yarn install` or `npm install`
 
-### build
+### Build: production
 
-```
-$gulp
-```
+`yarn build` or `npm run build`
 
-### develop
+### Build and watch
 
-watch and launch
-
-```
-$gulp dev
-```
-
+`yarn dev` or `npm run dev`
 
 ## LICENSE
 
