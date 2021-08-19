@@ -1,3 +1,4 @@
+import babel from '@rollup/plugin-babel';
 import license from 'rollup-plugin-license';
 import replace from '@rollup/plugin-replace'
 import pkg from './package.json';
@@ -17,7 +18,12 @@ export default [
       file: 'build/phina.esm.js',
       format: 'esm',
     },
+    external: [/@babel\/runtime/],
     plugins: [
+      babel({
+        plugins: ['@babel/plugin-transform-runtime'],
+        babelHelpers: 'runtime',
+      }),
       replace({
         delimiters: ['\"<%= ', ' %>\"'],
         values: {
