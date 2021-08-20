@@ -1,6 +1,7 @@
 import babel from '@rollup/plugin-babel';
 import license from 'rollup-plugin-license';
-import replace from '@rollup/plugin-replace'
+import { terser } from 'rollup-plugin-terser';
+import replace from '@rollup/plugin-replace';
 import pkg from './package.json';
 
 const banner = `/*!
@@ -11,7 +12,7 @@ const banner = `/*!
  */`;
 
 export default [
-  // esm ver.
+  // esm
   {
     input: 'src/index.esm.js',
     output: {
@@ -33,6 +34,31 @@ export default [
       license({
         banner: banner,
       }),
+    ],
+  },
+
+  // esm for browser
+  {
+    input: 'src/index.esm.js',
+    output: {
+      file: 'build/phina.esm.mjs',
+      format: 'esm',
+    },
+    plugins: [
+      babel({
+        exclude: 'node_modules/**',
+        babelHelpers: 'bundled',
+      }),
+      replace({
+        delimiters: ['\"<%= ', ' %>\"'],
+        values: {
+          'version': JSON.stringify(pkg.version),
+        },
+      }),
+      license({
+        banner: banner,
+      }),
+      terser()
     ],
   },
 
