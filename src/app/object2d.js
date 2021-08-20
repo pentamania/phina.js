@@ -46,20 +46,25 @@ export class Object2D extends PhinaElement {
   constructor(options) {
     super()
 
-    options = $safe.call({}, options, Object2D.defaults)
     // options = ({}).$safe(options, phina.app.Object2D.defaults);
 
+    /**
+     * 足りないパラメータをデフォルト値({@link Object2D.defaults})で補ったoptions
+     * @type {Required<Object2DOptions>}
+     */
+    const optionFulfilled = $safe.call({}, options, Object2D.defaults);
+
     /** @type {Vector2} 位置 */
-    this.position = new Vector2(options.x, options.y);
+    this.position = new Vector2(optionFulfilled.x, optionFulfilled.y);
 
     /** @type {Vector2} スケール */
-    this.scale    = new Vector2(options.scaleX, options.scaleY);
+    this.scale = new Vector2(optionFulfilled.scaleX, optionFulfilled.scaleY);
 
     /** @type {number} 回転（度数単位） */
-    this.rotation = options.rotation || 0;
+    this.rotation = optionFulfilled.rotation || 0;
 
     /** @type {Vector2} 基準位置、回転軸 */
-    this.origin   = new Vector2(options.originX, options.originY);
+    this.origin = new Vector2(optionFulfilled.originX, optionFulfilled.originY);
 
     /**
      * @private
@@ -129,14 +134,14 @@ export class Object2D extends PhinaElement {
      */
     this._diameter
 
-    this.width = options.width;
-    this.height = options.height;
-    this.radius = options.radius;
+    this.width = optionFulfilled.width;
+    this.height = optionFulfilled.height;
+    this.radius = optionFulfilled.radius;
     /**
      * 当たり判定範囲の種別
      * @type {Object2DBoundingType}
      */
-    this.boundingType = options.boundingType;
+    this.boundingType = optionFulfilled.boundingType;
 
     /** @type {Object2D|PhinaElement} */
     this.parent;
