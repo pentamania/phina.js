@@ -375,7 +375,9 @@ export class Object2D extends PhinaElement {
 
   /**
    * グローバル行列を計算
-   * @returns {this}
+   * 
+   * @returns {void|this}
+   * parentプロパティが存在しないときは何もせず、何も返さない
    */
   _calcWorldMatrix() {
     if (!this.parent) return ;
