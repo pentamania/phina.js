@@ -6,7 +6,7 @@ import { clear } from "../core/array"
  * @typedef {{
  *   x: number
  *   y: number
- *   setInteractive: (flag:boolean) => any
+ *   setInteractive: typeof import("../app/object2d").Object2D.prototype.setInteractive
  * } & import("./accessory").AccessoryAttachable } FlickableTarget
  */
 
@@ -29,83 +29,108 @@ export class Flickable extends Accessory {
 
     /**
      * フリック開始位置
+     * 
+     * @public
+     * @type {Vector2}
      */
     this.initialPosition = new Vector2(0, 0);
 
     /**
      * 摩擦値
+     * 
+     * @public
+     * @type {number}
      * @default 0.9
      */
     this.friction = 0.9;
 
     /**
      * 速度ベクトル
+     * 
+     * @public
+     * @type {Vector2}
      */
     this.velocity = new Vector2(0, 0);
 
     /**
-     * 上下の移動を許可するかどうか（初期値：true）
+     * 上下の移動を許可するかどうか
+     * 
+     * @public
+     * @type {boolean}
      * @default true
      */
     this.vertical = true;
 
     /**
-     * 左右の移動を許可するかどうか（初期値：true）
+     * 左右の移動を許可するかどうか
+     * 
+     * @public
+     * @type {boolean}
      * @default true
      */
     this.horizontal = true;
 
     /**
-     * キャッシュした差分値
+     * 差分値キャッシュ用配列
+     * 
      * @protected
+     * @type {Vector2[]}
      */
     this.cacheList = [];
 
-    var self = this;
-    this.on('attached', 
-    /** @this {Flickable} */
-    function() {
+    const self = this;
+    this.on('attached', ()=> {
       this.target.setInteractive(true);
 
-      this.target.on('pointstart', function(e) {
-        self.initialPosition.set(this.x, this.y);
-        self.velocity.set(0, 0);
-      });
-      this.target.on('pointstay', function(e) {
-        if (self.horizontal) {
-          this.x += e.pointer.dx;
+      this.target.on('pointstart', 
+        /** @this {FlickableTarget} */
+        function() {
+          self.initialPosition.set(this.x, this.y);
+          self.velocity.set(0, 0);
         }
-        if (self.vertical) {
-          this.y += e.pointer.dy;
+      );
+
+      this.target.on('pointstay', 
+        /** @this {FlickableTarget} */
+        function(/** @type {import("../display/domapp").DomApp} */ e) {
+          if (self.horizontal) {
+            this.x += e.pointer.dx;
+          }
+          if (self.vertical) {
+            this.y += e.pointer.dy;
+          }
+
+          if (self.cacheList.length > 3) self.cacheList.shift();
+          self.cacheList.push(e.pointer.deltaPosition.clone());
         }
+      );
 
-        if (self.cacheList.length > 3) self.cacheList.shift();
-        self.cacheList.push(e.pointer.deltaPosition.clone());
-      });
-
-      this.target.on('pointend', function(e) {
-        // 動きのある delta position を後ろから検索　
-        var delta = self.cacheList.reverse().find(function(v) {
-          return v.lengthSquared() > 10;
-        });
-        clear.call(self.cacheList);
-        // self.cacheList.clear();
-
-        if (delta) {
-          self.velocity.x = delta.x;
-          self.velocity.y = delta.y;
-
-          self.flare('flickstart', {
-            direction: delta.normalize(),
+      this.target.on('pointend', 
+        /** @this {FlickableTarget} */
+        function() {
+          // 動きのある delta position を後ろから検索　
+          const delta = self.cacheList.reverse().find(function(v) {
+            return v.lengthSquared() > 10;
           });
-        }
-        else {
-          self.flare('flickcancel');
-        }
+          clear.call(self.cacheList);
+          // self.cacheList.clear();
 
-        // self.flare('flick');
-        // self.flare('flickend');
-      });
+          if (delta) {
+            self.velocity.x = delta.x;
+            self.velocity.y = delta.y;
+
+            self.flare('flickstart', {
+              direction: delta.normalize(),
+            });
+          }
+          else {
+            self.flare('flickcancel');
+          }
+
+          // self.flare('flick');
+          // self.flare('flickend');
+        }
+      );
     });
   }
 
