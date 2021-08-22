@@ -26,20 +26,16 @@ import { Matrix33 } from "../geom/matrix33";
 
 /**
  * @class phina.app.Object2D
- * Object2D
  * _extends phina.app.Element
+ * 
+ * 位置・回転・スケールおよびそれらの計算処理など
+ * 2D描画に必須のプロパティとメソッド、
+ * および各種当たり判定処理用メソッドを備えたクラス
+ * 
+ * いわゆる抽象クラスのため、直接使うことは稀
+ * 通常は拡張元として利用する
  */
 export class Object2D extends PhinaElement {
-
-  // /** 位置 */
-  // position: null,
-  // /** 回転 */
-  // rotation: 0,
-  // /** スケール */
-  // scale: null,
-  // /** 基準位置 */
-  // origin: null,
-
   /**
    * @param {Object2DOptions} [options]
    */
@@ -54,59 +50,124 @@ export class Object2D extends PhinaElement {
      */
     const optionFulfilled = $safe.call({}, options, Object2D.defaults);
 
-    /** @type {Vector2} 位置 */
+    /**
+     * 位置
+     * 
+     * x, yアクセサからも取得・設定可能
+     * 
+     * @public
+     * @type {Vector2}
+     */
     this.position = new Vector2(optionFulfilled.x, optionFulfilled.y);
 
-    /** @type {Vector2} スケール */
+    /**
+     * スケール
+     * 
+     * scaleX, scaleYアクセサから取得・設定可能
+     * 
+     * @public
+     * @type {Vector2}
+     */
     this.scale = new Vector2(optionFulfilled.scaleX, optionFulfilled.scaleY);
 
-    /** @type {number} 回転（度数単位） */
+    /**
+     * 回転角度
+     * 度数（degree）単位で指定する
+     * 
+     * @type {number} */
     this.rotation = optionFulfilled.rotation || 0;
 
-    /** @type {Vector2} 基準位置、回転軸 */
+    /**
+     * オブジェクトの基準（原点）位置
+     * 
+     * 描画位置、当たり判定処理などに影響する
+     * またrotationの回転軸でもある
+     * 
+     * 例えばx:0, y:0とすると左上が原点、
+     * x:1.0, y:1.0とすると右下が原点となるように振る舞う
+     * 
+     * originX, originYアクセサから取得・設定可能
+     * 
+     * @type {Vector2} */
     this.origin = new Vector2(optionFulfilled.originX, optionFulfilled.originY);
 
     /**
+     * ローカル変換行列
+     * 
      * @private
      * @type {Matrix33}
-     * ローカル変換行列
      */
     this._matrix = new Matrix33().identity();
+
     /**
-     * @type {Matrix33 | null}
      * ワールド変換行列
+     * 
+     * @public CanvasRendererなどで内部使用
+     * @type {Matrix33 | null}
      */
     this._worldMatrix = new Matrix33().identity();
 
     /**
+     * 行列計算用キャッシュ値
+     * 
      * @private
-     * @type {number} 行列計算用キャッシュ値
+     * @type {number}
      */
     this._cachedRotation;
+
     /**
+     * 内部行列計算用キャッシュ値（rotation用）
+     * 
      * @private
-     * @type {number} 行列計算用キャッシュ値
+     * @type {number}
      */
     this._sr;
+
     /**
+     * 内部行列計算用キャッシュ値（rotation用）
+     * 
      * @private
-     * @type {number} 行列計算用キャッシュ値
+     * @type {number}
      */
     this._cr;
 
     /**
+     * ユーザーインタラクションを有効化するかどうか
+     * 
+     * trueにすることでユーザー入力（mouse/touch）に応じて
+     * オブジェクトが`point~`イベントを発火するようになる
+     * 
+     * ただしその分、判定のための処理負荷がかかるため、
+     * 不要であればfalseにしておく
+     * 
+     * 発火するイベントについては以下を参照のこと
+     * @see https://qiita.com/pentamania/items/50b655724916c503ac8c#%E3%82%A4%E3%83%99%E3%83%B3%E3%83%88%E3%81%AE%E7%A8%AE%E9%A1%9E%E3%81%A8%E7%99%BA%E7%81%AB%E3%82%BF%E3%82%A4%E3%83%9F%E3%83%B3%E3%82%B0
+     * 
+     * @example
+     * const obj = new Object2D();
+     * obj.interactive = true;
+     * 
+     * obj.on('pointover', ()=> console.log("mouse/touch over"))
+     * obj.on('pointstart', ()=> console.log("mousedown or touchstart"))
+     * obj.on('pointend', ()=> console.log("mouseup or touchend"))
+     * 
+     * @default false
+     * @public
      * @type {boolean}
-     * インタラクション可能かどうか
      */
     this.interactive = false;
+
     /**
-     * @type {{ [id: number]: boolean }}
      * Interactiveクラスでのフラグ処理用
+     * 
+     * @type {{ [id: number]: boolean }}
      */
     this._overFlags = {};
+
     /**
-     * @type {{ [id: number]: boolean }}
      * Interactiveクラスでのフラグ処理用
+     * 
+     * @type {{ [id: number]: boolean }}
      */
     this._touchFlags = {};
 
@@ -115,20 +176,25 @@ export class Object2D extends PhinaElement {
      * @type {number}
      */
     this._width
+
     /**
      * @protected
      * @type {number}
      */
     this._height
+
     /**
      * 半径: boundingTypeがcircleの場合のみ使用
+     * 
      * @private
      * @type {number}
      */
     this._radius
+
     /**
      * 直径: boundingTypeがcircleの際にwidth/height値として使用  
      * radiusアクセサsetの際に更新
+     * 
      * @private
      * @type {number}
      */
@@ -137,8 +203,11 @@ export class Object2D extends PhinaElement {
     this.width = optionFulfilled.width;
     this.height = optionFulfilled.height;
     this.radius = optionFulfilled.radius;
+
     /**
      * 当たり判定範囲の種別
+     * 
+     * @public
      * @type {Object2DBoundingType}
      */
     this.boundingType = optionFulfilled.boundingType;
@@ -149,8 +218,11 @@ export class Object2D extends PhinaElement {
 
   /**
    * 点と衝突しているかを判定
+   * boundingTypeによって判定範囲が変わる
+   * 
    * @param {Number} x
    * @param {Number} y
+   * @returns {boolean}
    */
   hitTest(x, y) {
     if (this.boundingType === 'rect') {
@@ -167,6 +239,7 @@ export class Object2D extends PhinaElement {
 
   /**
    * 自身を矩形として、点と衝突しているかを判定
+   * 
    * @param {number} x
    * @param {number} y
    * @returns {boolean}
@@ -184,6 +257,7 @@ export class Object2D extends PhinaElement {
 
   /**
    * 自身を円形として、点と衝突しているかを判定
+   * 
    * @param {number} x
    * @param {number} y
    * @returns {boolean}
@@ -199,6 +273,7 @@ export class Object2D extends PhinaElement {
 
   /**
    * 要素と衝突しているかを判定
+   * 
    * @param {Object2D} elm
    * @returns {boolean}
    */
@@ -211,6 +286,7 @@ export class Object2D extends PhinaElement {
 
   /**
    * 渡された座標をローカル座標に変換して返す
+   * 
    * @param {import("../geom/vector2").PrimitiveVector2} p 値は変更しません
    * @returns {Vector2} 新規作成されたローカル座標オブジェクト
    */
@@ -227,6 +303,7 @@ export class Object2D extends PhinaElement {
   /**
    * インタラクション可能かどうかを変更  
    * 同時にboundingTypeも変更可能
+   * 
    * @param {boolean} flag
    * @param {Object2DBoundingType} [type]
    * @returns {this}
@@ -242,6 +319,7 @@ export class Object2D extends PhinaElement {
 
   /**
    * X 座標値をセット
+   * 
    * @param {Number} x
    * @returns {this}
    */
@@ -252,6 +330,7 @@ export class Object2D extends PhinaElement {
   
   /**
    * Y 座標値をセット
+   * 
    * @param {Number} y
    * @returns {this}
    */
@@ -262,6 +341,7 @@ export class Object2D extends PhinaElement {
   
   /**
    * XY 座標をセット
+   * 
    * @param {Number} x
    * @param {Number} y
    * @returns {this}
@@ -273,7 +353,8 @@ export class Object2D extends PhinaElement {
   }
 
   /**
-   * 回転をセット
+   * 回転角度をセット
+   * 
    * @param {Number} rotation
    * @returns {this}
    */
@@ -284,6 +365,7 @@ export class Object2D extends PhinaElement {
 
   /**
    * スケールをセット
+   * 
    * @param {Number} x
    * @param {Number} [y] 省略した場合、xパラメータ値が適用されます
    * @returns {this}
@@ -300,6 +382,8 @@ export class Object2D extends PhinaElement {
   
   /**
    * 基準点をセット
+   * {@link Object2D.origin} を参照のこと
+   * 
    * @param {Number} x
    * @param {Number} y
    * @returns {this}
@@ -312,6 +396,7 @@ export class Object2D extends PhinaElement {
   
   /**
    * 幅をセット
+   * 
    * @param {Number} width
    * @returns {this}
    */
@@ -322,6 +407,7 @@ export class Object2D extends PhinaElement {
   
   /**
    * 高さをセット
+   * 
    * @param {Number} height
    * @returns {this}
    */
@@ -332,6 +418,7 @@ export class Object2D extends PhinaElement {
   
   /**
    * サイズ(幅, 高さ)をセット
+   * 
    * @param {Number} width
    * @param {Number} height
    * @returns {this}
@@ -343,6 +430,8 @@ export class Object2D extends PhinaElement {
   }
 
   /**
+   * 判定範囲種類をセット
+   * 
    * @param {Object2DBoundingType} type
    * @returns {this}
    */
@@ -352,6 +441,8 @@ export class Object2D extends PhinaElement {
   }
 
   /**
+   * 指定座標へ移動
+   * 
    * @param {number} x
    * @param {number} y
    * @returns {this}
@@ -363,6 +454,8 @@ export class Object2D extends PhinaElement {
   }
 
   /**
+   * 指定値だけ相対移動
+   * 
    * @param {number} x
    * @param {number} y
    * @returns {this}
@@ -374,7 +467,7 @@ export class Object2D extends PhinaElement {
   }
 
   /**
-   * グローバル行列を計算
+   * グローバル（ワールド）行列を再計算
    * 
    * @returns {void|this}
    * parentプロパティが存在しないときは何もせず、何も返さない
@@ -437,35 +530,36 @@ export class Object2D extends PhinaElement {
 
   /**
    * @property    originX
-   * x座標値
+   * 基準点のx値
    */
   get originX()   { return this.origin.x; }
   set originX(v)  { this.origin.x = v; }
 
   /**
    * @property    originY
-   * y座標値
+   * 基準点のy値
    */
   get originY()   { return this.origin.y; }
   set originY(v)  { this.origin.y = v; }
 
   /**
    * @property    scaleX
-   * スケールX値
+   * スケールx値
    */
   get scaleX()   { return this.scale.x; }
   set scaleX(v)  { this.scale.x = v; }
   
   /**
    * @property    scaleY
-   * スケールY値
+   * スケールy値
    */
   get scaleY()   { return this.scale.y; }
   set scaleY(v)  { this.scale.y = v; }
   
   /**
    * @property    width
-   * width
+   * 幅。矩形タイプの場合は内部width値、円タイプの場合は直径値を返す
+   * 円タイプの場合、{@link Object2D.radius}の設定値が反映される
    */
   get width()   {
     return (this.boundingType === 'rect') ?
@@ -475,7 +569,8 @@ export class Object2D extends PhinaElement {
 
   /**
    * @property    height
-   * height
+   * 高さ。矩形タイプの場合は内部height値、円タイプの場合は直径値を返す
+   * 円タイプの場合、{@link Object2D.radius}の設定値が反映される
    */
   get height()   {
     return (this.boundingType === 'rect') ?
@@ -485,7 +580,12 @@ export class Object2D extends PhinaElement {
 
   /**
    * @property    radius
-   * 半径
+   * 半径値
+   * 
+   * - 円タイプの場合は内部半径値を返す
+   * - 矩形タイプの場合は内部widthとheight値を合算して4で割った値を返す
+   * 
+   * セッターでは同時に直径値も更新される
    */
   get radius()   {
     return (this.boundingType === 'rect') ?
@@ -498,35 +598,35 @@ export class Object2D extends PhinaElement {
   
   /**
    * @property    top
-   * 左
+   * 上辺y座標
    */
   get top()   { return this.y - this.height*this.originY; }
   set top(v)  { this.y = v + this.height*this.originY; }
 
   /**
    * @property    right
-   * 左
+   * 右辺x座標
    */
   get right()   { return this.x + this.width*(1-this.originX); }
   set right(v)  { this.x = v - this.width*(1-this.originX); }
 
   /**
    * @property    bottom
-   * 左
+   * 下辺y座標
    */
   get bottom()   { return this.y + this.height*(1-this.originY); }
   set bottom(v)  { this.y = v - this.height*(1-this.originY); }
 
   /**
    * @property    left
-   * 左
+   * 左辺x座標
    */
   get left()   { return this.x - this.width*this.originX; }
   set left(v)  { this.x = v + this.width*this.originX; }
 
   /**
    * @property    centerX
-   * centerX
+   * 中心x座標。getterのみ
    */
   get centerX()   { return this.x + this.width/2 - this.width*this.originX; }
   // set centerX(v)  {
@@ -535,7 +635,7 @@ export class Object2D extends PhinaElement {
 
   /**
    * @property    centerY
-   * centerY
+   * 中心y座標。getterのみ
    */
   get centerY()   { return this.y + this.height/2 - this.height*this.originY; }
   // set centerY(v)  {
