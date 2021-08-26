@@ -545,17 +545,16 @@ export class Tweener extends Accessory {
       this.setLoop(json.loop);
     }
 
-    each.call(json.tweens,
-    // json.tweens.each(
-      /** @param {TweenParamArray} t */
-      (t)=> {
-        t = /** @type {TweenParamArray} */(clone.call(t));
-        // t = t.clone();
-        const method = /** @type {TweenerProps} */(t.shift());
-        /** @type {(...args: any[])=> any} */
-        (this[method]).apply(this, t);
-      }
-    );
+    json.tweens.forEach((t)=> {
+      t = /** @type {TweenParamArray} */(clone.call(t));
+      // t = t.clone();
+
+      /** @type {TweenerProps} */
+      const method = t.shift();
+
+      /** @type {(...args: any[])=> any} */
+      (this[method]).apply(this, t);
+    });
 
     return this;
   }
