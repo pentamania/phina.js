@@ -511,23 +511,33 @@ export class Tweener extends Accessory {
   }
 
   /**
-   * JSON形式でアニメーションを設定します。
+   * JSON形式でTweenerタスクを設定する
    * 
-   * ```
-   * [
-   *   // [method, arg1, arg2,,,],
-   *   ['to', {value: 100}, 1000, 'swing'],
-   *   ['wait', 1000],
-   *   ['set', 'text', 'END']
-   * ]
-   * ```
+   * @example
+   * const tweener = new Tweener();
+   * tweener.fromJSON({
+   *   loop: true,
+   *   tweens: [
+   *     // [method, arg1, arg2,,,],
+   *     ['to', {value: 100}, 1000, 'swing'],
+   *     ['wait', 1000],
+   *     ['set', 'text', 'END']
+   *   ]
+   * );
    * 
-   * @typedef {[string, ...any]} TweenParamArray
+   * @typedef {{[P in keyof Tweener]: P}[keyof Tweener]} TweenerProps
+   * Tweenerクラスの全プロパティ名列挙型（メソッド名取得用）
+   * 
+   * @typedef {[TweenerProps, ...any]} TweenParamArray
+   * tweenerタスク設定型
    * 
    * @chainable
    * @param {Object} json
-   * @param {Boolean} json.loop (optional) ループする場合true
-   * @param {TweenParamArray} json.tweens 設定するアニメーション
+   * @param {true} [json.loop] ループするかどうか
+   * @param {TweenParamArray[]} json.tweens
+   * 実行したいtweenerタスク群を配列で指定する
+   * 各タスクは`["method", arg1, arg2,,,]`のように
+   * 最初にTweenerメソッド名、続いて引数を指定する
    * @returns {this}
    */
   fromJSON(json) {
@@ -535,18 +545,16 @@ export class Tweener extends Accessory {
       this.setLoop(json.loop);
     }
 
-    each.call(json.tweens, 
+    each.call(json.tweens,
     // json.tweens.each(
-      /**
-       * @this Tweener
-       * @param {TweenParamArray} t
-       */
-      function(t) {
-        t = clone.call(t);
+      /** @param {TweenParamArray} t */
+      (t)=> {
+        t = /** @type {TweenParamArray} */(clone.call(t));
         // t = t.clone();
-        var method = t.shift();
-        this[method].apply(this, t);
-      }, this
+        const method = /** @type {TweenerProps} */(t.shift());
+        /** @type {(...args: any[])=> any} */
+        (this[method]).apply(this, t);
+      }
     );
 
     return this;
