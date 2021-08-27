@@ -641,8 +641,9 @@ export class Tweener extends Accessory {
    * @param {import('../app/baseapp').BaseApp} app
    */
   _updateTween(app) {
-    var tween = this._tween;
-    var time = this._getUnitTime(app);
+    if (!this._tween) return;
+    const tween = this._tween;
+    const time = this._getUnitTime(app);
 
     tween.forward(time);
     this.flare('tween');
@@ -661,8 +662,9 @@ export class Tweener extends Accessory {
    * @param {import('../app/baseapp').BaseApp} app
    */
   _updateWait(app) {
-    var wait = this._wait;
-    var time = this._getUnitTime(app);
+    if (!this._wait) return;
+    const wait = this._wait;
+    const time = this._getUnitTime(app);
     wait.time += time;
 
     if (wait.time >= wait.limit) {
