@@ -135,10 +135,11 @@ export class Tween extends EventDispatcher {
     this.beginProps = this.finishProps;
     this.finishProps = temp;
     // this.changeProps.forIn(function(key, value, index) {
-    forIn.call(this.changeProps, function(key, value, _index) {
+    forIn.call(this.changeProps,
+    (/** @type {string | number} */ key, /** @type {number} */ value)=> {
       this.changeProps[key] = -value;
       this.target[key] = this.beginProps[key];
-    }, this);
+    });
     // TODO: easing も反転させる
     // this.easing = easing;
     return this;
@@ -180,12 +181,11 @@ export class Tween extends EventDispatcher {
     this.time = clamp(time, 0, this.duration);
 
     // this.beginProps.forIn(
-    forIn.call(this.beginProps, 
-    /** @this Tween */
-    function(key, value) {
-      var v = /** @type function */(this.easing)(this.time, value, this.changeProps[key], this.duration);
+    forIn.call(this.beginProps,
+    (/** @type {string | number} */ key, /** @type {number} */ value)=> {
+      const v = /** @type function */(this.easing)(this.time, value, this.changeProps[key], this.duration);
       this.target[key] = v;
-    }, this);
+    });
 
     return this;
   }
