@@ -3,7 +3,16 @@ import { forIn } from "../core/object";
 import { EventDispatcher } from "../util/eventdispatcher"
 
 /**
- * @typedef {keyof Tween.EASING} TweenEasingType イージングの種類を表す文字列
+ * イージングの種類を表す文字列
+ * @typedef {keyof Tween.EASING} TweenEasingType
+ */
+
+/**
+ * イージング関数の基礎型
+ * @typedef {(time: number, baseVal: number, changedVal: number, duration: number)=> number } TweenEasingCommonFunction
+ * 
+ * イージング関数の拡張可能型
+ * @typedef {(time: number, baseVal: number, changedVal: number, duration: number, ...otherArgs: number[])=> number} TweenEasingFunction
  */
 
 /**
@@ -26,12 +35,10 @@ export class Tween extends EventDispatcher {
     this.time = 0;
 
     /**
-     * @private
-     * @type {function|string}
      * 内部イージング関数
-     * easingアクセサを介して使用  
-     * setterがstring型を受け付けるのに対し、
-     * getterはfunction型を返すため、とりあえず共用体とする
+     * 
+     * @private
+     * @type {TweenEasingFunction}
      */
     this._easing;
   }
@@ -183,16 +190,34 @@ export class Tween extends EventDispatcher {
     return this;
   }
 
+  /**
+   * ### Getter
+   * 内部イージング関数を返す
+   * 
+   * @type {TweenEasingFunction | string | undefined}
+   * （setterがstring/undefinedを受け付けるため、共用体としている）
+   */
   get easing() { return this._easing; }
+
+  /**
+   * ### Setter
+   * Easingタイプを文字列で指定、内部イージング関数を変更する
+   * 
+   * 存在しないEasingタイプ、あるいはundefinedなど文字列以外を指定すると
+   * `default(=linear)`タイプのイージング関数がセットされる
+   * 
+   * @type {TweenEasingFunction | string | undefined}
+   */
   set easing(v) {
-    this._easing = Tween.EASING[/**@type {string}*/(v)] || Tween.EASING.default;
+    this._easing = Tween.EASING[/**@type {TweenEasingType}*/(v)] || Tween.EASING.default;
   }
 
 }
 
 /**
  * @static
- * イージング
+ * イージング関数マップ
+ * 
  * ### Reference
  * - <http://coderepos.org/share/wiki/JSTweener>
  * - <http://coderepos.org/share/browser/lang/javascript/jstweener/trunk/src/JSTweener.js>
@@ -200,157 +225,222 @@ export class Tween extends EventDispatcher {
  * - <http://hosted.zeh.com.br/tweener/docs/en-us/misc/transitions.html>
  */
 Tween.EASING = {
-
   /** default */
-  "default": function(t, b, c, d) {
+  default: 
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     return c*t/d + b;
   },
   /** linear */
-  linear: function(t, b, c, d) {
+  linear: 
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     return c*t/d + b;
   },
   /** swing */
-  swing: function(t, b, c, d) {
+  swing: 
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     return -c *(t/=d)*(t-2) + b;
   },
   /** easeInQuad */
-  easeInQuad: function(t, b, c, d) {
+  easeInQuad: 
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     return c*(t/=d)*t + b;
   },
   /** easeOutQuad */
-  easeOutQuad: function(t, b, c, d) {
+  easeOutQuad: 
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     return -c *(t/=d)*(t-2) + b;
   },
   /** easeInOutQuad */
-  easeInOutQuad: function(t, b, c, d) {
+  easeInOutQuad: 
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     if((t/=d/2) < 1) return c/2*t*t + b;
     return -c/2 *((--t)*(t-2) - 1) + b;
   },
   /** defeInCubic */
-  easeInCubic: function(t, b, c, d) {
+  easeInCubic: 
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     return c*(t/=d)*t*t + b;
   },
   /** easeOutCubic */
-  easeOutCubic: function(t, b, c, d) {
+  easeOutCubic: 
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     return c*((t=t/d-1)*t*t + 1) + b;
   },
   /** easeInOutCubic */
-  easeInOutCubic: function(t, b, c, d) {
+  easeInOutCubic: 
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     if((t/=d/2) < 1) return c/2*t*t*t + b;
     return c/2*((t-=2)*t*t + 2) + b;
   },
   /** easeOutInCubic */
-  easeOutInCubic: function(t, b, c, d) {
+  easeOutInCubic: 
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     if(t < d/2) return Tween.EASING.easeOutCubic(t*2, b, c/2, d);
     return Tween.EASING.easeInCubic((t*2)-d, b+c/2, c/2, d);
   },
   /** easeInQuart */
-  easeInQuart: function(t, b, c, d) {
+  easeInQuart: 
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     return c*(t/=d)*t*t*t + b;
   },
   /** easeOutQuart */
-  easeOutQuart: function(t, b, c, d) {
+  easeOutQuart: 
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     return -c *((t=t/d-1)*t*t*t - 1) + b;
   },
   /** easeInOutQuart */
-  easeInOutQuart: function(t, b, c, d) {
+  easeInOutQuart: 
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     if((t/=d/2) < 1) return c/2*t*t*t*t + b;
     return -c/2 *((t-=2)*t*t*t - 2) + b;
   },
   /** easeOutInQuart */
-  easeOutInQuart: function(t, b, c, d) {
+  easeOutInQuart: 
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     if(t < d/2) return Tween.EASING.easeOutQuart(t*2, b, c/2, d);
     return Tween.EASING.easeInQuart((t*2)-d, b+c/2, c/2, d);
   },
   /** easeInQuint */
-  easeInQuint: function(t, b, c, d) {
+  easeInQuint:
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     return c*(t/=d)*t*t*t*t + b;
   },
   /** easeOutQuint */
-  easeOutQuint: function(t, b, c, d) {
+  easeOutQuint:
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     return c*((t=t/d-1)*t*t*t*t + 1) + b;
   },
   /** easeInOutQuint */
-  easeInOutQuint: function(t, b, c, d) {
+  easeInOutQuint:
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     if((t/=d/2) < 1) return c/2*t*t*t*t*t + b;
     return c/2*((t-=2)*t*t*t*t + 2) + b;
   },
   /** easeOutInQuint */
-  easeOutInQuint: function(t, b, c, d) {
+  easeOutInQuint:
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     if(t < d/2) return Tween.EASING.easeOutQuint(t*2, b, c/2, d);
     return Tween.EASING.easeInQuint((t*2)-d, b+c/2, c/2, d);
   },
   /** easeInSine */
-  easeInSine: function(t, b, c, d) {
+  easeInSine:
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     return -c * Math.cos(t/d *(Math.PI/2)) + c + b;
   },
   /** easeOutSine */
-  easeOutSine: function(t, b, c, d) {
+  easeOutSine:
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     return c * Math.sin(t/d *(Math.PI/2)) + b;
   },
   /** easeInOutSine */
-  easeInOutSine: function(t, b, c, d) {
+  easeInOutSine:
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     return -c/2 *(Math.cos(Math.PI*t/d) - 1) + b;
   },
   /** easeOutInSine */
-  easeOutInSine: function(t, b, c, d) {
+  easeOutInSine:
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     if(t < d/2) return Tween.EASING.easeOutSine(t*2, b, c/2, d);
     return Tween.EASING.easeInSine((t*2)-d, b+c/2, c/2, d);
   },
   /** easeInExpo */
-  easeInExpo: function(t, b, c, d) {
+  easeInExpo:
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     return(t==0) ? b : c * Math.pow(2, 10 *(t/d - 1)) + b - c * 0.001;
   },
   /** easeOutExpo */
-  easeOutExpo: function(t, b, c, d) {
+  easeOutExpo:
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     return(t==d) ? b+c : c * 1.001 *(-Math.pow(2, -10 * t/d) + 1) + b;
   },
   /** easeInOutExpo */
-  easeInOutExpo: function(t, b, c, d) {
+  easeInOutExpo:
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     if(t==0) return b;
     if(t==d) return b+c;
     if((t/=d/2) < 1) return c/2 * Math.pow(2, 10 *(t - 1)) + b - c * 0.0005;
     return c/2 * 1.0005 *(-Math.pow(2, -10 * --t) + 2) + b;
   },
   /** easeOutInExpo */
-  easeOutInExpo: function(t, b, c, d) {
+  easeOutInExpo:
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     if(t < d/2) return Tween.EASING.easeOutExpo(t*2, b, c/2, d);
     return Tween.EASING.easeInExpo((t*2)-d, b+c/2, c/2, d);
   },
   /** easeInCirc */
-  easeInCirc: function(t, b, c, d) {
+  easeInCirc:
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     return -c *(Math.sqrt(1 -(t/=d)*t) - 1) + b;
   },
   /** easeOutCirc */
-  easeOutCirc: function(t, b, c, d) {
+  easeOutCirc:
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     return c * Math.sqrt(1 -(t=t/d-1)*t) + b;
   },
   /** easeInOutCirc */
-  easeInOutCirc: function(t, b, c, d) {
+  easeInOutCirc:
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     if((t/=d/2) < 1) return -c/2 *(Math.sqrt(1 - t*t) - 1) + b;
     return c/2 *(Math.sqrt(1 -(t-=2)*t) + 1) + b;
   },
   /** easeOutInCirc */
-  easeOutInCirc: function(t, b, c, d) {
+  easeOutInCirc:
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     if(t < d/2) return Tween.EASING.easeOutCirc(t*2, b, c/2, d);
     return Tween.EASING.easeInCirc((t*2)-d, b+c/2, c/2, d);
   },
   /** easeInElastic */
-  easeInElastic: function(t, b, c, d, a, p) {
+  easeInElastic:
+  /** @type {(t: number, b: number, c: number, d: number, a: number, p: number)=> number} */
+  function(t, b, c, d, a, p) {
     var s;
     if(t==0) return b;  if((t/=d)==1) return b+c;  if(!p) p=d*.3;
     if(!a || a < Math.abs(c)) { a=c; s=p/4; } else s = p/(2*Math.PI) * Math.asin(c/a);
     return -(a*Math.pow(2,10*(t-=1)) * Math.sin((t*d-s)*(2*Math.PI)/p )) + b;
   },
   /** easeOutElastic */
-  easeOutElastic: function(t, b, c, d, a, p) {
+  easeOutElastic:
+  /** @type {(t: number, b: number, c: number, d: number, a: number, p: number)=> number} */
+  function(t, b, c, d, a, p) {
     var s;
     if(t==0) return b;  if((t/=d)==1) return b+c;  if(!p) p=d*.3;
     if(!a || a < Math.abs(c)) { a=c; s=p/4; } else s = p/(2*Math.PI) * Math.asin(c/a);
     return(a*Math.pow(2,-10*t) * Math.sin((t*d-s)*(2*Math.PI)/p ) + c + b);
   },
   /** easeInOutElastic */
-  easeInOutElastic: function(t, b, c, d, a, p) {
+  easeInOutElastic:
+  /** @type {(t: number, b: number, c: number, d: number, a: number, p: number)=> number} */
+  function(t, b, c, d, a, p) {
     var s;
     if(t==0) return b;  if((t/=d/2)==2) return b+c;  if(!p) p=d*(.3*1.5);
     if(!a || a < Math.abs(c)) { a=c; s=p/4; }       else s = p/(2*Math.PI) * Math.asin(c/a);
@@ -358,37 +448,51 @@ Tween.EASING = {
     return a*Math.pow(2,-10*(t-=1)) * Math.sin((t*d-s)*(2*Math.PI)/p )*.5 + c + b;
   },
   /** easeOutInElastic */
-  easeOutInElastic: function(t, b, c, d, a, p) {
+  easeOutInElastic:
+  /** @type {(t: number, b: number, c: number, d: number, a: number, p: number)=> number} */
+  function(t, b, c, d, a, p) {
     if(t < d/2) return Tween.EASING.easeOutElastic(t*2, b, c/2, d, a, p);
     return Tween.EASING.easeInElastic((t*2)-d, b+c/2, c/2, d, a, p);
   },
   /** easeInBack */
-  easeInBack: function(t, b, c, d, s) {
+  easeInBack:
+  /** @type {(t: number, b: number, c: number, d: number, s?: number)=> number} */
+  function(t, b, c, d, s) {
     if(s == undefined) s = 1.70158;
     return c*(t/=d)*t*((s+1)*t - s) + b;
   },
   /** easeOutBack */
-  easeOutBack: function(t, b, c, d, s) {
+  easeOutBack:
+  /** @type {(t: number, b: number, c: number, d: number, s?: number)=> number} */
+  function(t, b, c, d, s) {
     if(s == undefined) s = 1.70158;
     return c*((t=t/d-1)*t*((s+1)*t + s) + 1) + b;
   },
   /** easeInOutBack */
-  easeInOutBack: function(t, b, c, d, s) {
+  easeInOutBack:
+  /** @type {(t: number, b: number, c: number, d: number, s?: number)=> number} */
+  function(t, b, c, d, s) {
     if(s == undefined) s = 1.70158;
     if((t/=d/2) < 1) return c/2*(t*t*(((s*=(1.525))+1)*t - s)) + b;
     return c/2*((t-=2)*t*(((s*=(1.525))+1)*t + s) + 2) + b;
   },
   /** easeOutInBack */
-  easeOutInBack: function(t, b, c, d, s) {
+  easeOutInBack:
+  /** @type {(t: number, b: number, c: number, d: number, s?: number)=> number} */
+  function(t, b, c, d, s) {
     if(t < d/2) return Tween.EASING.easeOutBack(t*2, b, c/2, d, s);
     return Tween.EASING.easeInBack((t*2)-d, b+c/2, c/2, d, s);
   },
   /** easeInBounce */
-  easeInBounce: function(t, b, c, d) {
+  easeInBounce:
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     return c - Tween.EASING.easeOutBounce(d-t, 0, c, d) + b;
   },
   /** easeOutBounce */
-  easeOutBounce: function(t, b, c, d) {
+  easeOutBounce:
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     if((t/=d) <(1/2.75)) {
       return c*(7.5625*t*t) + b;
     } else if(t <(2/2.75)) {
@@ -400,14 +504,17 @@ Tween.EASING = {
     }
   },
   /** easeInOutBounce */
-  easeInOutBounce: function(t, b, c, d) {
+  easeInOutBounce:
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     if(t < d/2) return Tween.EASING.easeInBounce(t*2, 0, c, d) * .5 + b;
     else return Tween.EASING.easeOutBounce(t*2-d, 0, c, d) * .5 + c*.5 + b;
   },
   /** easeOutInBounce */
-  easeOutInBounce: function(t, b, c, d) {
+  easeOutInBounce:
+  /** @type {TweenEasingCommonFunction} */
+  function(t, b, c, d) {
     if(t < d/2) return Tween.EASING.easeOutBounce(t*2, b, c/2, d);
     return Tween.EASING.easeInBounce((t*2)-d, b+c/2, c/2, d);
   }
-
 }
