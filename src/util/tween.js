@@ -59,7 +59,7 @@ export class Tween extends EventDispatcher {
     this.easing = easing;
 
     // setup
-    this.changeProps = {};
+    this.changeProps = Object.create(null);
     for (var key in beginProps) {
         this.changeProps[key] = finishProps[key] - beginProps[key];
     }
@@ -75,7 +75,7 @@ export class Tween extends EventDispatcher {
    * @returns {this}
    */
   to(target, finishProps, duration, easing) {
-    var beginProps = {};
+    var beginProps = Object.create(null);
 
     for (var key in finishProps) {
       beginProps[key] = target[key];
@@ -94,7 +94,7 @@ export class Tween extends EventDispatcher {
    * @returns {this}
    */
   from(target, beginProps, duration, easing) {
-      var finishProps = {};
+      var finishProps = Object.create(null);
 
       for (var key in beginProps) {
         finishProps[key] = target[key];
@@ -114,8 +114,8 @@ export class Tween extends EventDispatcher {
    * @returns {this}
    */
   by(target, props, duration, easing) {
-    var beginProps = {};
-    var finishProps = {};
+    var beginProps = Object.create(null);
+    var finishProps = Object.create(null);
 
     for (var key in props) {
       beginProps[key] = target[key];
