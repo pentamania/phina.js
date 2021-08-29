@@ -25,16 +25,45 @@ import { Tween } from "../util/tween"
  */
 
 /**
- * その他の汎用タスク用パラメータ
+ * {@link Tweener.wait}タスク用パラメータ
  * @typedef {{
- *   type: "wait" | "call" | "set",
- *   data: {[key: string]: any}
- * }} CommonTypeTaskParam
+ *   type: "wait",
+ *   data: {
+ *     limit: number,
+ *   }
+ * }} TweenerWaitTaskParam
+ */
+
+/**
+ * {@link Tweener.call}タスク用パラメータ
+ * @typedef {{
+ *   type: "call",
+ *   data: {
+ *     func: Function,
+ *     self: any,
+ *     args?: any[],
+ *   }
+ * }} TweenerCallTaskParam
+ */
+
+/**
+ * {@link Tweener.set}タスク用パラメータ
+ * @typedef {{
+ *   type: "set",
+ *   data: {
+ *     values: Record<string|number|symbol, any>,
+ *   }
+ * }} TweenerSetTaskParam
  */
 
 /**
  * タスクパラメータ共用体
- * @typedef {TweenTypeTaskParam | CommonTypeTaskParam} TaskParamUnion
+ * @typedef {(
+ *   TweenTypeTaskParam |
+ *   TweenerWaitTaskParam |
+ *   TweenerCallTaskParam |
+ *   TweenerSetTaskParam
+ * )} TaskParamUnion
  */
 
 /**
