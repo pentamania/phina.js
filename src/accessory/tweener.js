@@ -18,7 +18,7 @@ import { Tween } from "../util/tween"
  * @typedef {{
  *   type: "tween",
  *   mode: TweenerTaskMode,
- *   props: Object,
+ *   props: import("../util/tween").TweenPropMap,
  *   duration?: number,
  *   easing?: import("../util/tween").TweenEasingType,
  * }} TweenTypeTaskParam
@@ -178,7 +178,7 @@ export class Tweener extends Accessory {
    * propsで指定した値になるまで、durationで指定した時間をかけて、アニメーションさせます。
    * 
    * @chainable
-   * @param {{[key: string]: any}} props 変更したいプロパティをkeyとしたオブジェクト
+   * @param {import("../util/tween").TweenPropMap} props 変更したいプロパティをkeyとしたオブジェクト
    * @param {Number} [duration] (optional) アニメーションにかける時間
    * @param {import("../util/tween").TweenEasingType} [easing] (optional) easing {@link phina.util.Tween#EASING}を参照してください。
    * @returns {this}
@@ -198,7 +198,7 @@ export class Tweener extends Accessory {
    * アニメーション開始時の値とpropsで指定した値を加算した値になるまで、durationで指定した時間をかけて、アニメーションさせます。
    * 
    * @chainable
-   * @param {{[key: string]: any}} props 変更したいプロパティをkeyとしたオブジェクト
+   * @param {import("../util/tween").TweenPropMap} props 変更したいプロパティをkeyとしたオブジェクト
    * @param {Number} [duration] (optional) アニメーションにかける時間
    * @param {import("../util/tween").TweenEasingType} [easing] (optional) easing {@link phina.util.Tween#EASING}を参照してください。
    * @returns {this}
@@ -219,7 +219,7 @@ export class Tweener extends Accessory {
    * propsで指定した値からアニメーション開始時の値になるまで、durationで指定した時間をかけて、アニメーションさせます。
    * 
    * @chainable
-   * @param {{[key: string]: any}} props 変更したいプロパティをkeyとしたオブジェクト
+   * @param {import("../util/tween").TweenPropMap} props 変更したいプロパティをkeyとしたオブジェクト
    * @param {Number} [duration] (optional) アニメーションにかける時間
    * @param {import("../util/tween").TweenEasingType} [easing] (optional) easing {@link phina.util.Tween#EASING}を参照してください。
    * @returns {this}
