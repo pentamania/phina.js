@@ -8,6 +8,11 @@ import { EventDispatcher } from "../util/eventdispatcher"
  */
 
 /**
+ * イージング管理用のプロパティマップ型
+ * @typedef {Record<string|number|symbol, number>} TweenPropMap
+ */
+
+/**
  * イージング関数の基礎型
  * @typedef {(time: number, baseVal: number, changedVal: number, duration: number)=> number } TweenEasingCommonFunction
  * 
@@ -29,8 +34,10 @@ export class Tween extends EventDispatcher {
     super();
 
     /**
-     * @type {number}
      * tween経過時間
+     * 
+     * @public
+     * @type {number}
      */
     this.time = 0;
 
@@ -41,14 +48,49 @@ export class Tween extends EventDispatcher {
      * @type {TweenEasingFunction}
      */
     this._easing;
+
+    /**
+     * tween開始パラメータ
+     * 
+     * @protected TBD
+     * @type {TweenPropMap}
+     */
+     this.beginProps;
+
+    /**
+     * tween終了パラメータ
+     * 
+     * @protected TBD
+     * @type {TweenPropMap}
+     */
+     this.finishProps;
+
+    /**
+     * tween更新中パラメータ
+     * 
+     * @protected TBD
+     * @type {TweenPropMap}
+     */
+     this.changeProps;
+
+    /**
+     * tween持続時間
+     * 
+     * @public
+     * @type {number}
+     */
+    this.duration;
   }
 
   /**
+   * Tweenクラスの汎用コアメソッド。
+   * Tween.to, Tween.from, Tween.byといった処理で内部的に使用される
+   * 
    * @param {any} target
-   * @param {{ [k: string]: any; }} beginProps
-   * @param {{ [k: string]: any; }} finishProps
-   * @param {number} duration
-   * @param {TweenEasingType} easing
+   * @param {TweenPropMap} beginProps
+   * @param {TweenPropMap} finishProps
+   * @param {number} [duration] tween持続時間。無指定もしくは0のときはデフォルト値1000となる
+   * @param {TweenEasingType} [easing] 
    * @returns {this}
    */
   fromTo(target, beginProps, finishProps, duration, easing) {
@@ -69,9 +111,9 @@ export class Tween extends EventDispatcher {
 
   /**
    * @param {any} target
-   * @param {{ [k: string]: any; }} finishProps
-   * @param {number} duration
-   * @param {TweenEasingType} easing
+   * @param {TweenPropMap} finishProps
+   * @param {number} [duration]
+   * @param {TweenEasingType} [easing]
    * @returns {this}
    */
   to(target, finishProps, duration, easing) {
@@ -88,9 +130,9 @@ export class Tween extends EventDispatcher {
 
   /**
    * @param {any} target
-   * @param {{ [k: string]: any; }} beginProps
-   * @param {number} duration
-   * @param {TweenEasingType} easing
+   * @param {TweenPropMap} beginProps
+   * @param {number} [duration]
+   * @param {TweenEasingType} [easing]
    * @returns {this}
    */
   from(target, beginProps, duration, easing) {
@@ -108,9 +150,9 @@ export class Tween extends EventDispatcher {
 
   /**
    * @param {any} target
-   * @param {{ [k: string]: any; }} props
-   * @param {number} duration
-   * @param {TweenEasingType} easing
+   * @param {TweenPropMap} props
+   * @param {number} [duration]
+   * @param {TweenEasingType} [easing]
    * @returns {this}
    */
   by(target, props, duration, easing) {
@@ -147,6 +189,7 @@ export class Tween extends EventDispatcher {
 
   /**
    * 指定値分、時間を進める
+   * 
    * @alias forward
    * @param {number} time
    */
@@ -156,6 +199,7 @@ export class Tween extends EventDispatcher {
 
   /**
    * 指定値分、時間を進める
+   * 
    * @alias gain
    * @param {number} time
    */
@@ -165,6 +209,7 @@ export class Tween extends EventDispatcher {
 
   /**
    * 指定値分、時間を戻す
+   * 
    * @param {number} time
    */
   backward(time) {
@@ -173,6 +218,7 @@ export class Tween extends EventDispatcher {
 
   /**
    * 時間に応じてパラメータを更新
+   * 
    * @param {number} time
    * @returns {this}
    */
