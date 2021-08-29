@@ -102,7 +102,7 @@ export class Tween extends EventDispatcher {
 
     // setup
     this.changeProps = Object.create(null);
-    for (var key in beginProps) {
+    for (const key in beginProps) {
         this.changeProps[key] = finishProps[key] - beginProps[key];
     }
 
@@ -117,9 +117,9 @@ export class Tween extends EventDispatcher {
    * @returns {this}
    */
   to(target, finishProps, duration, easing) {
-    var beginProps = Object.create(null);
+    const beginProps = Object.create(null);
 
-    for (var key in finishProps) {
+    for (const key in finishProps) {
       beginProps[key] = target[key];
     }
 
@@ -136,9 +136,9 @@ export class Tween extends EventDispatcher {
    * @returns {this}
    */
   from(target, beginProps, duration, easing) {
-      var finishProps = Object.create(null);
+      const finishProps = Object.create(null);
 
-      for (var key in beginProps) {
+      for (const key in beginProps) {
         finishProps[key] = target[key];
         target[key] = beginProps[key];
       }
@@ -156,10 +156,10 @@ export class Tween extends EventDispatcher {
    * @returns {this}
    */
   by(target, props, duration, easing) {
-    var beginProps = Object.create(null);
-    var finishProps = Object.create(null);
+    const beginProps = Object.create(null);
+    const finishProps = Object.create(null);
 
-    for (var key in props) {
+    for (const key in props) {
       beginProps[key] = target[key];
       finishProps[key] = target[key] + props[key];
     }
@@ -173,7 +173,7 @@ export class Tween extends EventDispatcher {
    * TODO
    */
   yoyo() {
-    var temp = this.beginProps;
+    const temp = this.beginProps;
     this.beginProps = this.finishProps;
     this.finishProps = temp;
     // this.changeProps.forIn(function(key, value, index) {
@@ -469,7 +469,7 @@ Tween.EASING = {
   easeInElastic:
   /** @type {(t: number, b: number, c: number, d: number, a: number, p: number)=> number} */
   function(t, b, c, d, a, p) {
-    var s;
+    let s;
     if(t==0) return b;  if((t/=d)==1) return b+c;  if(!p) p=d*.3;
     if(!a || a < Math.abs(c)) { a=c; s=p/4; } else s = p/(2*Math.PI) * Math.asin(c/a);
     return -(a*Math.pow(2,10*(t-=1)) * Math.sin((t*d-s)*(2*Math.PI)/p )) + b;
@@ -478,7 +478,7 @@ Tween.EASING = {
   easeOutElastic:
   /** @type {(t: number, b: number, c: number, d: number, a: number, p: number)=> number} */
   function(t, b, c, d, a, p) {
-    var s;
+    let s;
     if(t==0) return b;  if((t/=d)==1) return b+c;  if(!p) p=d*.3;
     if(!a || a < Math.abs(c)) { a=c; s=p/4; } else s = p/(2*Math.PI) * Math.asin(c/a);
     return(a*Math.pow(2,-10*t) * Math.sin((t*d-s)*(2*Math.PI)/p ) + c + b);
@@ -487,7 +487,7 @@ Tween.EASING = {
   easeInOutElastic:
   /** @type {(t: number, b: number, c: number, d: number, a: number, p: number)=> number} */
   function(t, b, c, d, a, p) {
-    var s;
+    let s;
     if(t==0) return b;  if((t/=d/2)==2) return b+c;  if(!p) p=d*(.3*1.5);
     if(!a || a < Math.abs(c)) { a=c; s=p/4; }       else s = p/(2*Math.PI) * Math.asin(c/a);
     if(t < 1) return -.5*(a*Math.pow(2,10*(t-=1)) * Math.sin((t*d-s)*(2*Math.PI)/p )) + b;
