@@ -10,18 +10,18 @@ import { Tween } from "../util/tween"
 
 /**
  * Tweenerタスクモード
- * @typedef {"to" | "by" | "from"} TweenerTaskMode
+ * @typedef {"to" | "by" | "from"} TweenerTweenMode
  */
 
 /**
  * Tweenクラスを使用するタスク用パラメータ
  * @typedef {{
  *   type: "tween",
- *   mode: TweenerTaskMode,
+ *   mode: TweenerTweenMode,
  *   props: import("../util/tween").TweenPropMap,
  *   duration?: number,
  *   easing?: import("../util/tween").TweenEasingType,
- * }} TweenTypeTaskParam
+ * }} TweenerTweenTaskParam
  */
 
 /**
@@ -59,11 +59,11 @@ import { Tween } from "../util/tween"
 /**
  * タスクパラメータ共用体
  * @typedef {(
- *   TweenTypeTaskParam |
+ *   TweenerTweenTaskParam |
  *   TweenerWaitTaskParam |
  *   TweenerCallTaskParam |
  *   TweenerSetTaskParam
- * )} TaskParamUnion
+ * )} TweenerTaskParamUnion
  */
 
 /**
@@ -118,7 +118,7 @@ export class Tweener extends Accessory {
      * {@link Tweener._init} で初期化
      * 
      * @private
-     * @type {TaskParamUnion[]!}
+     * @type {TweenerTaskParamUnion[]!}
      */
     this._tasks;
 
@@ -592,7 +592,7 @@ export class Tweener extends Accessory {
    * タスクをキュー追加
    * 
    * @private
-   * @param {TaskParamUnion} params
+   * @param {TweenerTaskParamUnion} params
    */
   _add(params) {
     this._tasks.push(params);
