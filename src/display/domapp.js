@@ -131,9 +131,13 @@ export class DomApp extends BaseApp {
   }
 
   /**
+   * currentSceneの各要素に対するclickイベントを
+   * touchendもしくはmouseupで疑似的に処理する
+   * 
+   * childrenにも再帰的に処理を実行する
+   * 
    * @private
-   * touchend/mouseupでの疑似clickイベント処理
-   * @param {*} _e 
+   * @param {Event} _e
    */
   _checkClick(_e) {
     /** @param {import('../app/element').Element} element */
