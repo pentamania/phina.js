@@ -285,9 +285,9 @@ export class Tweener extends Accessory {
    * 現在設定されているアニメーションが終了した時に呼び出される関数をセットします。
    * 
    * @chainable
-   * @param {Function} func 呼び出される関数
-   * @param {Object} [self] (optional) func内でthisにしたいオブジェクト。
-   * @param {Object[]} [args] (optional) funcの引数にしたい値
+   * @param {(...args: any[])=> any} func 呼び出される関数
+   * @param {any} [self] (optional) func内でthisにしたいオブジェクト。
+   * @param {any[]} [args] (optional) funcの引数にしたい値
    * @returns {this}
    */
   call(func, self, args) {
@@ -307,19 +307,21 @@ export class Tweener extends Accessory {
    * 第一引数にオブジェクトをセットすることもできます。
    * 
    * @chainable
-   * @param {String | Record<string, any>} key valueをセットするプロパティ名か、変更したいプロパティをkeyとしたオブジェクト。
-   * @param {Record<string, any>} [value] (optional) セットする値
+   * @param {string | Record<string|number|symbol, any>} keyOrProps
+   * valueをセットするプロパティ名か、変更したいプロパティをkeyとしたオブジェクト。
+   * @param {any} [value]
+   * (第一引数をstring型とした場合) セットする値
    * @returns {this}
    */
-  set(key, value) {
-    /** @type {Record<string, any> | null} */
+  set(keyOrProps, value) {
+    /** @type {Record<string|number|symbol, any> | null} */
     var values = null;
-    if (typeof key === "string") {
+    if (typeof keyOrProps === "string") {
       values = {};
-      values[key] = value;
+      values[keyOrProps] = value;
     }
     else {
-      values = key;
+      values = keyOrProps;
     }
     this._tasks.push({
       type: "set",
