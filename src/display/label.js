@@ -37,19 +37,102 @@ export class Label extends Shape {
 
     super(options);
 
-    /** @type {any} */
-    this._text
+    /**
+     * 内部テキスト文字列。こちらは更新しても描画に反映されない
+     * {@link Label.text} アクセサを利用して取得・更新する事
+     * 
+     * @protected
+     * @type {any}
+     */
+    this._text;
+
+    /**
+     * 入力テキストを改行制御文字（`\n`）で分割した文字列配列
+     * テキスト描画、内部キャンバスサイズ計算等に使用
+     * 
+     * {@link Label.text} setter代入時に更新
+     * 
+     * @protected
+     * @type {string[]}
+     */
+    this._lines = [];
 
     this.text = options.text;
+
+    /**
+     * フォントの大きさ
+     * 
+     * 値を書き換えると自動的に再描画が行われる
+     * 
+     * @public
+     * @type {number}
+     */
     this.fontSize = options.fontSize;
+
+    /**
+     * フォントの太さ (あるいは重み)
+     * @see https://developer.mozilla.org/ja/docs/Web/CSS/font-weight
+     * 
+     * 値を書き換えると自動的に再描画が行われる
+     * 
+     * @public
+     * @type {string | number}
+     */
     this.fontWeight = options.fontWeight;
+
+    /**
+     * フォントファミリー
+     * @see https://developer.mozilla.org/ja/docs/Web/CSS/font-family
+     * 
+     * 値を書き換えると自動的に再描画が行われる
+     * 
+     * @public
+     * @type {string}
+     */
     this.fontFamily = options.fontFamily;
+
+    /**
+     * テキストの基準位置（縦軸）を設定
+     * @see https://developer.mozilla.org/ja/docs/Web/API/CanvasRenderingContext2D/textAlign
+     * 
+     * 値を書き換えると自動的に再描画が行われる
+     * 
+     * @public
+     * @type {CanvasTextAlign}
+     */
     this.align = options.align;
+
+    /**
+     * テキストのベースライン (基準線) を設定
+     * @see https://developer.mozilla.org/ja/docs/Web/API/CanvasRenderingContext2D/textBaseline
+     * 
+     * 値を書き換えると自動的に再描画が行われる
+     * 
+     * @public
+     * @type {CanvasTextBaseline}
+     */
     this.baseline = options.baseline;
+
+    /**
+     * テキストの行高さ補正値
+     * fontSizeにこの値を乗算したものを各行の高さとする
+     * 
+     * 
+     * 値を書き換えると自動的に再描画が行われる
+     * 
+     * @public
+     * @type {number}
+     */
     this.lineHeight = options.lineHeight;
   }
 
   /**
+   * 各テキスト行から、描画に必要な幅を計算する
+   * 
+   * @override
+   * 最も長い行幅にpadding値を加えた値を返すよう上書き
+   * 
+   * @public
    * @returns {number}
    */
   calcCanvasWidth() {
@@ -68,6 +151,11 @@ export class Label extends Shape {
   }
 
   /**
+   * テキスト行数から描画に必要な高さを計算する
+   * 
+   * @override
+   * fontSizeに行数、baseline、lineHeightやpadding値を加味した値を返す用
+   * 
    * @returns {number}
    */
   calcCanvasHeight() {
@@ -111,6 +199,16 @@ export class Label extends Shape {
     }, this);
   }
 
+  /**
+   * 描画されるテキスト値
+   * 
+   * 基本はstring型で指定、
+   * またセットの際、改行制御文字`\n`が含まれるとそこで改行が行われる
+   * 
+   * 値を書き換えると自動的に再描画が行われる
+   * 
+   * @type {any}
+  */
   get text() { return this._text; }
   set text(v) {
     this._text = v;
@@ -118,7 +216,10 @@ export class Label extends Shape {
   }
 
   /**
-   * @returns {string}
+   * 内部フォントパラメータを一括指定プロパティ形式にフォーマットした文字列を返す
+   * @see https://developer.mozilla.org/ja/docs/Web/CSS/font
+   * 
+   * @type {string}
    */
   get font() {
     return format.call("{fontWeight} {fontSize}px {fontFamily}", this);
