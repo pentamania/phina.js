@@ -5,34 +5,36 @@
 import { randint } from "./math";
 
 /**
- * @type {import('../phina').AccessorExtendObject} first
  * 最初の要素を返す、もしくはそこにセットする
  *
  * ### Example
  *     arr = [6, 5, 2, 3, 1, 4];
  *     arr.first; // => 6
+ * 
+ * @type {import('../phina').AccessorExtendObject} first
  */
 export const first = {
 // Array.prototype.accessor("first", {
-  /** @this Array */
+  /** @this Array<any> */
   "get": function()   { return this[0]; },
-  /** @this Array */
+  /** @this Array<any> */
   "set": function(v)  { this[0] = v; }
 }
 
 /**
- * @type {import('../phina').AccessorExtendObject} last
  * 最後の要素を返す、もしくはそこにセットする
  *
  * ### Example
  *     arr = [6, 5, 2, 3, 1, 4];
  *     arr.last; // => 4
+ * 
+ * @type {import('../phina').AccessorExtendObject} last
  */
 export const last = {
 // Array.prototype.accessor("last", {
-  /** @this Array */
+  /** @this Array<any> */
   "get": function()   { return this[this.length-1]; },
-  /** @this Array */
+  /** @this Array<any> */
   "set": function(v)  { this[this.length-1] = v; }
 };
 
@@ -52,9 +54,9 @@ export const last = {
  *     arr.at(-1); // => 'f'
  *     arr.at(-8); // => 'e'
  *
- * @this Array
- * @param {Number} i 添字
- * @return {Object} 添字で指定された要素
+ * @this Array<any>
+ * @param {number} i 添字
+ * @return {any} 添字で指定された要素
  */
 export function at(i) {
 // Array.prototype.$method("at", function(i) {
@@ -74,8 +76,8 @@ export function at(i) {
  *     arr2 = arr1.erase('b'); // => ['a', 'b', 'c']
  *     arr1 === arr2;          // => true
  *
- * @this Array
- * @param {Object} elm 削除したいオブジェクト
+ * @this Array<any>
+ * @param {any} elm 削除したいオブジェクト
  */
 export function erase(elm) {
 // Array.prototype.$method("erase", function(elm) {
@@ -96,9 +98,11 @@ export function erase(elm) {
  *     arr = [1, 2, [3, 4]];
  *     arr.clear(); // => []
  * 
- * @this Array
+ * @this Array<any>
+ * @returns {any} 自身を返す
+ * // FIXME: 本来はArray<any>型を返すべきだが、TSでエラーになるため一時的にanyとしている
  */
-export function clear(deep) {
+export function clear() {
 // Array.prototype.$method("clear", function() {
   this.length = 0;
   return this;
@@ -117,10 +121,10 @@ export function clear(deep) {
  *     arr.contains(3, -4); // => true
  *     arr.contains("6");   // => false
  *
- * @this Array
- * @param {Object} item チェックするオブジェクト
- * @param {Number} [fromIndex=0] 検索を始める位置。負数を指定した場合は末尾からのオフセットと見なします。
- * @return {Boolean} チェックの結果
+ * @this Array<any>
+ * @param {any} item チェックするオブジェクト
+ * @param {number} [fromIndex=0] 検索を始める位置。負数を指定した場合は末尾からのオフセットと見なします。
+ * @return {boolean} チェックの結果
  */
 export function contains(item, fromIndex) {
 // Array.prototype.$method("contains", function(item, fromIndex) {
@@ -129,7 +133,8 @@ export function contains(item, fromIndex) {
 
 /**
  * @method clone
- * 自身のコピーを生成して返します。
+ * 自身のコピーを生成して返却する。
+ * シャロ―コピーのため、各要素の参照は基本そのままとなる
  *
  * ### Example
  *     arr1 = [1, 2, [3, 4]];
@@ -143,9 +148,9 @@ export function contains(item, fromIndex) {
  *     arr1[2][0] = 9;
  *     arr2;                     // => [1, 2, [3, 4]]
  *
- * @this Array
- * @param {Boolean} [deep=false] 配列のネストをたどって複製するかどうか
- * @return {Array} 新しい配列
+ * @this Array<any>
+ * @param {boolean} [deep=false]
+ * **[未実装]** 配列のネストをたどって複製するかどうか
  */
 export function clone(deep) {
 // Array.prototype.$method("clone", function(deep) {
@@ -182,7 +187,7 @@ export function clone(deep) {
  *     arr.range(2, 14, 5); // => [2, 7, 12]
  *     arr.range(2, -3);    // => [2, 1, 0, -1, -2]
  *
- * @this Array
+ * @this Array<number>
  * @param {Number} start 最初の値（デフォルトは 0）
  * @param {Number} end 最後の値（省略不可）
  * @param {Number} [step] 間隔。デフォルト値は1または-1
@@ -234,9 +239,9 @@ export function range(start, end, step) {
  *     arr2.equals([6, 5, 2, [3, 1], 4]);     // => false
  *     arr2.deepEquals([6, 5, 2, [3, 1], 4]); // => true
  *
- * @this Array
- * @param {Array} arr 比較する対象の配列
- * @return {Boolean} チェックの結果
+ * @this Array<any>
+ * @param {Array<any>} arr 比較する対象の配列
+ * @return {boolean} チェックの結果
  */
 export function equals(arr) {
 // Array.prototype.$method("equals", function(arr) {
@@ -263,9 +268,9 @@ export function equals(arr) {
  *     arr.equals([6, 5, 2, [3, 1], 4]);     // => false
  *     arr.deepEquals([6, 5, 2, [3, 1], 4]); // => true
  *
- * @this Array
- * @param {Array} arr 比較する対象の配列
- * @return {Boolean} チェックの結果
+ * @this Array<any>
+ * @param {Array<any>} arr 比較する対象の配列
+ * @return {boolean} チェックの結果
  */
 export function deepEquals(arr) {
 // Array.prototype.$method("deepEquals", function(arr) {
@@ -291,9 +296,9 @@ export function deepEquals(arr) {
  *     arr2 = arr1.swap(0, 3); // => ['d', 'b', 'c', 'a']
  *     arr1 === arr2;          // => true
  *
- * @this Array
- * @param {Number} a  インデックス
- * @param {Number} b  インデックス
+ * @this Array<any>
+ * @param {number} a  インデックス
+ * @param {number} b  インデックス
  */
 export function swap(a, b) {
 // Array.prototype.$method("swap", function(a, b) {
@@ -314,8 +319,8 @@ export function swap(a, b) {
  *     arr2 = arr1.eraseAll('b'); // => ['a', 'c']
  *     arr1 === arr2;             // => true
  *
- * @this Array
- * @param {Object} elm 削除したいオブジェクト
+ * @this Array<any>
+ * @param {any} elm 削除したいオブジェクト
  */
 export function eraseAll(elm) {
 // Array.prototype.$method("eraseAll", function(elm) {
@@ -341,8 +346,9 @@ export function eraseAll(elm) {
  *     });
  *     // => ['bar', 'hoge', 'fuga']
  *
- * @this Array
- * @param {Function} fn 各要素に対して実行するコールバック関数
+ * @this Array<any>
+ * @param {(obj: any, index: number, self: any[])=> boolean} fn
+ * 各要素に対して実行するコールバック関数
  */
 export function eraseIf(fn) {
 // Array.prototype.$method("eraseIf", function(fn) {
@@ -369,8 +375,9 @@ export function eraseIf(fn) {
  *     });
  *     // => ['bar', 'fuga']
  *
- * @this Array
- * @param {Function} fn 各要素に対して実行するコールバック関数
+ * @this Array<any>
+ * @param {(obj: any, index: number, self: any[])=> boolean} fn
+ * 各要素に対して実行するコールバック関数
  */
 export function eraseIfAll(fn) {
 // Array.prototype.$method("eraseIfAll", function(fn) {
@@ -394,10 +401,10 @@ export function eraseIfAll(fn) {
  *     arr = ['foo', 'bar', 'hoge', 'fuga'];
  *     arr.random(2, 3);  // => 'hoge' または 'fuga'
  *
- * @this Array
- * @param {Number} [min=0] インデックスの下限
- * @param {Number} [max=配列の最大インデックス] インデックスの上限
- * @return {Object} ランダムに1つ取り出した要素
+ * @this Array<any>
+ * @param {number} [min=0] インデックスの下限
+ * @param {number} [max] インデックスの上限。デフォルトは配列の最大インデックス
+ * @return {any} ランダムに1つ取り出した要素
  */
 export function random(min, max) {
 // Array.prototype.$method("random", function(min, max) {
@@ -413,7 +420,7 @@ export function random(min, max) {
  * {@link #random}、{@link #lot} と同じです。
  * @inheritdoc #random
  * 
- * @this {Array}
+ * @this Array<any>
  * @param {number} min
  * @param {number} max
  */
@@ -431,7 +438,7 @@ export function pickup(min, max) {
  * {@link #random}、{@link #pickup} と同じです。
  * @inheritdoc #random
  * 
- * @this {Array}
+ * @this Array<any>
  * @param {number} min
  * @param {number} max
  */
@@ -452,9 +459,9 @@ export function lot(min, max) {
  *     arr = [1, 2, 3, 4, 3, 2];
  *     arr.uniq(); // => [1, 2, 3, 4]
  *
- * @this Array
+ * @this Array<any>
  * @param {Number} [deep] 未使用
- * @return {Object} 新しい配列
+ * @return {any[]} 新しい配列
  */
 export function uniq(deep) {
 // Array.prototype.$method("uniq", function(deep) {
@@ -475,9 +482,9 @@ export function uniq(deep) {
  *     arr.flatten();  // => [1, 2, 3, 4, 5]
  *     arr.flatten(1); // => [1, 2, 3, [4, 5]]
  *
- * @this Array<Array>
+ * @this Array<Array<any>>
  * @param {Number} [level=0]  平滑化の再帰の深さ
- * @return {Object} 平滑化した配列
+ * @return {any[]} 平滑化した配列
  */
 export function flatten(level) {
 // Array.prototype.$method("flatten", function(level) {
@@ -511,10 +518,10 @@ export function flatten(level) {
  *     arr.fill("x");       // => ["x", "x", "x", "x", "x"]
  *     arr.fill("x", 2, 4); // => [1, 2, "x", "x", 5]
  *
- * @this Array
- * @param {Object} value 埋める値
- * @param {Number} [start=0] 値を埋める最初のインデックス
- * @param {Number} [end=自身の配列の長さ] 値を埋める最後のインデックス+1
+ * @this Array<any>
+ * @param {any} value 埋める値
+ * @param {number} [start=0] 値を埋める最初のインデックス
+ * @param {number} [end] 値を埋める最後のインデックス+1。デフォルト値は自身の配列の長さ
  */
 export function fill(value, start, end) {
 // Array.prototype.$method("fill", function(value, start, end) {
@@ -538,7 +545,7 @@ export function fill(value, start, end) {
  *     arr = [1, 2, 3, 4, 5];
  *     arr.shuffle(); // => [5, 1, 4, 2, 3] など
  * 
- * @this Array
+ * @this Array<any>
  */
 export function shuffle() {
 // Array.prototype.$method("shuffle", function() {
@@ -564,8 +571,8 @@ export function shuffle() {
  *     arr = [1, 2, 3, 4, 5, 6];
  *     arr.sum(); // => 21
  *
- * @this Array
- * @return {Number} 合計
+ * @this Array<any>
+ * @return {number} 合計
  */
 export function sum() {
 // Array.prototype.$method("sum", function() {
@@ -586,8 +593,8 @@ export function sum() {
  *     arr = [1, 2, 3, 4, 5, 6]
  *     arr.average(); // => 3.5
  *
- * @this Array
- * @return {Number} 平均値
+ * @this Array<any>
+ * @return {number} 平均値
  */
 export function average() {
 // Array.prototype.$method("average", function() {
@@ -601,12 +608,14 @@ export function average() {
 
 /**
  * @method each
- * @chainable
  * 要素を順番に渡しながら関数を繰り返し実行します。
- *
- * メソッドチェーンに対応していますが、このメソッドによって自分自身は変化しません。
- *
- * ###Reference
+ * Array.prototype.forEachとほぼ一緒、
+ * ただし自身を返却するのでメソッドチェーンにも対応
+ * 
+ * このメソッドによって自分自身は変化しません。
+ * 
+ * 
+ * ### Reference
  * - [Array.prototype.forEach() - JavaScript | MDN](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach)
  *
  * ### Example
@@ -617,10 +626,12 @@ export function average() {
  *     // => 1
  *     //    4
  *     //    9
- *
- * @this Array
- * @param {Function} callback 各要素に対して実行するコールバック関数
- * @param {Object} [self] callback 内で this として参照される値
+ * @chainable
+ * @this Array<any>
+ * @param {Parameters<typeof Array.prototype.forEach>[0]} callback
+ * 各要素に対して実行するコールバック関数
+ * @param {any} [self]
+ * callback 内で this として参照される値
  */
 export function each(callback, self) {
   this.forEach.call(this, callback, self || this);
@@ -664,10 +675,14 @@ export function each(callback, self) {
  * @property {number} min - 関数の返り値が最小となる要素
  * @property {number} max - 関数の返り値が最大となる要素
  *
- * @this Array<number>
- * @param {Function} [func] 各要素に対して実行するコールバック関数
- * @param {Object} [self=this] 関数内で this として参照される値。デフォルトは自分自身。
- * @return {ArrayMostReturnValue}
+ * @this Array<any>
+ * @param {(elm: any, index: number, self: any[])=> number} [func]
+ * 各要素に対して実行されるコールバック関数。
+ * この関数が返した数値を比較対象とする。
+ * 無指定の場合、各要素を数値として解釈して単純比較する
+ * @param {any} [self=this]
+ * 関数内で this として参照される値。デフォルトは自分自身。
+ * @returns {ArrayMostReturnValue}
  */
 export function most(func, self) {
 // Array.prototype.$method("most", function(func, self) {
