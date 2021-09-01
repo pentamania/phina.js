@@ -14,12 +14,12 @@ import { Draggable } from "../accessory/draggable";
 /**
  * Elementに適合するためのプロパティを保持してるかチェック: template用
  * @typedef {{
- *   addChild: (el: Elementizable)=> Elementizable
- *   remove: ()=> Elementizable
- *   parent?: Elementizable
- *   has: (type:string)=> boolean
- *   flare: (type:string)=> any
- * }} Elementizable 
+ *   parent: typeof Element.prototype.parent
+ *   addChild: typeof Element.prototype.addChild
+ *   remove: typeof Element.prototype.remove
+ *   has: typeof Element.prototype.has
+ *   flare: typeof Element.prototype.flare
+ * }} Elementizable
  */
 
 /**
