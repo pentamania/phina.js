@@ -156,11 +156,15 @@ export function clone(deep) {
     //   a[i] = (this[i].clone) ? this[i].clone(deep) : this[i];
     // }
     // return a;
+
+    // 実装までとりあえずシャロ―クローン返す
+    return Array.prototype.slice.apply(this);
   }
   else {
     return Array.prototype.slice.apply(this);
   }
 }
+
 
 /**
  * @method range
