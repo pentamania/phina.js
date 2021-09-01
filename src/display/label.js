@@ -22,14 +22,20 @@ export class Label extends Shape {
 
   /**
    * @constructor
-   * @param {LabelOptions} [options]
+   * @param {LabelOptions | string} [optionOrText]
+   * テキスト内容、テキストスタイルを指定する。
+   * 
+   * 無指定の場合、{@link Label.defaults}パラメータに従って描画される  
+   * 文字列のみ指定した場合、上記デフォルトパラメータを使って指定文字列を描画する
    */
-  constructor(options) {
-    if (typeof arguments[0] !== 'object') {
-      options = { text: arguments[0], };
+  constructor(optionOrText) {
+    /** @type {LabelOptions} */
+    let options;
+    if (typeof optionOrText !== 'object') {
+      options = { text: optionOrText, };
     }
     else {
-      options = arguments[0];
+      options = optionOrText;
     }
 
     options = $safe.call({}, options||{}, Label.defaults)
