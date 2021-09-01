@@ -48,7 +48,7 @@ export class Accessory extends EventDispatcher {
      * 操作対象
      * 
      * @public
-     * @type {AccessoryTarget | undefined}
+     * @type {AccessoryTarget | null | undefined}
      */
     this.target = target;
   }
@@ -75,7 +75,7 @@ export class Accessory extends EventDispatcher {
    * 同時に自動更新もさせたい場合は {@link Accessory.attachTo} を使用のこと
    * 
    * @public
-   * @param {AccessoryTarget} target
+   * @param {AccessoryTarget | null} target
    * @returns {this}
    */
   setTarget(target) {
@@ -89,7 +89,7 @@ export class Accessory extends EventDispatcher {
    * 操作対象（target）を返す
    * 
    * @public
-   * @returns {AccessoryTarget | undefined}
+   * @returns {typeof Accessory.prototype.target}
    */
   getTarget() {
     return this.target;
