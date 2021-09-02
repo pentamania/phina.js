@@ -4,6 +4,11 @@ import phina from "../phina";
 import { Support } from "../util/support";
 
 /**
+ * Canvas._contextがnull時のエラーメッセージ
+ */
+const staticCanvasContextMissingErrorMessage = "[phina.js]: Canvasクラスの静的コンテキストが存在しません。"
+
+/**
  * Canvasのfillstyle/strokeStyleの値として使用できる型。文字列の場合、CSS colorデータ型に準拠するもの
  * @typedef {string | CanvasGradient | CanvasPattern} CanvasStyle
  */
@@ -1034,6 +1039,9 @@ export class Canvas {
    * @returns {TextMetrics}
    */
   static measureText(font, text) {
+    if (!this._context) {
+      throw new Error(staticCanvasContextMissingErrorMessage);
+    }
     this._context.font = font;
     return this._context.measureText(text);
   }
@@ -1043,6 +1051,9 @@ export class Canvas {
    * @returns {CanvasGradient}
    */
   static createLinearGradient() {
+    if (!this._context) {
+      throw new Error(staticCanvasContextMissingErrorMessage);
+    }
     return this._context.createLinearGradient.apply(this._context, arguments);
   }
 
@@ -1051,6 +1062,9 @@ export class Canvas {
    * @returns {CanvasGradient}
    */
   static createRadialGradient() {
+    if (!this._context) {
+      throw new Error(staticCanvasContextMissingErrorMessage);
+    }
     return this._context.createRadialGradient.apply(this._context, arguments);
   }
 
