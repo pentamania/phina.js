@@ -65,7 +65,8 @@ export class Scene extends PhinaElement {
    * 引数オブジェクト
    * 第一引数をラベル文字列で指定した場合に設定
    * 
-   * @returns {this}
+   * @returns {this | void}
+   * 自身を返す。ただしapp参照が存在せず、処理できなかった場合は何も返さない
    */
   exit(nextLabelOrArguments, nextArguments) {
     if (!this.app) return ;
