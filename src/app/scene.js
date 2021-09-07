@@ -71,15 +71,15 @@ export class Scene extends PhinaElement {
   exit(nextLabelOrArguments, nextArguments) {
     if (!this.app) return ;
 
-    if (arguments.length > 0) {
-      if (typeof arguments[0] === 'object') {
-        nextLabelOrArguments = arguments[0].nextLabel || this.nextLabel;
-        nextArguments = arguments[0];
+    if (nextLabelOrArguments != null) {
+      if (typeof nextLabelOrArguments === 'object') {
+        nextArguments = nextLabelOrArguments;
+        this.nextLabel = nextLabelOrArguments.nextLabel || this.nextLabel;
+      } else {
+        this.nextLabel = nextLabelOrArguments;
       }
-
-      this.nextLabel = /** @type {SceneLabel} */(nextLabelOrArguments);
-      this.nextArguments = nextArguments;
     }
+    if (nextArguments) this.nextArguments = nextArguments;
 
     this.app.popScene();
 
