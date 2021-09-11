@@ -55,8 +55,8 @@ export class Element extends EventDispatcher {
     /**
      * UpdaterやInteractiveクラスによる更新を有効にするかどうか
      * 
-     * falseにすると通常毎フレーム実行される
-     * 更新処理やインタラクション判定処理が行われなくなる
+     * falseにすると通常毎フレーム実行される、
+     * 更新処理やユーザーインタラクション判定処理が行われなくなる
      * 
      * @public
      * @type {boolean}
@@ -71,11 +71,11 @@ export class Element extends EventDispatcher {
     this._clicked = false;
 
     /**
-     * アタッチされたAccessoryの配列
-     * {@link Element.attach} メソッドによって初期化
+     * アタッチされたAccessory一覧
      * 
      * @public
      * @type {import('../accessory/accessory').Accessory[] | undefined}
+     * undefinedの時は{@link Element.attach}実行の際に初期化
      */
     this.accessories = undefined;
 
@@ -100,13 +100,14 @@ export class Element extends EventDispatcher {
 
   /**
    * @method addChild
-   * 自身に子要素を追加します。
+   * 子要素を追加する
    *
-   * 自身を子要素として引数で指定した要素に追加するには
-   * {@link Element.addChildTo} を使用してください。
+   * 自分自身を子要素として引数で指定した要素に追加するには
+   * {@link Element.addChildTo}を使用のこと
    * 
-   * また追加後、子要素側で`added`イベントが発火する
+   * また追加後、子要素には`added`イベントが発火される。
    *
+   * @public
    * @template {Elementizable} T
    * @param {T} child 追加する子要素
    * @returns {T} 追加した子要素
@@ -126,8 +127,9 @@ export class Element extends EventDispatcher {
    * @method addChildTo
    * 自身を子要素として引数で指定した要素に追加します。
    *
-   * 自身に子要素を追加するには {@link #addChild} を使用してください。
+   * 自身に子要素を追加するには {@link Element.addChild} を使用してください。
    *
+   * @public
    * @template {Elementizable} T
    * @param {T} parent 自身を子要素として追加する親要素
    * @returns {this}
@@ -142,6 +144,7 @@ export class Element extends EventDispatcher {
    * @method addChildAt
    * 自身を、指定した要素の子要素の任意の配列インデックスに追加します。
    *
+   * @public
    * @template {Elementizable} T
    * @param {T} child 追加する子要素
    * @param {Number} index インデックス番号
@@ -185,6 +188,7 @@ export class Element extends EventDispatcher {
    * @method getChildIndex
    * 指定した子要素のインデックス番号を返します。
    *
+   * @public
    * @param {ElementBasedObject} child 子要素
    * @return {Number} 指定した子要素のインデックス番号
    */
@@ -196,6 +200,7 @@ export class Element extends EventDispatcher {
    * @method getParent
    * 指定した要素の親要素を返します。
    *
+   * @public
    * @return {ElementBasedObject} 指定した要素の親要素
    */
   getParent() {
@@ -206,6 +211,7 @@ export class Element extends EventDispatcher {
    * @method getRoot
    * 指定した要素の階層ツリーのルートを返します。
    *
+   * @public
    * @return {ElementBasedObject} 指定した要素の階層ツリーのルート
    */
   getRoot() {
@@ -219,8 +225,9 @@ export class Element extends EventDispatcher {
 
   /**
    * @method removeChild
-   * 指定した要素を自身の子要素から削除します。
+   * 指定した要素を自身の子要素リストから削除します。
    *
+   * @public
    * @chainable
    * @template {Elementizable} T
    * @param {T} child 要素
@@ -237,8 +244,9 @@ export class Element extends EventDispatcher {
 
   /**
    * @method remove
-   * 自身を親要素の子要素から削除します。
+   * 自身を親要素の子要素リストから削除し、同時にparent参照を切る
    * 
+   * @public
    * @returns {this | void}
    * 処理が滞りなく完了した場合、自身を返却する.  
    * 親要素が存在せず、処理が実行されなかった場合、何も返却しない
@@ -257,6 +265,7 @@ export class Element extends EventDispatcher {
    * 更新が有効な状態かどうかを返す。
    * 詳細は {@link Element.awake} を参照
    *
+   * @public
    * @returns {Boolean}
    */
   isAwake() {
@@ -268,6 +277,7 @@ export class Element extends EventDispatcher {
    * 更新有効状態にする。
    * 詳細は {@link Element.awake} を参照
    * 
+   * @public
    * @returns {this}
    */
   wakeUp() {
@@ -279,6 +289,7 @@ export class Element extends EventDispatcher {
    * @method sleep
    * 自身を無効にします。
    * 
+   * @public
    * @returns {this}
    */
   sleep() {
@@ -287,17 +298,22 @@ export class Element extends EventDispatcher {
   }
 
   /**
-   * 更新用仮想関数
+   * 更新用関数
+   * サブクラスにて上書きして使用
    * 
+   * awakeプロパティが有効、かつ自身がアクティブなシーングラフ上に追加されている場合、
+   * ここに定義された処理が毎フレーム実行される
+   * 
+   * @public
    * @virtual
-   * @param {import("../game/gameapp").AppUnion} [_app] アプリケーションクラス
+   * @param {import("../game/gameapp").AppUnion} [_app] アプリケーションクラス参照
    * @returns {any}
    */
   update(_app) {}
 
   /**
    * @method fromJSON
-   * JSON 形式を使って自身に子要素を追加することができます。
+   * JSON形式で自身に子要素を追加することができます。
    *
    * @example
    * var el = new Element();
@@ -314,6 +330,7 @@ export class Element extends EventDispatcher {
    * console.log(el.label) // Labelインスタンスを返す
    * console.log(el.label.x) // => 320
    * 
+   * @public
    * @typedef {{
    *   children?: fromJSONData
    *   className?: string | (new (...args: any)=> any)
