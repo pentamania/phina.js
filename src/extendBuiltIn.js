@@ -49,7 +49,8 @@ function _defineAccessor(obj, accessorName, extendObj) {
  * @param {ExtensionMethodMap} extensionMap
  */
 function _extend(targetObj, extensionMap) {
-  Object.keys(extensionMap).forEach((key) => {
+  /** @type {ExtendableObjectType[]} */
+  (Object.keys(extensionMap)).forEach((key) => {
     var value = extensionMap[key];
     if (typeof value === "function") {
       _defineMethod(targetObj, key, value);
@@ -111,7 +112,8 @@ var ExtensionTypeMap = {
 export function extendBuiltInObject(objectType, methodNameList) {
   if (!objectType) {
     // 拡張全てを一括で行う
-    Object.keys(ExtendableObjectTypeMap).forEach((objType) => {
+    /** @type {ExtendableObjectType[]} */
+    (Object.keys(ExtendableObjectTypeMap)).forEach((objType) => {
       _extend(ExtendableObjectTypeMap[objType], ExtensionTypeMap[objType]);
     });
     // _extend(Object.prototype, objectExtensions);
@@ -134,7 +136,9 @@ export function extendBuiltInObject(objectType, methodNameList) {
 
       /** @type ExtensionMethodMap */
       const methodMap = Object.create(null);
-      methodNameList.forEach((methodName) => {
+
+      /** @type {ExtendableObjectType[]} */
+      (methodNameList).forEach((methodName) => {
         if (!exts[methodName]) {
           // TODO: no method error
           return;
