@@ -72,10 +72,27 @@ export function accessor(name, param) {
 
 /**
  * @method forIn
- * オブジェクト用ループ処理
+ * オブジェクトの各プロパティ毎に指定の処理を実行する。
+ * プロパティはenumerableなものが対象となる
  * 
- * @param {Function} fn
- * @param {any} self
+ * @example
+ * const obj = {a: 0, b: 1};
+ * 
+ * // prototype拡張済み
+ * obj.forIn((k, v)=> {
+ *   console.log(`{k}:{v}`); // "a:0", "b:1"
+ * })
+ * 
+ * // 無拡張
+ * forIn.call(obj, (k, v)=> {
+ *   console.log(`{k}:{v}`); // "a:0", "b:1"
+ * })
+ * 
+ * @this {any}
+ * @param {(key: string, val: any, index: number)=> any} fn
+ * 各プロパティ毎に実行するコールバック関数
+ * @param {any} [self]
+ * コールバック関数のthisの参照とする対象。無指定の場合はオブジェクト自身
  */
 export function forIn(fn, self) {
   self = self || this;
