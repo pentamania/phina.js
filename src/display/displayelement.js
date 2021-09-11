@@ -119,7 +119,62 @@ export class DisplayElement extends Object2D {
     }
   }
 
+  /**
+   * Sceneクラスcanvas参照を使った描画処理を行う
+   * 
+   * 定義されているとCanvasRendererによって毎フレーム実行される
+   * 
+   * デフォルトでは未定義(undefined)状態
+   * 
+   * @public
+   * @virtual
+   * @param {import('../graphics/canvas').Canvas} _canvas
+   * 現在アクティブなSceneクラスのcanvas参照
+   */
+  draw(_canvas) {};
+
+  /**
+   * Sceneクラスcanvas参照を使ったクリッピング（切り抜き）領域の設定を行う
+   * 
+   * 定義されているとCanvasRendererによって毎フレーム実行され、
+   * 本メソッドでクリッピング処理されてからdraw処理が行われる
+   * 
+   * クリッピングは定義ゲームオブジェクトに対してのみ行われ、
+   * 他のオブジェクトには影響しない
+   * 
+   * デフォルトでは未定義(undefined)状態
+   * 
+   * @example
+   * // スプライトを星形にクリッピングする
+   * this.player = new Sprite("player");
+   * this.player.clip = function(c) {
+   *   c.beginPath();
+   *   c.star(0, 0, 32)
+   * }
+   * 
+   * @caveat
+   * パスデータは自動でリセットはされず、
+   * beginPathを実行してクリアしない限り、溜まり続けることに注意
+   * （パスが溜まり過ぎるとパフォーマンスに深刻に影響する）
+   * 
+   * @public
+   * @virtual
+   * @param {import('../graphics/canvas').Canvas} _canvas
+   * 現在アクティブなSceneクラスのcanvas参照
+   */
+  clip(_canvas) {};
 }
+
+// draw, clipはデフォルトでは未定義とする
+// ただし`DisplayElement.prototype.draw=undefined`などとすると
+// TSコンパイラがinstance propertyと解釈してしまうため、遠回りな方法で設定
+// FIXME: より良い方法があれば改善
+((DE)=> {
+  // @ts-ignore
+  DE["draw"] = undefined;
+  // @ts-ignore
+  DE["clip"] = undefined;
+})(DisplayElement.prototype);
 
 /**
  * @type {DisplayElementOptions}
