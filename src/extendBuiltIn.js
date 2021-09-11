@@ -14,9 +14,35 @@ import {
   stop as eventStop,
 } from "./dom/event";
 
-/** @typedef {"Object"|"Array"|"ArrayStatic"|"Math"|"String"|"Number"|"Date"|"DateStatic"} ExtendableObjectType */
-/** @typedef {{ [key in ExtendableObjectType]: any } } ObjectTypeMapForExtension */
-/** @typedef {{ [key in ExtendableObjectType]: Function | import('./phina').AccessorExtendObject | number | string }} ExtensionMethodMap */
+/**
+ * 全ビルトインオブジェクト名称ユニオン型
+ * @typedef {(
+ *   "Object" |
+ *   "Array" |
+ *   "ArrayStatic" |
+ *   "Math" |
+ *   "String" |
+ *   "Number" |
+ *   "Date" |
+ *   "DateStatic"
+ * )} ExtendableObjectType
+ */
+
+/**
+ * @typedef {{
+ *   [key in ExtendableObjectType]: any
+ * }} ObjectTypeMapForExtension
+ */
+
+/**
+ * @typedef {{
+ *   [key in ExtendableObjectType]:
+ *     Function |
+ *     import('./phina').AccessorExtendObject |
+ *     number |
+ *     string
+ * }} ExtensionMethodMap
+ */
 
 /**
  * カスタムメソッドを定義
@@ -64,7 +90,7 @@ function _extend(targetObj, extensionMap) {
 }
 
 /**
- * オブジェクト名称 <-> 実際のオブジェクト
+ * オブジェクト名称 <-> 実際のオブジェクトのKVペア
  * @type {ObjectTypeMapForExtension}
  */
 var ExtendableObjectTypeMap = {
@@ -79,9 +105,9 @@ var ExtendableObjectTypeMap = {
 };
 
 /**
- * オブジェクト名称 <-> 拡張メソッドマップ
+ * オブジェクト名称 <-> 拡張メソッドマップのKVペア
  * @type {ObjectTypeMapForExtension}
- * */
+ */
 var ExtensionTypeMap = {
   Object: objectExtensions,
   Array: arrayExtensions,
@@ -95,11 +121,12 @@ var ExtensionTypeMap = {
 
 /**
  * Objectなどの標準組み込みオブジェクトの拡張を行う
+ *
  * - 引数無指定では全ての拡張を行う
  * - 拡張したいオブジェクト、メソッドを文字列で指定することも可能
  *
  * @example
- * // 全拡張（従来のphina.jsの状態）
+ * // 全拡張（従来のphina.jsと同じ状態にする）
  * extendBuiltInObject();
  *
  * // Numberオブジェクトの一部メソッドだけ拡張
@@ -156,7 +183,15 @@ export function extendBuiltInObject(objectType, methodNameList) {
 }
 
 /**
- * dom/Event 一括拡張用メソッド
+ * Eventオブジェクトに以下の拡張機能を追加する
+ *
+ * - MouseEventおよびTouch/TouchEventに`pointX`, `pointY`プロパティを追加。
+ * ある要素上でのクリック・タップ位置を返す
+ *
+ * - Eventに`stop`メソッドを追加。
+ * デフォルト処理のキャンセルおよびイベント伝播を中止する
+ *
+ * @returns {void}
  */
 export function extendEventObject() {
   const getter = objectExtensions.getter;
