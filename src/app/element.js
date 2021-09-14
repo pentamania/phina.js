@@ -4,6 +4,7 @@ import { forIn } from "../core/object"
 import { EventDispatcher } from "../util/eventdispatcher"
 import { Tweener } from "../accessory/tweener"
 import { Draggable } from "../accessory/draggable";
+import { Flickable } from "../accessory/flickable";
 
 /**
  * TODO: Elementのプロパティを引き継ぎたい…
@@ -96,6 +97,15 @@ export class Element extends EventDispatcher {
      * @type {Draggable | undefined}
      */
     this._draggable = undefined;
+
+    /**
+     * 内部Flickableクラス
+     * {@link Element.flickable} getterにアクセスすることで初期化
+     * 
+     * @private
+     * @type {Flickable | undefined}
+     */
+    this._flickable = undefined;
   }
 
   /**
@@ -494,5 +504,17 @@ export class Element extends EventDispatcher {
       this._draggable = new Draggable().attachTo(this);
     }
     return this._draggable;
+  }
+
+  /**
+   * 自身に付与（attach）された内部flickableオブジェクトを返却
+   * 
+   * アクセス時に存在しない場合、新たにインスタンスを生成・付与する
+   */
+  get flickable() {
+    if (!this._flickable) {
+      this._flickable = new Flickable().attachTo(this);
+    }
+    return this._flickable;
   }
 }
