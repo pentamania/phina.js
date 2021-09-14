@@ -18,7 +18,7 @@ export class Physical extends Accessory  {
 
   /**
    * @constructor
-   * @param {PhysicalTarget} target
+   * @param {PhysicalTarget} [target]
    */
   constructor(target) {
     super(target);
