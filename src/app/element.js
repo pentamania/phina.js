@@ -5,6 +5,7 @@ import { EventDispatcher } from "../util/eventdispatcher"
 import { Tweener } from "../accessory/tweener"
 import { Draggable } from "../accessory/draggable";
 import { Flickable } from "../accessory/flickable";
+import { Physical } from "../accessory/physical";
 
 /**
  * TODO: Elementのプロパティを引き継ぎたい…
@@ -106,6 +107,15 @@ export class Element extends EventDispatcher {
      * @type {Flickable | undefined}
      */
     this._flickable = undefined;
+
+    /**
+     * 内部Physicalクラス
+     * {@link Element.physical} getterにアクセスすることで初期化
+     * 
+     * @private
+     * @type {Physical | undefined}
+     */
+    this._physical = undefined;
   }
 
   /**
@@ -516,5 +526,17 @@ export class Element extends EventDispatcher {
       this._flickable = new Flickable().attachTo(this);
     }
     return this._flickable;
+  }
+
+  /**
+   * 自身に付与（attach）された内部physicalオブジェクトを返却
+   * 
+   * アクセス時に存在しない場合、新たにインスタンスを生成・付与する
+   */
+  get physical() {
+    if (!this._physical) {
+      this._physical = new Physical().attachTo(this);
+    }
+    return this._physical;
   }
 }
