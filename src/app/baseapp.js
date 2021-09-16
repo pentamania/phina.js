@@ -14,6 +14,14 @@ import {Ticker} from "../util/ticker";
  */
 
 /**
+ * `resume`イベントの際、Sceneに渡されるパラメータ型
+ * @typedef {{ 
+ *   app: BaseApp
+ *   prevScene: Scene
+ * }} SceneResumeEventData
+ */
+
+/**
  * @class phina.app.BaseApp
  * _extends phina.util.EventDispatcher
  * 
@@ -29,6 +37,7 @@ export class BaseApp extends EventDispatcher {
 
     /**
      * シーンのスタック
+     * 
      * @protected
      * @type {SceneTypeUnion[]}
      */
@@ -37,6 +46,7 @@ export class BaseApp extends EventDispatcher {
     /**
      * シーンのインデックス値
      * アクティブ中のシーン管理に使用
+     * 
      * @protected
      * @type {number}
      */
@@ -44,21 +54,39 @@ export class BaseApp extends EventDispatcher {
 
     /**
      * 更新処理が有効な状態かどうか
+     * 
+     * @public
      * @type {boolean}
      */
     this.awake = true;
 
-    /** @type {Updater} */
+    /**
+     * 更新処理用オブジェクト
+     * 
+     * @public
+     * @type {Updater}
+     */
     this.updater = new Updater(this);
 
-    /** @type {Interactive} */
+    /**
+     * ユーザー入力処理用オブジェクト
+     * 
+     * @public
+     * @type {Interactive}
+     */
     this.interactive = new Interactive(this);
 
-    /** @type {Ticker} */
+    /**
+     * ティック処理・経過時間等用オブジェクト
+     * 
+     * @public
+     * @type {Ticker}
+     */
     this.ticker = new Ticker();
     
     /**
      * tickerによって毎フレーム実行されるアプリ内部処理
+     * 
      * @private
      * @type {import("../util/eventdispatcher").PhinaEventHandler | null}
      */
@@ -68,6 +96,7 @@ export class BaseApp extends EventDispatcher {
   /**
    * アプリケーションを開始
    * 
+   * @public
    * @returns {this}
    */
   run() {
@@ -85,6 +114,7 @@ export class BaseApp extends EventDispatcher {
   /**
    * アプリケーションを完全停止
    * 
+   * @public
    * @returns {this}
    */
   kill() {
@@ -96,6 +126,7 @@ export class BaseApp extends EventDispatcher {
   /**
    * 指定したシーンに切り替える
    * 
+   * @public
    * @param {SceneTypeUnion} scene
    * @returns {this}
    */
@@ -124,6 +155,7 @@ export class BaseApp extends EventDispatcher {
    * 具体的にはシーンスタックにシーンを追加しつつ、
    * インデックス値を進めることでシーン遷移する
    * 
+   * @public
    * @param {Scene} scene
    * @returns {this}
    */
@@ -155,6 +187,7 @@ export class BaseApp extends EventDispatcher {
    * pushScene同様、シーンスタックの操作によって
    * アクティブなシーンを切り替える
    * 
+   * @public
    * @returns {Scene | void} 抜けたSceneオブジェクト、処理できなかった場合は何も返さない
    */
   popScene() {
@@ -174,10 +207,13 @@ export class BaseApp extends EventDispatcher {
 
     this.flare('poped');
 
-    this.currentScene.flare('resume', {
-      app: this,
-      prevScene: scene,
-    });
+    this.currentScene.flare(
+      'resume', 
+      /** @type {SceneResumeEventData} */({
+        app: this,
+        prevScene: scene,
+      })
+    );
 
     return scene;
   }
@@ -186,6 +222,7 @@ export class BaseApp extends EventDispatcher {
    * アプリケーションの再開
    * 更新処理の実行を再開する
    * 
+   * @public
    * @returns {this}
    */
   start() {
@@ -198,6 +235,7 @@ export class BaseApp extends EventDispatcher {
    * アプリケーションの一時停止
    * 更新処理を実行しないようにする
    * 
+   * @public
    * @returns {this}
    */
   stop() {
@@ -213,6 +251,7 @@ export class BaseApp extends EventDispatcher {
    * stats.jsがグローバルで読み込まれていない場合、
    * cdnjsからr14版スクリプトを読み込む
    * 
+   * @public
    * @returns {this}
    */
   enableStats() {
@@ -240,6 +279,7 @@ export class BaseApp extends EventDispatcher {
    * dat.GUIがグローバルで読み込まれていない場合、
    * cdnjsからv0.5.1版スクリプトを読み込む
    * 
+   * @public
    * @param {(datGUIObject?: any) => any} callback
    * @returns {this}
    */
@@ -263,9 +303,9 @@ export class BaseApp extends EventDispatcher {
   }
 
   /**
-   * @protected
    * ループ処理関数
    * 
+   * @protected
    * @returns {void}
    */
   _loop() {
@@ -278,9 +318,9 @@ export class BaseApp extends EventDispatcher {
   }
 
   /**
-   * @protected
    * 更新処理関数
    * 
+   * @protected
    * @returns {void}
    */
   _update() {
@@ -298,6 +338,7 @@ export class BaseApp extends EventDispatcher {
   /**
    * 更新用仮想関数
    * 
+   * @public
    * @virtual
    * @returns {any}
    */
@@ -337,22 +378,22 @@ export class BaseApp extends EventDispatcher {
   set fps(v) { this.ticker.fps = v; }
 
   /**
-   * 前フレームでの処理にかかった時間
+   * 前フレームでの処理にかかった時間 (msec)
    */
   get deltaTime() { return this.ticker.deltaTime; }
 
   /**
-   * アプリケーション開始からの経過時間
+   * アプリケーション開始からの経過時間 (msec)
    */
   get elapsedTime() { return this.ticker.elapsedTime; }
 
   /**
-   * 現在の時間（最後の更新時のUNIXタイムスタンプ）
+   * 現在の時間（最後の更新時のUNIXタイムスタンプ形式）
    */
   get currentTime() { return this.ticker.currentTime; }
 
   /**
-   * アプリケーション開始時間（UNIXタイムスタンプ）
+   * アプリケーション開始時間（UNIXタイムスタンプ形式）
    */
   get startTime() { return this.ticker.startTime; }
 }

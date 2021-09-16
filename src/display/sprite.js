@@ -32,20 +32,24 @@ export class Sprite extends DisplayElement {
 
     /**
      * スプライト元画像（テクスチャ）。setImageで初期化
-     * @private
+     * 
+     * @protected
      * @type {SpriteImage}
      */
     this._image
 
     /**
      * フレームインデックス。setImageで初期化
-     * @private
+     * 
+     * @protected
      * @type {number}
      */
     this._frameIndex
 
     /**
      * 画像描画範囲
+     * 
+     * @public
      * @type {Rect}
      */
     this.srcRect = new Rect();
@@ -73,6 +77,8 @@ export class Sprite extends DisplayElement {
 
   /**
    * スプライト元画像を設定
+   * 
+   * @public
    * @param {SpriteImageSrc} image
    * @param {number} [width]
    * @param {number} [height]
@@ -96,6 +102,8 @@ export class Sprite extends DisplayElement {
 
   /**
    * フレームインデックスを指定し、そのフレームに合わせて描画範囲を更新  
+   * 
+   * @public
    * @param {number} index フレームインデックス。最大値を超えた場合はループ
    * @param {number} [width] フレームサイズ幅
    * @param {number} [height] フレームサイズ高さ

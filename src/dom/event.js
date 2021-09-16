@@ -1,6 +1,6 @@
 /**
  * MouseEvent/Touch拡張
- * マウスのX座標.
+ * マウスのX座標を取得
  */
 export var pointX = {
   /** @this {MouseEvent|Touch} */
@@ -11,7 +11,7 @@ export var pointX = {
 
 /**
  * MouseEvent/Touch拡張
- * マウスのY座標.
+ * マウスのY座標を取得
  */
 export var pointY = {
   /** @this {MouseEvent|Touch} */
@@ -22,7 +22,7 @@ export var pointY = {
 
 /**
  * TouchEvent拡張
- * タッチイベントのX座標.
+ * タッチイベントのX座標を取得
  */
 export var touchPointX = {
   /** @this {TouchEvent} */
@@ -34,7 +34,7 @@ export var touchPointX = {
 
 /**
  * TouchEvent拡張
- * タッチイベントのY座標.
+ * タッチイベントのY座標を取得
  */
 export var touchPointY = {
   /** @this {TouchEvent} */
@@ -45,13 +45,10 @@ export var touchPointY = {
 }
 
 /**
- * global.Event
- * 既存のEventオブジェクト拡張
- */
-
-/**
- * @method stop
+ * Eventオブジェクト拡張
  * イベントのデフォルト処理 & 伝達を止める
+ * 
+ * @this {Event}
  */
 export function stop() {
   // イベントキャンセル

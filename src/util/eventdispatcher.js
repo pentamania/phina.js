@@ -41,13 +41,13 @@ export class EventDispatcher {
 
   /**
    * イベントリスナを登録します。
-   * 登録したイベントリスナは{@link #flare} や {@link #fire}を
+   * 登録したイベントリスナは{@link EventDispatcher.flare} や {@link EventDispatcher.fire}を
    * 介して実行（発火）することができます。
    *
    * １つのイベントに対するイベントリスナはいくつでも登録することができます。
    *
    * いくつかのサブクラスについてはライブラリが特定条件下で発火するイベントがあります。
-   * 例えば {@link #Object2D} クラスを継承したクラスではユーザーインタラクションに対して
+   * 例えば {@link Object2D} クラスを継承したクラスではユーザーインタラクションに対して
    * "pointstart"などのイベントが発火されます。
    *
    * @example
@@ -121,7 +121,7 @@ export class EventDispatcher {
 
   /**
    * イベントパラメータオブジェクトを指定してイベントを発火します。
-   * {@link #flare} の内部処理で使用、単独で使用することは稀
+   * {@link EventDispatcher.flare} の内部処理で使用、単独で使用することは稀
    * 
    * @example
    * const myObj = new EventDispatcher();
@@ -141,6 +141,7 @@ export class EventDispatcher {
    fire(e) {
     e.target = this;
     var oldEventName = 'on' + e.type;
+    // @ts-ignore
     if (this[oldEventName]) this[oldEventName](e);
 
     var listeners = this._listeners[e.type];
@@ -177,9 +178,10 @@ export class EventDispatcher {
    * @returns {this}
   */
   flare(type, param) {
+    /** @type {{type: string, [key:string]: any}} */
     var e = {type:type};
     if (param) {
-      forIn.call(param, function(key, val) {
+      forIn.call(param, function(/** @type {string | number} */ key, /** @type {any} */ val) {
       // param.forIn(function(key, val) {
         e[key] = val;
       });
@@ -192,7 +194,7 @@ export class EventDispatcher {
   /**
    * 一度だけ実行されるイベントリスナを登録します。
    * 指定したイベントリスナが一度実行されると、そのイベントリスナは削除されます。
-   * それ以外の挙動は {@link #on} と同じです。
+   * それ以外の挙動は {@link EventDispatcher.on} と同じです。
    * 
    * @example
    * const myObj = new EventDispatcher();
@@ -213,6 +215,8 @@ export class EventDispatcher {
     var self = this;
 
     var func = function() {
+      // TODO: Fix arguments TS error somehow
+      // @ts-ignore
       var result = listener.apply(self, arguments);
       self.off(type, func);
       return result;
@@ -242,13 +246,14 @@ export class EventDispatcher {
    * @return {boolean} 指定したイベントのイベントリスナが登録されているかどうか
    */
   has(type) {
+    // @ts-ignore
     return (this._listeners[type] !== undefined && this._listeners[type].length !== 0) || !!this['on' + type];
   }
 
   /**
    * ある種類のイベントに対するイベントリスナをすべて削除します。
    *
-   * 特定のイベントリスナのみを削除するには {@link #off} を使用してください。
+   * 特定のイベントリスナのみを削除するには {@link EventDispatcher.off} を使用してください。
    * 
    * @example
    * const myObj = new EventDispatcher();
@@ -266,6 +271,7 @@ export class EventDispatcher {
    */
   clearEventListener(type) {
     var oldEventName = 'on' + type;
+    // @ts-ignore
     if (this[oldEventName]) delete this[oldEventName];
     this._listeners[type] = [];
     return this;
@@ -276,34 +282,38 @@ export class EventDispatcher {
  * 従来のclearメソッドも追加定義
  * サブクラス（Tweenerクラス等）でclearがオーバーライドされる場合、clearListenersを使用する
  */
-$method.call(EventDispatcher.prototype, "clear", function(type) {
-  // deprecatedメッセージ表示？
-  return this.clearEventListener(type);
-});
+$method.call(EventDispatcher.prototype, "clear",
+  /** @this EventDispatcher */
+  function(/** @type {string} */ type) {
+    // deprecatedメッセージ表示？
+    return this.clearEventListener(type);
+  }
+);
+
 
 /**
  * @method addEventListener
- * {@link #on} のエイリアスです。
+ * {@link EventDispatcher.on} のエイリアスです。
  */
 /**
  * @method removeEventListener
- * {@link #off} のエイリアスです。
+ * {@link EventDispatcher.off} のエイリアスです。
  */
 /**
  * @method clearEventListener
- * {@link #clear} のエイリアスです。
+ * {@link EventDispatcher.clear} のエイリアスです。
  */
 /**
  * @method hasEventListener
- * {@link #has} のエイリアスです。
+ * {@link EventDispatcher.has} のエイリアスです。
  */
 /**
  * @method dispatchEvent
- * {@link #fire} のエイリアスです。
+ * {@link EventDispatcher.fire} のエイリアスです。
  */
 /**
  * @method dispatchEventByType
- * {@link #flare} のエイリアスです。
+ * {@link EventDispatcher.flare} のエイリアスです。
  */
 const methodMap = {
   addEventListener: 'on',
@@ -312,8 +322,13 @@ const methodMap = {
   dispatchEvent: 'fire',
   dispatchEventByType: 'flare',
 };
-// methodMap.forIn(function(old, name) {
+
+// TODO: Add to class as method
+// @ts-ignore
 forIn.call(methodMap, function(old, name) {
-  // EventDispatcher.prototype.$method(old, phina.util.EventDispatcher.prototype[name]);
+// methodMap.forIn(function(old, name) {
+
+  // @ts-ignore
   $method.call(EventDispatcher.prototype, old, EventDispatcher.prototype[name]);
+  // EventDispatcher.prototype.$method(old, phina.util.EventDispatcher.prototype[name]);
 });

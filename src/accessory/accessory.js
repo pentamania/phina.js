@@ -3,55 +3,79 @@ import { EventDispatcher } from "../util/eventdispatcher"
 /**
  * Accessoryのtargetプロパティとして最低限かどうか
  * @typedef {{
- *   detach: (accessor: Accessory)=> any
+ *   detach: typeof import('../app/element').Element.prototype.detach
  *   [k: string]: any
  * }} AccessoryTarget
  */
 
 /**
- * Accessoryアタッチ可能オブジェクト
+ * Accessoryアタッチ可能型
  * @typedef {{
- *   attach: (accessor: Accessory)=> any
+ *   attach: typeof import('../app/element').Element.prototype.attach
  * } & AccessoryTarget } AccessoryAttachable
  */
 
 /**
  * @class phina.accessory.Accessory
  * _extends phina.util.EventDispatcher
+ *
+ * ゲームオブジェクトに特定の振る舞いを付与するクラス  
+ * オブジェクトの`attach`メソッドを介して有効化する
+ *
+ * 本クラスは抽象クラスのため、直接使用することは稀。
+ * 通常はclass拡張を行い、コンストラクタやupdate関数を
+ * 定義することで特徴づけを行う
+ *
+ * @example
+ * const sprite = new Sprite("player");
+ * const acc = new Accessory();
+ * acc.update = function() {
+ *   this.target.rotation += 2;
+ * };
+ * sprite.attach(acc);
  */
 export class Accessory extends EventDispatcher {
 
   /**
    * @constructor
    * @param {AccessoryTarget} [target]
+   * 操作対象。アタッチはされない（＝自動更新されない）ことに注意。
    */
   constructor(target) {
     super();
 
     /**
      * 操作対象
-     * @type {AccessoryTarget | undefined}
+     * 
+     * @public
+     * @type {AccessoryTarget | null | undefined}
      */
     this.target = target;
   }
 
   /**
    * 更新関数
-   * アタッチしたtargetのenterframeイベントを経由して
-   * 毎フレーム実行される
    * 
-   * 主にサブクラスで拡張してAccessoryとしての特徴づけを行う
+   * targetにアタッチされてると、そのtargetのenterframeイベントを経由して
+   * 毎フレーム実行される
+   * （=> targetの更新が有効でないときは実行されない）
+   * 
+   * サブクラスなどで上書き定義することで特徴づけを行う
    * 
    * @virtual
-   * @protected
+   * @public
    * @param {*} _app Appクラスインスタンス
    */
   update(_app) {}
 
   /**
-   * 操作対象を設定
+   * 操作対象（target）をセット
    * 
-   * @param {AccessoryTarget} target
+   * このメソッド単体ではtarget経由の自動更新は行われない。
+   * 同時に自動更新もさせたい場合は {@link Accessory.attachTo} を使用のこと
+   * 
+   * @public
+   * @param {AccessoryTarget | null} target
    * @returns {this}
    */
   setTarget(target) {
@@ -62,17 +86,19 @@ export class Accessory extends EventDispatcher {
   }
 
   /**
-   * アタッチ対象を返す
+   * 操作対象（target）を返す
    * 
-   * @returns {AccessoryTarget | undefined}
+   * @public
+   * @returns {typeof Accessory.prototype.target}
    */
   getTarget() {
     return this.target;
   }
 
   /**
-   * アタッチ対象が存在するかどうか
+   * 操作対象（target）が存在するかどうか
    * 
+   * @public
    * @returns {boolean}
    */
   isAttached() {
@@ -82,6 +108,7 @@ export class Accessory extends EventDispatcher {
   /**
    * 対象に自身をアタッチさせる
    * 
+   * @public
    * @template {AccessoryAttachable} T
    * @param {T} element
    * @returns {this}
@@ -93,8 +120,9 @@ export class Accessory extends EventDispatcher {
   }
 
   /**
-   * targetに自身へのアタッチを外させ、target参照を切る
+   * targetに自身へのアタッチを外させ、同時にtarget参照を切る
    * 
+   * @public
    * @returns {void}
    */
   remove() {
@@ -104,31 +132,3 @@ export class Accessory extends EventDispatcher {
   }
 
 }
-
-// Element側で拡張
-// phina.app.Element.prototype.$method('attach', function(accessory) {
-//   if (!this.accessories) {
-//     this.accessories = [];
-//     this.on('enterframe', function(e) {
-//       this.accessories.each(function(accessory) {
-//         accessory.update && accessory.update(e.app);
-//       });
-//     });
-//   }
-
-//   this.accessories.push(accessory);
-//   accessory.setTarget(this);
-//   accessory.flare('attached');
-
-//   return this;
-// });
-
-// phina.app.Element.prototype.$method('detach', function(accessory) {
-//   if (this.accessories) {
-//     this.accessories.erase(accessory);
-//     accessory.setTarget(null);
-//     accessory.flare('detached');
-//   }
-
-//   return this;
-// });

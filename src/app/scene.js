@@ -1,11 +1,13 @@
 import {Element as PhinaElement} from "./element"
 
 /**
+ * Sceneを表すラベル。
+ * ManagerSceneクラスを介したGameAppサイクルで使用
  * @typedef {string|number} SceneLabel
  */
 
 /**
- * exitメソッド用パラメータ
+ * Scene.exitメソッド用パラメータ
  * @typedef {{
  *   nextLabel?: SceneLabel
  *   [key: string]: any,
@@ -13,7 +15,7 @@ import {Element as PhinaElement} from "./element"
  */
 
 /**
- * SceneのAppクラス参照として最低限のインタフェースを備えた型
+ * Sceneのappクラス参照として最低限のインタフェースを備えた型
  * @typedef {{
  *   popScene: typeof import("./baseapp").BaseApp.prototype.popScene
  *   [key: string]: any,
@@ -30,20 +32,25 @@ export class Scene extends PhinaElement {
     super();
 
     /**
-     * Appクラス参照
+     * Appクラス参照。
+     * シーンがアクティブになった際にセットされる
+     * 
      * @type {SceneAppAppliable?}
      */
     this.app;
 
     /**
-     * 次のシーンを表すラベル
+     * 次のシーンを表すラベル。
+     * GameAppクラスによるシーン管理処理に使用
+     * 
      * @type {SceneLabel}
      */
     this.nextLabel;
 
     /**
-     * 次のシーンに渡される引数を保持
-     * ManagerSceneクラスで使用
+     * 次のシーンに渡される引数。
+     * GameAppクラスによるシーン管理処理に使用
+     * 
      * @type {any}
      */
     this.nextArguments;
@@ -52,33 +59,43 @@ export class Scene extends PhinaElement {
   /**
    * 現在のシーンを抜ける
    * 
+   * また必要に応じて次シーンのラベル及びコンストラクタ用引数をセット可能。
+   * これらはGameAppクラスによるシーン管理処理に使用される。
+   * 
    * @example
    * const scene = new Scene();
    * scene.exit("nextscenelabel", {score: 128})
    * // or
    * scene.exit({nextLabel:"nextscenelabel", score: 128})
    * 
+   * @caveats
+   * - 内部でBaseApp.popSceneを使うため、
+   * {@link Scene.app}参照の無い状態では使用不可
+   * 
+   * 
    * @param {SceneLabel | NextArgumentsForExit} [nextLabelOrArguments]
-   * 次シーンのラベル、もしくはラベル込みの引数オブジェクト
+   * 次シーンを示すラベル文字列、もしくは次シーンコンストラクタ用引数オブジェクト。
+   * オブジェクト型の場合、nextLabelプロパティでラベルを指定することも可能
    * 
    * @param {any} [nextArguments]
-   * 引数オブジェクト
-   * 第一引数をラベル文字列で指定した場合に設定
+   * 次シーンに渡したいコンストラクタ用引数オブジェクト。
+   * 第一引数に引数オブジェクトを指定した場合は無効
    * 
-   * @returns {this}
+   * @returns {this | void}
+   * 自身を返す。ただしapp参照が存在せず、処理できなかった場合は何も返さない
    */
   exit(nextLabelOrArguments, nextArguments) {
     if (!this.app) return ;
 
-    if (arguments.length > 0) {
-      if (typeof arguments[0] === 'object') {
-        nextLabelOrArguments = arguments[0].nextLabel || this.nextLabel;
-        nextArguments = arguments[0];
+    if (nextLabelOrArguments != null) {
+      if (typeof nextLabelOrArguments === 'object') {
+        nextArguments = nextLabelOrArguments;
+        this.nextLabel = nextLabelOrArguments.nextLabel || this.nextLabel;
+      } else {
+        this.nextLabel = nextLabelOrArguments;
       }
-
-      this.nextLabel = /** @type {SceneLabel} */(nextLabelOrArguments);
-      this.nextArguments = nextArguments;
     }
+    if (nextArguments) this.nextArguments = nextArguments;
 
     this.app.popScene();
 

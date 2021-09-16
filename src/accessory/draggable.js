@@ -184,11 +184,3 @@ export class Draggable extends Accessory {
  * @type {boolean}
  */
 Draggable._lock = false;
-
-// Element側で定義
-// phina.app.Element.prototype.getter('draggable', function() {
-//   if (!this._draggable) {
-//     this._draggable = phina.accessory.Draggable().attachTo(this);
-//   }
-//   return this._draggable;
-// });
