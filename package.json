@@ -1,6 +1,6 @@
 {
   "name": "@pentamania/phina",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "phina.js is a game library in javascript",
   "main": "build/phina.js",
   "module": "build/phina.esm.js",
