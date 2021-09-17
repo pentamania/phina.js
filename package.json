@@ -10,6 +10,7 @@
     "clean": "rimraf types build/phina.esm.js build/phina.esm.mjs",
     "postbuild": "yarn generate-types",
     "generate-types": "tsc",
+    "package": "yarn clean && yarn build && yarn pack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "files": [
