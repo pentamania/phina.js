@@ -24,6 +24,9 @@ export class Asset extends EventDispatcher {
   }
 
   /**
+   * ロード処理
+   * @public
+   * 
    * @param {AssetSrc} src
    * @returns {Flow}
    */
@@ -33,7 +36,8 @@ export class Asset extends EventDispatcher {
   }
 
   /**
-   * ロード済みかどうか
+   * ロード済みかどうかを返す
+   * 
    * @returns {boolean}
    */
   isLoaded() {
@@ -41,9 +45,10 @@ export class Asset extends EventDispatcher {
   }
 
   /**
-   * アセット種類に応じてサブクラスでオーバーライド
+   * @virtual アセット種類に応じてサブクラスでオーバーライド
    * @protected
-   * @param {(...args: any) => any} resolve
+   * 
+   * @param {Function} resolve ロード完了時に実行
    */
   _load(resolve) {
     var self = this;
