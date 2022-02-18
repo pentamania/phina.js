@@ -8,11 +8,6 @@ import { Flow } from "../util/flow"
  * _extends phina.util.EventDispatcher
  */
 export class Asset extends EventDispatcher {
-
-  // serverError: false,
-  // notFound: false,
-  // loadError: false,
-
   /**
    * @constructor
    */
