@@ -20,6 +20,12 @@ import { File } from "./file";
  */
 
 /**
+ * @typedef {{
+ *   cache: boolean
+ * }} AssetLoaderConstructParams
+ */
+
+/**
  * @class phina.asset.AssetLoader
  * _extends phina.util.EventDispatcher
  */
@@ -27,7 +33,7 @@ export class AssetLoader extends EventDispatcher {
 
   /**
    * @constructor
-   * @param {{ cache: boolean }} [params]
+   * @param {AssetLoaderConstructParams} [params]
    */
   constructor(params) {
     super();
@@ -35,10 +41,11 @@ export class AssetLoader extends EventDispatcher {
     // params = (params || {}).$safe({
     //   cache: true,
     // });
-    params = $safe.call(params||{}, { cache: true })
+    /** @type {AssetLoaderConstructParams} */
+    const paramsFulFilled = $safe.call(params||{}, { cache: true })
 
     this.assets = {};
-    this.cache = params.cache;
+    this.cache = paramsFulFilled.cache;
   }
 
   /**
