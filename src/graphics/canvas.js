@@ -217,20 +217,26 @@ export class Canvas {
   }
 
   /**
+   * 2次ベジェ曲線パスを引く
    * 
+   * @public
+   * @param {Parameters<typeof CanvasRenderingContext2D.prototype.quadraticCurveTo>} params
    * @returns {this}
    */
-  quadraticCurveTo() {
-    this.context.quadraticCurveTo.apply(this.context, arguments);
+  quadraticCurveTo(...params) {
+    this.context.quadraticCurveTo.apply(this.context, params);
     return this;
   }
 
   /**
+   * 3次ベジェ曲線パスを引く
    * 
+   * @public
+   * @param {Parameters<typeof CanvasRenderingContext2D.prototype.bezierCurveTo>} params
    * @returns {this}
    */
-  bezierCurveTo() {
-    this.context.bezierCurveTo.apply(this.context, arguments);
+  bezierCurveTo(...params) {
+    this.context.bezierCurveTo.apply(this.context, params);
     return this;
   }
 
@@ -286,14 +292,13 @@ export class Canvas {
   
   /**
    * ラインを描画
-   * @param {number} x0
-   * @param {number} y0
-   * @param {number} x1
-   * @param {number} y1
+   * 
+   * @public
+   * @param {Parameters<typeof Canvas.prototype.line>} params
    * @returns {this}
    */
-  drawLine(x0, y0, x1, y1) {
-    return this.beginPath().line(x0, y0, x1, y1).stroke();
+  drawLine(...params) {
+    return this.beginPath().line(...params).stroke();
   }
 
   /**
@@ -359,67 +364,90 @@ export class Canvas {
 
 
   /**
-   * lines
+   * 可変長引数でパス点を指定し、任意の線パスを引く
+   * 
+   * @example
+   * const c = new Canvas();
+   * // 座標パス[10,10] -> [100,100] -> [200,50] の折れ線を引く
+   * c.lines(10,10, 100,100, 200,50).stroke()
+   * 
+   * @public
+   * @param {number} x 始点x
+   * @param {number} y 始点y
+   * @param {...number} paths 線のパス点群
+   * x1, y1, x2, y2...のように順にパス座標x,y値を指定していく
    * @returns {this}
    */
-  lines() {
-    this.moveTo(arguments[0], arguments[1]);
-    for (var i=1,len=arguments.length/2; i<len; ++i) {
-      this.lineTo(arguments[i*2], arguments[i*2+1]);
+  lines(x, y, ...paths) {
+    this.moveTo(x, y);
+    for (let i=0,len=paths.length/2; i<len; ++i) {
+      this.lineTo(paths[i*2], paths[i*2+1]);
     }
     return this;
   }
 
   /**
    * ラインストローク描画
+   * 
+   * @public
+   * @param {Parameters<typeof Canvas.prototype.lines>} params
    * @returns {this}
    */
-  strokeLines() {
+  strokeLines(...params) {
     this.beginPath();
-    this.lines.apply(this, arguments);
+    this.lines.apply(this, params);
     this.stroke();
     return this;
   }
 
   /**
    * ライン塗りつぶし描画
+   * 
+   * @public
+   * @param {Parameters<typeof Canvas.prototype.lines>} params
    * @returns {this}
    */
-  fillLines() {
+  fillLines(...params) {
     this.beginPath();
-    this.lines.apply(this, arguments);
+    this.lines.apply(this, params);
     this.fill();
     return this;
   }
   
   /**
    * 四角形パスを作成する
-   * @param {number} _x
-   * @param {number} _y
-   * @param {number} _width
-   * @param {number} _height
+   * 
+   * @public
+   * @param {Parameters<typeof CanvasRenderingContext2D.prototype.rect>} params
    * @returns {this}
    */
-  rect(_x, _y, _width, _height) {
-    this.context.rect.apply(this.context, arguments);
+  rect(...params) {
+    this.context.rect.apply(this.context, params);
     return this;
   }
   
   /**
    * 四角形塗りつぶし描画
+   * {@link CanvasRenderingContext2D.fillRect} のラッパー関数
+   * 
+   * @public
+   * @param {Parameters<typeof CanvasRenderingContext2D.prototype.fillRect>} params
    * @returns {this}
    */
-  fillRect() {
-    this.context.fillRect.apply(this.context, arguments);
+  fillRect(...params) {
+    this.context.fillRect.apply(this.context, params);
     return this;
   }
   
   /**
    * 四角形ライン描画
+   * 
+   * @public
+   * @param {Parameters<typeof CanvasRenderingContext2D.prototype.strokeRect>} params
    * @returns {this}
    */
-  strokeRect() {
-    this.context.strokeRect.apply(this.context, arguments);
+  strokeRect(...params) {
+    this.context.strokeRect.apply(this.context, params);
     return this;
   }
   
@@ -847,28 +875,35 @@ export class Canvas {
 
   /**
    * 
+   * @public
+   * @param {Parameters<typeof CanvasRenderingContext2D.prototype.fillText>} params
    * @returns {this}
    */
-  fillText() {
-    this.context.fillText.apply(this.context, arguments);
+  fillText(...params) {
+    this.context.fillText.apply(this.context, params);
     return this;
   }
 
   /**
    * 
+   * @public
+   * @param {Parameters<typeof CanvasRenderingContext2D.prototype.strokeText>} params
    * @returns {this}
    */
-  strokeText() {
-    this.context.strokeText.apply(this.context, arguments);
+  strokeText(...params) {
+    this.context.strokeText.apply(this.context, params);
     return this;
   }
 
   /**
-   * 画像を描画
+   * drawImageラッパー関数
+   * 
+   * @public
+   * @param {Parameters<typeof CanvasRenderingContext2D.prototype.drawImage>} params
    * @returns {void} this返し忘れ？
    */
-  drawImage() {
-    this.context.drawImage.apply(this.context, arguments);
+  drawImage(...params) {
+    this.context.drawImage.apply(this.context, params);
   }
 
   /**
@@ -1048,24 +1083,28 @@ export class Canvas {
 
   /**
    * 線形グラデーションを生成
+   * 
+   * @param {Parameters<typeof CanvasRenderingContext2D.prototype.createLinearGradient>} params
    * @returns {CanvasGradient}
    */
-  static createLinearGradient() {
+  static createLinearGradient(...params) {
     if (!this._context) {
       throw new Error(staticCanvasContextMissingErrorMessage);
     }
-    return this._context.createLinearGradient.apply(this._context, arguments);
+    return this._context.createLinearGradient.apply(this._context, params);
   }
 
   /**
    * 円形グラデーションを生成
+   * 
+   * @param {Parameters<typeof CanvasRenderingContext2D.prototype.createRadialGradient>} params
    * @returns {CanvasGradient}
    */
-  static createRadialGradient() {
+  static createRadialGradient(...params) {
     if (!this._context) {
       throw new Error(staticCanvasContextMissingErrorMessage);
     }
-    return this._context.createRadialGradient.apply(this._context, arguments);
+    return this._context.createRadialGradient.apply(this._context, params);
   }
 
 }
