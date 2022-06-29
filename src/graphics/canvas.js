@@ -133,12 +133,14 @@ export class Canvas {
   }
 
   /**
-   * クリア
-   * @param {number} [x=0]
-   * @param {number} [y=0]
-   * @param {number} [width]
-   * @param {number} [height]
-   * @returns {this}
+   * 指定した矩形範囲を消去します
+   * 
+   * 引数を全く指定しなければcanvas全体がクリアされます
+   * 
+   * @param {number} [x=0] 範囲始点x。デフォルトでは0
+   * @param {number} [y=0] 範囲始点y。デフォルトでは0
+   * @param {number} [width] 範囲幅。無指定のときはcanvas全幅
+   * @param {number} [height] 範囲高さ。無指定のときはcanvas全高
    */
   clear(x, y, width, height) {
     x = x || 0;
@@ -150,6 +152,8 @@ export class Canvas {
   }
 
   /**
+   * 指定した矩形範囲を特定の色・パターンで塗りつぶします
+   * 
    * @param {CanvasStyle} fillStyle
    * @param {number} [x]
    * @param {number} [y]
@@ -242,6 +246,8 @@ export class Canvas {
 
   /**
    * パス内を塗りつぶす
+   * 
+   * @public
    * @returns {this}
    */
   fill() {
@@ -251,6 +257,8 @@ export class Canvas {
 
   /**
    * パス上にラインを引く
+   * 
+   * @public
    * @returns {this}
    */
   stroke() {
@@ -260,6 +268,8 @@ export class Canvas {
 
   /**
    * クリップ
+   * 
+   * @public
    * @returns {this}
    */
   clip() {
@@ -270,6 +280,8 @@ export class Canvas {
       
   /**
    * 点描画
+   * 
+   * @public
    * @param {number} x
    * @param {number} y
    * @returns {this}
@@ -280,6 +292,8 @@ export class Canvas {
 
   /**
    * ラインパスを作成
+   * 
+   * @public
    * @param {number} x0
    * @param {number} y0
    * @param {number} x1
@@ -699,13 +713,14 @@ export class Canvas {
   }
   
   /**
-   * star
-   * @param {number} [x=0]
-   * @param {number} [y=0]
-   * @param {number} [radius=64]
-   * @param {number} [sides=5]
-   * @param {any} [sideIndent=0.38]
-   * @param {number} [offsetAngle]
+   * 星形のパスを設定
+   * 
+   * @param {number} [x=0] 中心点x
+   * @param {number} [y=0] 中心点y
+   * @param {number} [radius=64] 半径。中央～星の角の先端の長さに相当
+   * @param {number} [sides=5] 星の角の数
+   * @param {any} [sideIndent=0.38] 星の凹部分の深さに影響。半径比率
+   * @param {number} [offsetAngle] 度数指定
    */
   star(x, y, radius, sides, sideIndent, offsetAngle) {
     x = x || 0;
@@ -735,6 +750,9 @@ export class Canvas {
 
   /**
    * 星を塗りつぶし描画
+   * 
+   * 引数の詳細は{@link Canvas.star}を参照
+   * 
    * @param {number} [x]
    * @param {number} [y]
    * @param {number} [radius]
@@ -750,6 +768,9 @@ export class Canvas {
 
   /**
    * 星をストローク描画
+   * 
+   * 引数の詳細は{@link Canvas.star}を参照
+   * 
    * @param {number} [x]
    * @param {number} [y]
    * @param {number} [radius]
