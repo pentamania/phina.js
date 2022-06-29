@@ -49,11 +49,34 @@ export class AssetLoader extends EventDispatcher {
   }
 
   /**
+   * アセットファイルのロードを行い、同時にAssetManagerへの登録も行います。
+   * パラメータに複数のファイルを指定してる場合、各ファイルについて並列で処理します。
+   * 
+   * また全てのロード処理を終えると`load`イベントを発火します。
+   * 
+   * サポートするファイル種は{@link AssetLoader.assetLoadFunctions}に登録されたものとなりますが、
+   * {@link AssetLoader.register}メソッドで拡張することも可能です。
+   * 
+   * @example
+   * // Traditional
+   * const loader = new AssetLoader();
+   * loader.load({ image: "./assets/player.png"});
+   * loader.on('load', ()=> console.log("load complete"));
+   * 
+   * // With async/await
+   * (async()=> {
+   *   const loader = new AssetLoader();
+   *   await loader.load({ image: "./assets/player.png"})
+   *   console.log("load complete")
+   * })
+   * 
    * @param {AssetLoaderLoadParam} params
    * @returns {Flow}
    */
   load(params) {
     var self = this;
+
+    /** @type {Flow|Promise<any>[]} */
     var flows = [];
 
     var counter = 0;
@@ -131,6 +154,7 @@ export class AssetLoader extends EventDispatcher {
 
 /**
  * 登録済みアセットロード関数
+ * @type {Record<any, (...params:any)=> Flow | Promise<any>>}
  */
 AssetLoader.assetLoadFunctions = {
   image: function(key, path) {
