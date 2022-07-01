@@ -61,14 +61,14 @@ export class Sprite extends DisplayElement {
    * @param {import("../graphics/canvas").Canvas} canvas 
    */
   draw(canvas) {
-    var image = this.image.domElement;
+    const image = this.image.domElement;
 
     // canvas.context.drawImage(image,
     //   0, 0, image.width, image.height,
     //   -this.width*this.origin.x, -this.height*this.origin.y, this.width, this.height
     //   );
 
-    var srcRect = this.srcRect;
+    const srcRect = this.srcRect;
     canvas.context.drawImage(image,
       srcRect.x, srcRect.y, srcRect.width, srcRect.height,
       -this._width*this.originX, -this._height*this.originY, this._width, this._height
@@ -110,15 +110,15 @@ export class Sprite extends DisplayElement {
    * @returns {this}
    */
   setFrameIndex(index, width, height) {
-    var tw  = width || this._width;      // tw
-    var th  = height || this._height;    // th
-    var row = ~~(this.image.domElement.width / tw);
-    var col = ~~(this.image.domElement.height / th);
-    var maxIndex = row*col;
+    const tw  = width || this._width;      // tw
+    const th  = height || this._height;    // th
+    const row = ~~(this.image.domElement.width / tw);
+    const col = ~~(this.image.domElement.height / th);
+    const maxIndex = row*col;
     index = index%maxIndex;
     
-    var x = index%row;
-    var y = ~~(index/row);
+    const x = index%row;
+    const y = ~~(index/row);
     this.srcRect.x = x*tw;
     this.srcRect.y = y*th;
     this.srcRect.width  = tw;
