@@ -2,9 +2,13 @@ import { $extend, $safe } from "../core/object";
 import { Asset } from "./asset";
 
 /**
+ * @typedef {"xml"| "json"} FileAssetDataType
+ */
+
+/**
  * @typedef {{
  *   path: string,
- *   dataType: "xml"| "json",
+ *   dataType: FileAssetDataType,
  * }} FileAssetLoadParam
  */
 
@@ -19,13 +23,24 @@ export class File extends Asset {
    */
   constructor() {
     super();
+
+    /** @type {string | FileAssetLoadParam} */
+    this.src;
+
+    /** @type {string | Document | undefined} */
     this.data = undefined;
+
+    /** @type {FileAssetDataType | undefined} */
     this.dataType = undefined;
   }
 
+  /**
+   * @override
+   * @param {(file:File)=> any} resolve 
+   */
   _load(resolve) {
-
-    var params = {};
+    /** @type {FileAssetLoadParam} */
+    var params = Object.create(null);
 
     if (typeof this.src === 'string') {
       $extend.call(params, {
