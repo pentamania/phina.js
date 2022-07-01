@@ -88,12 +88,18 @@ export class Sprite extends DisplayElement {
    * スプライト元画像を設定
    * 
    * @public
-   * @param {SpriteImageSrc} image
+   * @param {SpriteImageSrc | null} [image]
+   * 無指定・nullの場合は空テクスチャを設定（描画はスキップ）
    * @param {number} [width]
    * @param {number} [height]
    * @returns {this}
    */
   setImage(image, width, height) {
+    if (image == null) {
+      this._image = emptyTexture;
+      return this;
+    }
+
     if (typeof image === 'string') {
       image = AssetManager.get('image', image);
     }
