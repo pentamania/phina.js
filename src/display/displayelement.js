@@ -51,6 +51,16 @@ export class DisplayElement extends Object2D {
      */
     this.renderChildBySelf = false;
 
+    /**
+     * 描画順を変える
+     * {@link CanvasRenderer.enableRenderOrdering}フラグがtrueの時に有効
+     * 
+     * 数字が若い程、奥側に表示[default:0]
+     * 
+     * @type {number}
+     */
+    this.renderOrder = 0;
+
     /** @type {DisplayElement} 型アサーション */
     this.parent;
 
