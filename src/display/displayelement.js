@@ -92,6 +92,16 @@ export class DisplayElement extends Object2D {
   }
 
   /**
+   * renderOrder値をセット
+   * @param {number} index
+   * @returns {this}
+   */
+  setRenderOrder(index) {
+    this.renderOrder = index;
+    return this;
+  }
+
+  /**
    * 表示
    * @returns {this}
    */
