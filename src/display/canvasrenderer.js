@@ -80,6 +80,8 @@ export class CanvasRenderer {
    * @param {import("../app/element").ElementBasedObject} obj
    */
   renderChildren(obj) {
+    sortChildrenByRenderOrder(obj);
+  
     // 子供たちも実行
     if (obj.children.length > 0) {
       var tempChildren = /** @type {RenderableElement[]}*/(obj.children.slice());
@@ -93,6 +95,8 @@ export class CanvasRenderer {
    * @param {RenderableElement} obj
    */
   renderObject(obj) {
+    sortChildrenByRenderOrder(obj);
+
     if (obj.visible === false && !obj.interactive) return;
 
     obj._calcWorldMatrix && obj._calcWorldMatrix();
@@ -145,4 +149,32 @@ export class CanvasRenderer {
       if (this.showCollider) this._drawCollider(obj);
     }
   }
+}
+
+/**
+ * @static
+ * 描画順変更処理機能を有効化 [default: true]
+ * trueにするとレンダリングにsort処理が入るため、若干負荷が上がる
+ */
+CanvasRenderer.enableRenderOrdering = true
+
+/**
+ * renderOrder比較関数
+ * 
+ * @param {import("./displayelement").DisplayElement} a 
+ * @param {import("./displayelement").DisplayElement} b 
+ * @returns {number}
+ */
+const renderOrderCompareFn = (a, b) =>
+  (a.renderOrder || 0) - (b.renderOrder || 0);
+
+/**
+ * ElementのchildrenをrenderOrderによって順序入れ替え
+ * 
+ * @param {import("../app/element").ElementBasedObject} obj
+ * @returns {void}
+ */
+function sortChildrenByRenderOrder(obj) {
+  if (CanvasRenderer.enableRenderOrdering && obj.children.length)
+    obj.children.sort(renderOrderCompareFn);
 }
