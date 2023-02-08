@@ -28,7 +28,6 @@ export * from "./geom/rect";
 export * from "./geom/circle";
 export * from "./geom/matrix33";
 export * from "./geom/collision";
-export * from "./geom/vector3";
 
 export * from "./graphics/canvas";
 
@@ -37,7 +36,6 @@ export * from "./input/keyboard";
 export * from "./input/mouse";
 export * from "./input/touch";
 export { GamepadManager, PhinaGamepad as Gamepad } from "./input/gamepad";
-export * from "./input/accelerometer";
 
 export * from "./app/updater";
 export * from "./app/interactive";
