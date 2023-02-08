@@ -14,5 +14,6 @@
     "emitDeclarationOnly": true, // 型定義ファイルの出力だけを行う
     "declarationDir": "./types", // 型定義ファイルの出力先
     "checkJs": true, // JSファイルも型チェック対象とする
+    "strict": true
   },
 }
