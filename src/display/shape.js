@@ -183,7 +183,7 @@ export class Shape extends PlainElement {
    * そのrender済みcanvasを返します
    * @param {string} [registerKey]
    * AssetManagerにテクスチャ（image）として登録する場合のキー
-   * @returns {import("../graphics/canvas").Canvas | null}
+   * @returns {import("../graphics/canvas").Canvas}
    */
   getTexture(options, registerKey) {
     var shape = this;
