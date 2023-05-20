@@ -76,7 +76,7 @@ export class AssetLoader extends EventDispatcher {
   load(params) {
     const self = this;
 
-    /** @type {Flow|Promise<any>[]} */
+    /** @type {PromiseLike<any>[]} */
     const flows = [];
 
     let counter = 0;
@@ -154,7 +154,7 @@ export class AssetLoader extends EventDispatcher {
 
 /**
  * 登録済みアセットロード関数
- * @type {Record<any, (...params:any)=> Flow | Promise<any>>}
+ * @type {Record<any, (...params:any)=> PromiseLike<any>>}
  */
 AssetLoader.assetLoadFunctions = {
   image: function(key, path) {
