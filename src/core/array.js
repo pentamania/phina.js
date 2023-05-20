@@ -395,7 +395,7 @@ export function eraseIfAll(fn) {
  * 配列からランダムに1つ取り出した要素を返します。
  *
  * 取り出す範囲をインデックスで指定することもできます。  
- * {@link #pickup}、{@link #lot} と同じです。  
+ * {@link pickup}、{@link lot} と同じです。  
  *
  * ### Example
  *     arr = ['foo', 'bar', 'hoge', 'fuga'];
@@ -417,36 +417,30 @@ export function random(min, max) {
  * @method pickup
  * 配列からランダムで1つ取り出した要素を返します。
  * 
- * {@link #random}、{@link #lot} と同じです。
+ * {@link random}、{@link lot} と同じです。
  * @inheritdoc #random
  * 
  * @this Array<any>
- * @param {number} min
- * @param {number} max
+ * @param {Parameters<typeof random>} params
  */
-export function pickup(min, max) {
+export function pickup(...params) {
 // Array.prototype.$method("pickup", function(min, max) {
-  min = min || 0;
-  max = max || this.length-1;
-  return this[randint(min, max) ];
+  return random.apply(this, params);
 }
 
 /**
  * @method lot
  * 配列からランダムで1つ取り出した要素を返します。
  * 
- * {@link #random}、{@link #pickup} と同じです。
+ * {@link random}、{@link pickup} と同じです。
  * @inheritdoc #random
  * 
  * @this Array<any>
- * @param {number} min
- * @param {number} max
+ * @param {Parameters<typeof random>} params
  */
-export function lot(min, max) {
+export function lot(...params) {
 // Array.prototype.$method("lot", function(min, max) {
-  min = min || 0;
-  max = max || this.length-1;
-  return this[randint(min, max) ];
+  return random.apply(this, params);
 }
 
 /**
