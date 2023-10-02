@@ -8,6 +8,7 @@ import { format } from "./string";
 /**
  * 関数を追加
  * 
+ * @this {Object}
  * @param   {String} name name
  * @param   {Function} fn
  */
@@ -23,6 +24,7 @@ export function $method(name, fn) {
  * @method setter
  * セッターを定義する
  * 
+ * @this {Object}
  * @param {string | number | symbol} name
  * @param {any} fn
  */
@@ -54,7 +56,7 @@ export function getter(name, fn) {
  * @method accessor
  * アクセッサ(セッター/ゲッター)を定義する
  * 
- * @this Object
+ * @this {Object}
  * @param {string | number | symbol} name
  * @param {import('../phina').AccessorExtendObject} param
  */
@@ -85,8 +87,8 @@ export function accessor(name, param) {
  *   console.log(`{k}:{v}`); // "a:0", "b:1"
  * })
  * 
- * @this {any}
- * @param {(key: string, val: any, index: number)=> any} fn
+ * @this {Object}
+ * @param {(key: string|number|Symbol, val: any, index: number)=> any} fn
  * 各プロパティ毎に実行するコールバック関数
  * @param {any} [self]
  * コールバック関数のthisの参照とする対象。無指定の場合はオブジェクト自身
@@ -94,11 +96,11 @@ export function accessor(name, param) {
 export function forIn(fn, self) {
   self = self || this;
 
-  Object.keys(this).forEach(function(key, index) {
+  Object.keys(this).forEach((key, index)=> {
     var value = this[key];
 
     fn.call(self, key, value, index);
-  }, this);
+  });
 
   return this;
 }
@@ -106,13 +108,14 @@ export function forIn(fn, self) {
 /**
  * @method  $extend
  * 他のライブラリと競合しちゃうので extend -> $extend としました
+ * @this {Record<string, any>}
  */
 export function $extend() {
-  Array.prototype.forEach.call(arguments, function(source) {
+  Array.prototype.forEach.call(arguments, (source)=> {
     for (var property in source) {
       this[property] = source[property];
     }
-  }, this);
+  });
   return this;
 }
 
@@ -120,8 +123,11 @@ export function $extend() {
  * @method  $safe
  * 安全拡張
  * 上書きしない
+ * 
+ * @this {any}
+ * @param {any[]} _sources
  */
-export function $safe(source) {
+export function $safe(..._sources) {
   Array.prototype.forEach.call(arguments, function(source) {
     for (var property in source) {
       if (this[property] === undefined) this[property] = source[property];
@@ -267,7 +273,7 @@ export function $has(key) {
  * 厳格拡張
  * すでにあった場合は警告
  */
-export function $strict(source) {
+export function $strict() {
   Array.prototype.forEach.call(arguments, function(source) {
     for (var property in source) {
       console.assert(!this[property], format.call("tm error: {0} is Already", property));
