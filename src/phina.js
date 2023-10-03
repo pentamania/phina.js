@@ -1,7 +1,6 @@
 import { accessor, $extend, forIn } from "./core/object";
 import { clone, clear, last } from "./core/array";
 import { Sound } from "./asset/sound";
-import GLOBAL from "./global"
 
 /**
  * アクセサ拡張用オブジェクト

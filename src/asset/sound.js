@@ -1,6 +1,5 @@
 import { Asset } from "./asset";
 import { Support } from "../util/support";
-import global from "../global";
 
 /**
  * @class Sound
@@ -377,7 +376,7 @@ export class Sound extends Asset {
 
     if (this.context) return this.context;
 
-    var g = global;
+    var g = globalThis;
     var context = null;
 
     if (g.AudioContext) {
@@ -408,7 +407,7 @@ export class Sound extends Asset {
       return;
     }
 
-    var doc = global.document;
+    var doc = globalThis.document;
     var unlockFunc = function() {
       var buf = context.createBuffer(1, 1, 22050);
       var src = context.createBufferSource();
