@@ -116,7 +116,7 @@ export class Flow extends EventDispatcher {
   }
 
   /**
-   * @param {Flow[]} flows
+   * @param {PromiseLike<any>[]} flows
    * @returns {Flow}
    */
   static all(flows) {

@@ -145,7 +145,7 @@ export class Tweener extends Accessory {
      * {@link Tweener._init} で初期化
      * デフォルトではtrue
      * 
-     * @protected
+     * @public
      * @type {boolean!}
      */
     this.playing;

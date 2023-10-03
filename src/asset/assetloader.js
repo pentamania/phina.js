@@ -21,6 +21,12 @@ import { Filter } from "./filter";
  */
 
 /**
+ * @typedef {{
+ *   cache: boolean
+ * }} AssetLoaderConstructParams
+ */
+
+/**
  * @class phina.asset.AssetLoader
  * _extends phina.util.EventDispatcher
  */
@@ -28,7 +34,7 @@ export class AssetLoader extends EventDispatcher {
 
   /**
    * @constructor
-   * @param {{ cache: boolean }} [params]
+   * @param {AssetLoaderConstructParams} [params]
    */
   constructor(params) {
     super();
@@ -36,10 +42,12 @@ export class AssetLoader extends EventDispatcher {
     // params = (params || {}).$safe({
     //   cache: true,
     // });
-    params = $safe.call(params||{}, { cache: true })
-    this.assets = {};
-    this.cache = params.cache;
+    /** @type {AssetLoaderConstructParams} */
+    const paramsFulFilled = $safe.call(params||{}, { cache: true })
 
+    this.assets = {};
+    this.cache = paramsFulFilled.cache;
+    
     /**
      * ロード中かどうか
      * @type {Boolean}
@@ -48,17 +56,38 @@ export class AssetLoader extends EventDispatcher {
   }
 
   /**
+   * アセットファイルのロードを行い、同時にAssetManagerへの登録も行います。
+   * パラメータに複数のファイルを指定してる場合、各ファイルについて並列で処理します。
+   * 
+   * また全てのロード処理を終えると`load`イベントを発火します。
+   * 
+   * サポートするファイル種は{@link AssetLoader.assetLoadFunctions}に登録されたものとなりますが、
+   * {@link AssetLoader.register}メソッドで拡張することも可能です。
+   * 
+   * @example
+   * // Traditional
+   * const loader = new AssetLoader();
+   * loader.load({ image: "./assets/player.png"});
+   * loader.on('load', ()=> console.log("load complete"));
+   * 
+   * // With async/await
+   * (async()=> {
+   *   const loader = new AssetLoader();
+   *   await loader.load({ image: "./assets/player.png"})
+   *   console.log("load complete")
+   * })
+   * 
    * @param {AssetLoaderLoadParam} params
    * @returns {Flow}
    */
   load(params) {
-    var self = this;
-    var flows = [];
+    const self = this;
 
-    self.loading = true;
+    /** @type {PromiseLike<any>[]} */
+    const flows = [];
 
-    var counter = 0;
-    var length = 0;
+    let counter = 0;
+    let length = 0;
     forIn.call(params, function(_type, assets) {
     // params.forIn(function(type, assets) {
       length += Object.keys(assets).length;
@@ -68,8 +97,8 @@ export class AssetLoader extends EventDispatcher {
     // params.forIn(function(type, assets) {
       forIn.call(assets, function(key, value) {
       // assets.forIn(function(key, value) {
-        var func = AssetLoader.assetLoadFunctions[type];
-        var flow = func(key, value);
+        const func = AssetLoader.assetLoadFunctions[type];
+        const flow = func(key, value);
         flow.then(function(asset) {
           if (self.cache) {
             AssetManager.set(type, key, asset);
@@ -95,9 +124,9 @@ export class AssetLoader extends EventDispatcher {
           // params.forIn(function(type, assets) {
             forIn.call(assets, function(key, value) {
             // assets.forIn(function(key, value) {
-              var asset = AssetManager.get(type, key);
+              const asset = AssetManager.get(type, key);
               if (asset.loadError) {
-                var dummy = AssetManager.get(type, 'dummy');
+                const dummy = AssetManager.get(type, 'dummy');
                 if (dummy) {
                   if (dummy.loadError) {
                     dummy.loadDummy();
@@ -133,48 +162,49 @@ export class AssetLoader extends EventDispatcher {
 
 /**
  * 登録済みアセットロード関数
+ * @type {Record<any, (...params:any)=> PromiseLike<any>>}
  */
 AssetLoader.assetLoadFunctions = {
   image: function(key, path) {
-    var texture = new Texture();
-    var flow = texture.load(path);
+    const texture = new Texture();
+    const flow = texture.load(path);
     return flow;
   },
   sound: function(key, path) {
-    var sound = new Sound();
-    var flow = sound.load(path);
+    const sound = new Sound();
+    const flow = sound.load(path);
     return flow;
   },
   spritesheet: function(key, path) {
-    var ss = new SpriteSheet();
-    var flow = ss.load(path);
+    const ss = new SpriteSheet();
+    const flow = ss.load(path);
     return flow;
   },
   script: function(key, path) {
-    var script = new Script();
+    const script = new Script();
     return script.load(path);
   },
   font: function(key, path) {
-    var font = new Font();
+    const font = new Font();
     font.setFontName(key);
     return font.load(path);
   },
   json: function(key, path) {
-    var text = new File();
+    const text = new File();
     return text.load({
       path: path,
       dataType: "json",
     });
   },
   xml: function(key, path) {
-    var text = new File();
+    const text = new File();
     return text.load({
       path: path,
       dataType: "xml",
     });
   },
   text: function(key, path) {
-    var text = new File();
+    const text = new File();
     return text.load(path);
   },
   filter: function(key, func) {

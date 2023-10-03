@@ -1,8 +1,12 @@
 import license from 'rollup-plugin-license';
 import replace from '@rollup/plugin-replace'
 import babel from '@rollup/plugin-babel';
-import { terser } from 'rollup-plugin-terser';
-import pkg from './package.json';
+import terser from '@rollup/plugin-terser';
+// package.jsonのインポート(node.js v16想定)
+// https://rollupjs.org/command-line-interface/#importing-package-json
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+const pkg = require('./package.json');
 
 const banner = `/*!
  * ${ pkg.name } v${pkg.version}
@@ -26,6 +30,7 @@ export default [
         babelHelpers: 'runtime',
       }),
       replace({
+        preventAssignment: true,
         delimiters: ['\"<%= ', ' %>\"'],
         values: {
           'version': JSON.stringify(pkg.version),
@@ -50,6 +55,7 @@ export default [
         babelHelpers: 'bundled',
       }),
       replace({
+        preventAssignment: true,
         delimiters: ['\"<%= ', ' %>\"'],
         values: {
           'version': JSON.stringify(pkg.version),

@@ -38,6 +38,7 @@ import GLOBAL from "./global"
  */
 
 var _classDefinedCallback = {};
+const GLOBAL = globalThis;
 
 var phina = {
   /**
@@ -50,12 +51,12 @@ var phina = {
 
   /**
    * @method isNode
-   * Node.js の module かどうかをチェックします。
+   * Node.js環境かどうかをチェックします。
    * @memberof phina
    * @static
    */
   isNode: function () {
-    return typeof module !== "undefined";
+    return "process" in GLOBAL;
   },
 
   /**
@@ -504,9 +505,9 @@ var phina = {
   },
 };
 
-var doc = phina.global.document;
-if (phina.global.addEventListener && doc && doc.readyState !== "complete") {
-  phina.global.addEventListener("load", function () {
+const doc = GLOBAL.document;
+if (GLOBAL.addEventListener && doc && doc.readyState !== "complete") {
+  GLOBAL.addEventListener("load", function () {
     var run = function () {
       var listeners = clone.call(phina._mainListeners);
       // var listeners = phina._mainListeners.clone();

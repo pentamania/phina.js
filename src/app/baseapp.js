@@ -100,9 +100,8 @@ export class BaseApp extends EventDispatcher {
    * @returns {this}
    */
   run() {
-    var self = this;
-    this._loopCaller = function() {
-      self._loop();
+    this._loopCaller = ()=> {
+      this._loop();
     };
     this.ticker.tick(this._loopCaller);
 
@@ -265,9 +264,9 @@ export class BaseApp extends EventDispatcher {
       var script = document.createElement('script');
       script.src = STATS_URL;
       document.body.appendChild(script);
-      script.onload = function() {
+      script.onload = ()=> {
         this.enableStats();
-      }.bind(this);
+      };
     }
     return this;
   }
@@ -294,10 +293,10 @@ export class BaseApp extends EventDispatcher {
       var script = document.createElement('script');
       script.src = URL;
       document.body.appendChild(script);
-      script.onload = function() {
+      script.onload = ()=> {
         var gui = new phina.global['dat'].GUI();
         callback(gui);
-      }.bind(this);
+      };
     }
     return this;
   }

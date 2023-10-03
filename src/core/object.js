@@ -8,6 +8,7 @@ import { format } from "./string";
 /**
  * 関数を追加
  * 
+ * @this {Object}
  * @param   {String} name name
  * @param   {Function} fn
  */
@@ -23,10 +24,10 @@ export function $method(name, fn) {
  * @method setter
  * セッターを定義する
  * 
+ * @this {Object}
  * @param {string | number | symbol} name
  * @param {any} fn
  */
-// Object.prototype.$method("setter", function(name, fn){
 export function setter(name, fn) {
   Object.defineProperty(this, name, {
     set: fn,
@@ -43,7 +44,6 @@ export function setter(name, fn) {
  * @param {string | number | symbol} name
  * @param {any} fn
  */
-// Object.prototype.$method("getter", function(name, fn){
 export function getter(name, fn) {
   Object.defineProperty(this, name, {
     get: fn,
@@ -56,11 +56,10 @@ export function getter(name, fn) {
  * @method accessor
  * アクセッサ(セッター/ゲッター)を定義する
  * 
- * @this Object
+ * @this {Object}
  * @param {string | number | symbol} name
  * @param {import('../phina').AccessorExtendObject} param
  */
-// Object.prototype.$method("accessor", function(name, param) {
 export function accessor(name, param) {
   Object.defineProperty(this, name, {
     set: param["set"],
@@ -88,8 +87,8 @@ export function accessor(name, param) {
  *   console.log(`{k}:{v}`); // "a:0", "b:1"
  * })
  * 
- * @this {any}
- * @param {(key: string, val: any, index: number)=> any} fn
+ * @this {Object}
+ * @param {(key: string|number|Symbol, val: any, index: number)=> any} fn
  * 各プロパティ毎に実行するコールバック関数
  * @param {any} [self]
  * コールバック関数のthisの参照とする対象。無指定の場合はオブジェクト自身
@@ -97,11 +96,11 @@ export function accessor(name, param) {
 export function forIn(fn, self) {
   self = self || this;
 
-  Object.keys(this).forEach(function(key, index) {
+  Object.keys(this).forEach((key, index)=> {
     var value = this[key];
 
     fn.call(self, key, value, index);
-  }, this);
+  });
 
   return this;
 }
@@ -109,14 +108,14 @@ export function forIn(fn, self) {
 /**
  * @method  $extend
  * 他のライブラリと競合しちゃうので extend -> $extend としました
+ * @this {Record<string, any>}
  */
 export function $extend() {
-// Object.prototype.$method("$extend", function() {
-  Array.prototype.forEach.call(arguments, function(source) {
+  Array.prototype.forEach.call(arguments, (source)=> {
     for (var property in source) {
       this[property] = source[property];
     }
-  }, this);
+  });
   return this;
 }
 
@@ -124,9 +123,11 @@ export function $extend() {
  * @method  $safe
  * 安全拡張
  * 上書きしない
+ * 
+ * @this {any}
+ * @param {any[]} _sources
  */
-export function $safe(source) {
-// Object.prototype.$method("$safe", function(source) {
+export function $safe(..._sources) {
   Array.prototype.forEach.call(arguments, function(source) {
     for (var property in source) {
       if (this[property] === undefined) this[property] = source[property];
@@ -143,7 +144,6 @@ export function $safe(source) {
  * @return {void}           [description]
  */
 export function $watch(key, callback) {
-// Object.prototype.$method('$watch', function(key, callback) {
   var target = this;
   var descriptor = null;
 
@@ -234,7 +234,6 @@ export function property(name, val) {
  * @param {string} key
  */
 export function $get(key) {
-// Object.prototype.$method('$get', function(key) {
   return key.split('.').reduce(function(t, v) {
     return t && t[v];
   }, this);
@@ -248,7 +247,6 @@ export function $get(key) {
  * @param {any} value
  */
 export function $set(key, value) {
-// Object.prototype.$method('$set', function(key, value) {
   key.split('.').reduce(function(t, v, i, arr) {
     if (i === (arr.length-1)) {
       t[v] = value;
@@ -267,7 +265,6 @@ export function $set(key, value) {
  * @param {any} key
  */
 export function $has(key) {
-// Object.prototype.$method("$has", function(key) {
   return this.hasOwnProperty(key);
 }
 
@@ -276,8 +273,7 @@ export function $has(key) {
  * 厳格拡張
  * すでにあった場合は警告
  */
-export function $strict(source) {
-// Object.prototype.$method("$strict", function(source) {
+export function $strict() {
   Array.prototype.forEach.call(arguments, function(source) {
     for (var property in source) {
       console.assert(!this[property], format.call("tm error: {0} is Already", property));
@@ -293,7 +289,6 @@ export function $strict(source) {
  * ピック
  */
 export function $pick() {
-// Object.prototype.$method("$pick", function() {
   var temp = {};
 
   Array.prototype.forEach.call(arguments, function(key) {
@@ -308,7 +303,6 @@ export function $pick() {
  * オミット
  */
 export function $omit() {
-// Object.prototype.$method("$omit", function() {
   var temp = {};
 
   for (var key in this) {
@@ -325,7 +319,6 @@ export function $omit() {
  * 配列化
  */
 export function $toArray() {
-// Object.prototype.$method("$toArray", function() {
   return Array.prototype.slice.call(this);
 }
 
@@ -336,7 +329,6 @@ export function $toArray() {
  * @return {void}            [description]
  */
 export function observe(obj, callback) {
-// Object.$method('observe', function(obj, callback) {
   if (Object['observe']) return Object['observe'].call(obj, callback); // add
   var keys = Object.keys(obj);
   keys.forEach(function(key) {
@@ -364,7 +356,6 @@ export function observe(obj, callback) {
  * @return {void}            [description]
  */
 export function unobserve(obj, callback) {
-// Object.$method('unobserve', function(obj, callback) {
   if (Object['unobserve']) return Object['unobserve'].call(obj, callback); // add
   console.assert(false);
 }

@@ -48,7 +48,7 @@ export class DomApp extends BaseApp {
         this.domElement = document.querySelector(options.query);
       }
       else {
-        console.assert('error');
+        console.assert(false, 'error');
       }
     }
 

@@ -7,9 +7,9 @@ import { randint } from "./math";
 /**
  * 最初の要素を返す、もしくはそこにセットする
  *
- * ### Example
- *     arr = [6, 5, 2, 3, 1, 4];
- *     arr.first; // => 6
+ * @example
+ * arr = [6, 5, 2, 3, 1, 4];
+ * arr.first; // => 6
  * 
  * @type {import('../phina').AccessorExtendObject} first
  */
@@ -24,9 +24,9 @@ export const first = {
 /**
  * 最後の要素を返す、もしくはそこにセットする
  *
- * ### Example
- *     arr = [6, 5, 2, 3, 1, 4];
- *     arr.last; // => 4
+ * @example
+ * arr = [6, 5, 2, 3, 1, 4];
+ * arr.last; // => 4
  * 
  * @type {import('../phina').AccessorExtendObject} last
  */
@@ -46,13 +46,13 @@ export const last = {
  * 添字が負数の場合は末尾からのオフセットとみなします。末尾の要素が -1 番目になります。  
  * 添字の絶対値が Array.length 以上の場合はループします。
  *
- * ### Example
- *     arr = ['a', 'b', 'c', 'd', 'e', 'f'];
- *     arr.at(0);  // => 'a'
- *     arr.at(6);  // => 'a'
- *     arr.at(13); // => 'b'
- *     arr.at(-1); // => 'f'
- *     arr.at(-8); // => 'e'
+ * @example
+ * arr = ['a', 'b', 'c', 'd', 'e', 'f'];
+ * arr.at(0);  // => 'a'
+ * arr.at(6);  // => 'a'
+ * arr.at(13); // => 'b'
+ * arr.at(-1); // => 'f'
+ * arr.at(-8); // => 'e'
  *
  * @this Array<any>
  * @param {number} i 添字
@@ -136,17 +136,17 @@ export function contains(item, fromIndex) {
  * 自身のコピーを生成して返却する。
  * シャロ―コピーのため、各要素の参照は基本そのままとなる
  *
- * ### Example
- *     arr1 = [1, 2, [3, 4]];
- *     arr2 = arr1.clone();      // => [1, 2, [3, 4]]
- *     arr1[2] === arr2[2];      // => true
- *     arr1[2][0] = 9;
- *     arr2;                     // => [1, 2, [9, 4]]
- *     arr1 = [1, 2, [3, 4]];
- *     arr2 = arr1.clone(true);  // => [1, 2, [3, 4]]
- *     arr1[2] === arr2[2];      // => false
- *     arr1[2][0] = 9;
- *     arr2;                     // => [1, 2, [3, 4]]
+ * @example
+ * arr1 = [1, 2, [3, 4]];
+ * arr2 = arr1.clone();      // => [1, 2, [3, 4]]
+ * arr1[2] === arr2[2];      // => true
+ * arr1[2][0] = 9;
+ * arr2;                     // => [1, 2, [9, 4]]
+ * arr1 = [1, 2, [3, 4]];
+ * arr2 = arr1.clone(true);  // => [1, 2, [3, 4]]
+ * arr1[2] === arr2[2];      // => false
+ * arr1[2][0] = 9;
+ * arr2;                     // => [1, 2, [3, 4]]
  *
  * @this Array<any>
  * @param {boolean} [deep=false]
@@ -395,7 +395,7 @@ export function eraseIfAll(fn) {
  * 配列からランダムに1つ取り出した要素を返します。
  *
  * 取り出す範囲をインデックスで指定することもできます。  
- * {@link #pickup}、{@link #lot} と同じです。  
+ * {@link pickup}、{@link lot} と同じです。  
  *
  * ### Example
  *     arr = ['foo', 'bar', 'hoge', 'fuga'];
@@ -417,36 +417,30 @@ export function random(min, max) {
  * @method pickup
  * 配列からランダムで1つ取り出した要素を返します。
  * 
- * {@link #random}、{@link #lot} と同じです。
+ * {@link random}、{@link lot} と同じです。
  * @inheritdoc #random
  * 
  * @this Array<any>
- * @param {number} min
- * @param {number} max
+ * @param {Parameters<typeof random>} params
  */
-export function pickup(min, max) {
+export function pickup(...params) {
 // Array.prototype.$method("pickup", function(min, max) {
-  min = min || 0;
-  max = max || this.length-1;
-  return this[randint(min, max) ];
+  return random.apply(this, params);
 }
 
 /**
  * @method lot
  * 配列からランダムで1つ取り出した要素を返します。
  * 
- * {@link #random}、{@link #pickup} と同じです。
+ * {@link random}、{@link pickup} と同じです。
  * @inheritdoc #random
  * 
  * @this Array<any>
- * @param {number} min
- * @param {number} max
+ * @param {Parameters<typeof random>} params
  */
-export function lot(min, max) {
+export function lot(...params) {
 // Array.prototype.$method("lot", function(min, max) {
-  min = min || 0;
-  max = max || this.length-1;
-  return this[randint(min, max) ];
+  return random.apply(this, params);
 }
 
 /**
@@ -614,18 +608,18 @@ export function average() {
  * 
  * このメソッドによって自分自身は変化しません。
  * 
+ * @example
+ * const arr = [1, 2, 3];
+ * arr.each(function(elm) {
+ *   console.log(elm * elm);
+ * });
+ * // => 1
+ * //    4
+ * //    9
  * 
  * ### Reference
  * - [Array.prototype.forEach() - JavaScript | MDN](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach)
  *
- * ### Example
- *     arr = [1, 2, 3];
- *     arr.each( function(elm) {
- *       console.log(elm * elm)
- *     });
- *     // => 1
- *     //    4
- *     //    9
  * @chainable
  * @this Array<any>
  * @param {Parameters<typeof Array.prototype.forEach>[0]} callback
