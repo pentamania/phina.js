@@ -2,10 +2,6 @@
   "include": [
     "src/**/*"
   ],
-  "exclude": [
-    "src/box2d",
-    "src/graphics/canvasrecorder.js",
-  ],
   "compilerOptions": {
     "target": "es2015", // 想定動作環境：とりあえず最新とする
 
