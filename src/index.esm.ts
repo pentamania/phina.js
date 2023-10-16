@@ -19,8 +19,6 @@ export * from "./util/grid";
 export * from "./util/tween";
 export * from "./util/querystring";
 export * from "./util/color";
-export * from "./util/changedispatcher";
-export * from "./util/ajax";
 export * from "./util/objectpool";
 
 export * from "./geom/vector2";
